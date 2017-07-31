@@ -13,11 +13,11 @@ Imports:
     dplyr (>= 0.7.0),
     tidyr,
     stringr,
-    purrr,
-    lubridate,
-    tibble,
     ggplot2,
-    isoreader
+    isoreader,
+    shiny,
+    shinydashboard,
+    shinyjs
 Suggests:
     knitr,
     rmarkdown
