@@ -6,7 +6,7 @@
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
-#' @import shinyjs
+#' @importFrom shinyjs useShinyjs
 #' @importFrom stats setNames
 #' @importFrom utils packageVersion
 #' @importFrom methods is
