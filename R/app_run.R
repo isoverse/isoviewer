@@ -43,21 +43,21 @@ run <- function(data_dir = ".", ..., launch = TRUE) {
 install <- function(install_dir, ...) {
   if(!dir.exists(install_dir)) stop("directory does not exist: ", install_dir, call. = FALSE)
 
-  dots <- list(...)
-  if (!"data_dir" %in% names(dots)) stop("must provide data_dir parameter", call. = FALSE)
-
   # generate function call
+  dots <- list(...)
   parameters <-
     lapply(dots, function(i)
       if(is.numeric(i)) str_c("=", i)
-      else if (is.character(i)) str_c("=\"", i, "\"")
+      else if (is.character(i)) str_c(" = \"", i, "\"")
       else stop("don't know how to process ", class(i))
     ) %>%
     { str_c(names(.), unlist(.)) } %>%
-    str_c(collapse = ", ")
+    str_c(collapse = ", ") %>%
+    { if(length(.) > 0) str_c(., ", ") else "" } %>%
+    str_c("launch = FALSE")
 
   # call
-  sprintf("library(isoviewer)\nrun(%s, launch = FALSE)", parameters) %>%
+  sprintf("library(isoviewer)\nrun(%s)", parameters) %>%
     cat(file = file.path(install_dir, "app.R"))
   message("Info: installed isoviewer app into directory '", install_dir, "'")
 }
