@@ -17,7 +17,10 @@ Imports:
     isoreader,
     shiny,
     shinydashboard,
-    shinyjs
+    shinyjs,
+    shinyBS,
+    shinycssloaders,
+    UNF
 Suggests:
     knitr,
     rmarkdown

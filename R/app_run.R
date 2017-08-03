@@ -21,6 +21,9 @@ run <- function(data_dir = ".", ..., launch = TRUE) {
           #"\nINFO: History folder: ", file.path(data_dir, INSTRUMENT_HISTORY_FOLDER)
   )
 
+  # make sure shinyBS on attach runs
+  shinyBS:::.onAttach()
+
   # generate app
   app <- shinyApp(
     ui = app_ui(),

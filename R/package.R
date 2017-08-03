@@ -2,14 +2,19 @@
 "_PACKAGE"
 
 #' @import isoreader
+#' @import dplyr
 #' @import stringr
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
-#' @importFrom shinyjs useShinyjs
+#' @importFrom shinyjs enable disable hidden hide show addClass removeClass useShinyjs
+#' @importFrom shinyBS bsTooltip bsModal
+#' @importFrom shinycssloaders withSpinner
 #' @importFrom stats setNames
 #' @importFrom utils packageVersion
+#' @importFrom R.utils isAbsolutePath filePath
 #' @importFrom methods is
+#' @importFrom UNF unf
 NULL
 
 # quiets concerns of R CMD check about . that appears in pipelines
@@ -23,3 +28,6 @@ release_questions <- function() {
     "Is it passing win-builder?"
   )
 }
+
+# TODO:
+# - allow logging to file in addition to console

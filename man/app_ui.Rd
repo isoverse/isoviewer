@@ -4,7 +4,7 @@
 \alias{app_ui}
 \title{Isoviewer App UI}
 \usage{
-app_ui(sidebar_width = 150, default_menu = "welcome")
+app_ui(sidebar_width = 170, default_menu = "di_load")
 }
 \arguments{
 \item{sidebar_width}{the width of the sidebar}

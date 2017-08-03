@@ -36,6 +36,12 @@ app_server <- function(data_dir) {
 
     #server_component()
 
+    di_files_select <- callModule(
+      fileSelectorServer, "files", pattern = "\\.did$",
+      root = data_dir, root_name = "Data", multiple = TRUE, start_sort_desc = TRUE,
+      enable_recent = TRUE, start_recent = FALSE, start_n_recent = 20)
+
+
   })
 
 }

@@ -3,116 +3,72 @@
 #' @description Generates the user interface part of the isoviewer app
 #' @param sidebar_width the width of the sidebar
 #' @param deault_menu default selected menu
-app_ui <- function(sidebar_width = 150, default_menu = "welcome") {
+app_ui <- function(sidebar_width = 170, default_menu = "di_load") {
 
+  color <- "red" # see ?dashboardPage for options
+
+  # set spinner color
+  options(spinner.color = color)
   dashboardPage(
 
     # SKIN ----
-    skin = "red",
+    skin = color,
 
     # HEADER ----
-    dashboardHeader(title = "Isoviewer"),
+    dashboardHeader(title = "Isoviewer", titleWidth = sidebar_width),
 
     # SIDEBAR ----
     sidebarMenu(
 
-      menuItem("Welcome", tabName = "welcome", icon = icon("info"), selected = default_menu == "welcome"),
-      menuItem("Instrument", tabName = "instrument", icon = icon("cog"), selected = default_menu == "instrument"),
-      menuItem("Tuning", tabName = "tuning", icon = icon("music"), selected = default_menu == "tuning"),
-      menuItem("Standards", tabName = "standards", icon = icon("check"), selected = default_menu == "standards"),
-      menuItem("Data", tabName = "data", icon = icon("pie-chart"), selected = default_menu == "data"),
-      menuItem("Scans", tabName = "scans", icon = icon("bar-chart"), selected = default_menu == "scans"),
-      menuItem("Settings", tabName = "settings", icon = icon("wrench"), selected = default_menu == "settings"),
+      "welcome" %>% { menuItem("Welcome", tabName = ., icon = icon("info"), selected = default_menu == .) },
+
+      menuItem(
+        "Dual Inlet", icon = icon("signal"), startExpanded = TRUE,
+        "di_load" %>% { menuSubItem("Load", tabName = ., icon = icon("folder-open"), selected = default_menu == .) },
+        "di_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = default_menu == .) },
+        "di_export" %>% { menuSubItem("Export", tabName = ., icon = icon("mail-forward"), selected = default_menu == .) }
+      ),
+
+      menuItem(
+        "Continuous Flow", icon = icon("area-chart"), startExpanded = TRUE,
+        "cf_load" %>% { menuSubItem("Load", tabName = ., icon = icon("folder-open"), selected = default_menu == .) },
+        "cf_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = default_menu == .) },
+        "cf_export" %>% { menuSubItem("Export", tabName = ., icon = icon("mail-forward"), selected = default_menu == .) }
+      ),
+
+     "scans" %>% { menuItem("Scans", tabName = ., icon = icon("line-chart"), selected = default_menu == .) },
 
       # STYLESHEET ----
       tags$head(
-        tags$style(HTML(".shiny-output-error-validation { color: red; font-size: 16px; }")),
-        tags$style(HTML(".shiny-output-error-info { color: black; font-size: 20px; padding: 20px; }")),
-        #tags$style(HTML(".sidebar {height:2000px}")), # FIXME: make this dynamically long enough
-        tags$style(HTML(".box-body {padding-top: 15px; padding-bottom: 0px;}"))
+        tags$style(
+          type="text/css",
+          str_c(
+            # error validation output
+            ".shiny-output-error-validation { color: red; font-size: 16px; }",
+            ".shiny-output-error-info { color: black; font-size: 20px; padding: 20px; }",
+            # adjust sidebar height
+            # ".sidebar {height:2000px}\n", # FIXME: make this dynamically long enough
+            # body top padding
+            ".box-body {padding-top: 5px; padding-bottom: 0px;}",
+            # pads on shiny items
+            ".form-group, .selectize-control {margin-bottom: 0px;}",
+            sep="\n")
+        )
       ),
 
 
       # USE SHINY JS ---
-      shinyjs::useShinyjs()
+      useShinyjs()
 
-    ) %>% dashboardSidebar(width = sidebar_width),
+    ) %>%
+    dashboardSidebar(width = sidebar_width),
 
     # BODY ----
     tabItems(
-
-      # WELCOME ----
-      tabItem(tabName = "welcome",
-              h1("Welcome to Isoviewer"),
-              checkboxGroupInput("checkGroup",
-                                 label = h3("Checkbox group"),
-                                 choices = list("Choice 1" = 1,
-                                                "Choice 2" = 2, "Choice 3" = 3),
-                                 selected = 1),
-              textOutput("text1")
-
-      ),
-
-      # INSTRUMENT ----
-      tabItem(
-        tabName = "instrument",
-        tabsetPanel(
-          id = "instrument_tabs", selected = "new",
-          tabPanel(
-            "New", value = "new",
-
-            br(),
-            box(title = NULL, collapsible = FALSE, solidHeader = FALSE, width = 12,
-                column(4, div(align = "left", textInput("user", NULL, placeholder = "Please enter your name"))),
-                column(8, div(align = "right", h4(actionLink("instrument_new_clear", "Clear all", icon = icon("rotate-left")))))
-            )
-
-          ),
-
-          # PARAMETER HISTORY ----
-          ui_component(),
-
-
-          tabPanel("Full scan History", value = "full_scans",
-                   h1("temp")),
-          tabPanel("Peak shape History", value = "peak_shapes",
-                   h1("temp"))
-        )
-      )
-
+      app_ui_welcome("welcome"),
+      app_ui_di_load("di_load")
     ) %>% dashboardBody()
 
   )
 
-}
-
-
-
-
-# user interface function
-
-ui_component <- function() {
-  tabPanel(
-    "Parameter History", value = "params",
-    # Parameter selection box
-    br(),
-    box(
-      title = "Parameter selection", collapsible = TRUE,
-      status = "success", solidHeader = TRUE, width = 12
-    ),
-
-    # Plots box
-    box(
-      title = "Parameter history",
-      status = "success", solidHeader = TRUE, width = 12
-      #plotDownloadLink(id = "history_plot_download"),
-      # tabsetPanel(
-      #   id = "history_plot_tabs", selected = "i",
-      #   tabPanel("Interactive Plot", value = "i",
-      #            plotlyOutput("history_iplot", height="500px", width = "100%")),
-      #   tabPanel("Static Plot", value = "gg",
-      #            plotOutput("history_plot", height="500px", width = "100%"))
-      # )
-    )
-  )
 }
