@@ -1,47 +1,4 @@
-#' File Selector UI
-#'
-#' @param id the file selector id
-#' @param size the height of the selection box (number of rows)
-fileSelectorUI <- function(id, size = 12) {
-  ns <- NS(id)
-  tagList(
-    uiOutput(ns("tab_path")),
-    uiOutput(ns("content_list")) %>% withSpinner(type = 5, proxy.height = str_c(size * 20.2, "px")),
-    hidden(numericInput(ns("size"), NULL, value = size)), # size information for server
-    div(align = "right",
-        inline(uiOutput(ns("n_recent_wrap"))),
-        spaces(3),
-        inline(h4("Sorting: ")),
-        actionButton(ns("sort_desc"), NULL, icon = icon("sort-alpha-desc")),
-        actionButton(ns("sort_asc"), NULL, icon = icon("sort-alpha-asc"))
-    )
-  )
-}
-
-#' modalFileSelector
-#' @inheritParams fileSelectorUI
-#' @param open_label the label for the link to open the modal dialog
-#' @param dialog_label the label of the modal dialog, same as the open_label by default
-#' @param close_label the label for the button to close the modal dialog
-#' @param dialog_size the size of the dialog, default is small
-modalFileSelectorUI <- function(id, size,
-                                dialog_size = "large", open_label = "Select file", dialog_label = open_label, close_label = "Select",
-                                link_wrapper = identity) {
-  ns <- NS(id)
-  modal_dlg <- bsModal(ns("modal_dialog"), dialog_label, ns("modal_link"), size = dialog_size,
-                       column(width = 12, fileSelectorUI(id, size)) %>% fluidRow())
-
-  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$children[[1]] <- close_label
-  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$attribs$id <- ns("close")
-  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$attribs$class <- "btn btn-default action-button"
-
-  dialog_tags <-
-    tagList(
-      link_wrapper(actionLink(ns("modal_link"), open_label, icon = icon("file"))),
-      modal_dlg
-    )
-  return(dialog_tags)
-}
+# File/folder selection module ====
 
 #' file selector server side
 #'
@@ -54,6 +11,7 @@ modalFileSelectorUI <- function(id, size,
 #' @param start_n_recent how many recent items to show at the beginning
 #' @param exclude_recent regex what to explude in the recent list (by default nothing is excluded)
 #' @param start_sort_desc whether to start sorting in descending order
+#' @family file selection module functions
 fileSelectorServer <- function(
   input, output, session,
   root, root_name = basename(root), pattern = NULL, multiple = TRUE,
@@ -176,9 +134,9 @@ fileSelectorServer <- function(
       } else {
         # content of selected folder (files and subfolders) in right sorting order
         folders <- list.dirs(values$current_directory, rec=FALSE, full.names = T) %>%
-          { if(values$sort_desc) rev(.) else . } # sort desc or asc
+        { if(values$sort_desc) rev(.) else . } # sort desc or asc
         files <- setdiff(list.files(values$current_directory, full.names = T, pattern = pattern, ignore.case = TRUE), folders)%>%
-          { if(values$sort_desc) rev(.) else . } # sort desc or asc
+        { if(values$sort_desc) rev(.) else . } # sort desc or asc
         content_hash <- generate_content_hash(c(folders, files))
         new_content <- setNames(c(folders, files), c(sprintf("[ %s ]", basename(folders)), basename(files)))
       }
@@ -199,7 +157,7 @@ fileSelectorServer <- function(
     if(enable_recent) {
       inlineInput(numericInput, ns("n_recent"), h4("# Recent: "), value = start_n_recent,
                   min = 1, step = 1, width = "60px",
-                  tooltip = "How many recent files to display")
+                  tooltip = "Enter how many recent files to display")
     } else NULL
   })
 
@@ -247,6 +205,57 @@ fileSelectorServer <- function(
     double_click_file = reactive(values$last_double_click_file)
   )
 }
+
+
+#' File Selector UI
+#'
+#' @param id the file selector id
+#' @param size the height of the selection box (number of rows)
+#' @family file selection module functions
+fileSelectorUI <- function(id, size = 12) {
+  ns <- NS(id)
+  tagList(
+    rightInline(
+        inline(uiOutput(ns("n_recent_wrap"))),
+        spaces(3),
+        inline(h4("Sorting: ")),
+        tooltipInput(actionButton, ns("sort_asc"), NULL, icon = icon("sort-alpha-asc"),
+                     tooltip = "Sort in ascending order"),
+        tooltipInput(actionButton, ns("sort_desc"), NULL, icon = icon("sort-alpha-desc"),
+                     tooltip = "Sort in desending order")
+    ),
+    uiOutput(ns("tab_path")),
+    uiOutput(ns("content_list")) %>% withSpinner(type = 5, proxy.height = str_c(size * 20.2, "px")),
+    hidden(numericInput(ns("size"), NULL, value = size)) # size information for server
+  )
+}
+
+#' modalFileSelector
+#' @inheritParams fileSelectorUI
+#' @param open_label the label for the link to open the modal dialog
+#' @param dialog_label the label of the modal dialog, same as the open_label by default
+#' @param close_label the label for the button to close the modal dialog
+#' @param dialog_size the size of the dialog, default is small
+#' @family file selection module functions
+modalFileSelectorUI <- function(id, size,
+                                dialog_size = "large", open_label = "Select file", dialog_label = open_label, close_label = "Select",
+                                link_wrapper = identity) {
+  ns <- NS(id)
+  modal_dlg <- bsModal(ns("modal_dialog"), dialog_label, ns("modal_link"), size = dialog_size,
+                       column(width = 12, fileSelectorUI(id, size)) %>% fluidRow())
+
+  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$children[[1]] <- close_label
+  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$attribs$id <- ns("close")
+  modal_dlg$children[[1]]$children[[1]]$children[[3]]$children[[1]]$attribs$class <- "btn btn-default action-button"
+
+  dialog_tags <-
+    tagList(
+      link_wrapper(actionLink(ns("modal_link"), open_label, icon = icon("file"))),
+      modal_dlg
+    )
+  return(dialog_tags)
+}
+
 
 # helper functions ====
 
