@@ -7,7 +7,7 @@
 data = 'inst/extdata'
 port = 5000
 
-guard 'process', name: 'Shiny', command: ['R', '-e', "devtools::load_all('.'); isoviewer:::turn_debug_on(); isoviewer::run(data_dir = '#{data}', port = #{port})"] do
+guard 'process', name: 'Shiny', command: ['R', '-e', "devtools::load_all('.'); isoviewer:::turn_debug_on(); isoviewer::run(data_dir = '#{data}', allow_data_upload = TRUE, port = #{port})"] do
   watch(%r{NAMESPACE})
   watch(%r{R/.+\.R$})
 end

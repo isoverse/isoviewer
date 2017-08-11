@@ -1,20 +1,54 @@
 # Isofiles load module ====
 
 #' Isofiles Load Server
-#' @inheritParams app_server
 #' @inheritParams fileSelectorServer
+#' @param data_dir the directory for local data files
+#' @param extensions which extensions to allow
+#' @param allow_data_upload whether to allow uploading of data
+#' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
-  input, output, session, data_dir, pattern = NULL) {
+  input, output, session, data_dir, extensions,
+  allow_data_upload = FALSE, store_data = TRUE) {
 
   # namespace
   ns <- session$ns
 
+  # reactive values
+  values <- reactiveValues(
+    load_list = list()
+  )
+
   # file selector
+  root_name <- "Data"
+  pattern <- str_c("\\.(", str_c(sprintf("(%s)", extensions), collapse = "|"), ")$")
   files_select <- callModule(
     fileSelectorServer, "files", pattern = pattern,
-    root = data_dir, root_name = "Data", multiple = TRUE, start_sort_desc = TRUE,
+    root = data_dir, root_name = root_name, multiple = TRUE, start_sort_desc = TRUE,
     enable_recent = TRUE, start_recent = FALSE, start_n_recent = 20)
+
+
+
+  # upload yes/no
+  if (allow_data_upload) {
+    show_folder <- if(store_data) reactive({ file.path(root_name, files_select$path_relative()) }) else NULL
+    upload_files <- callModule(dataUploadServer, "upload", folder = files_select$path, show_folder = show_folder)
+  }
+
+  # upload UI
+  output$upload_wrap <- renderUI({
+    store_data_msg <-
+      if (store_data) {
+        "Upload data to the following folder. These data will be visible to everybody else with access to this server."
+      } else {
+        "Add data files from your local hard drive to the load list. Uploaded files will only be stored temporarily and are not available to anybody else."
+      }
+    if (allow_data_upload) {
+      dataUploadUI(ns("upload"),
+                   dialog_text = store_data_msg,
+                   accept = c("application/octet-stream", str_c(".", extensions), "application/zip", ".zip"))
+    } else NULL
+  })
 
   # return reactive functions
   list(
@@ -33,17 +67,17 @@ isofilesLoadUI <- function(id, label = NULL) {
   label <- if(!is.null(label)) str_c(label, " ")
   tagList(
     # file/folder selection
-    default_box(title = str_c(label, "File and folder selection"), width = 12,
+    default_box(title = str_c(label, "File and Folder Selection"), width = 12,
                 fileSelectorUI(ns("files"), size = 12),
                 footer = div(
                   tooltipInput(actionButton, ns("add_files"), "Add to load list", icon = icon("plus"),
                                tooltip = "Add selected files and folders to the load list"),
-                  dataUploadUI(ns("upload"))
+                  inline(uiOutput(ns("upload_wrap")))
                 )
     ),
 
     # load list
-    default_box(title = str_c(lable, "Load list"), width = 6,
+    default_box(title = str_c(label, "Load List"), width = 6,
                 selectInput(ns("load_files_list"), label = NULL, multiple = TRUE, size = 8, selectize = FALSE,
                             choices = c(),
                             selected = c())
@@ -59,7 +93,7 @@ isofilesLoadUI <- function(id, label = NULL) {
     ),
 
     # code previes
-    default_box(title = "Code preview", width = 6,
+    default_box(title = "Code Preview", width = 6,
                 div(class = "pull-right", downloadLink(ns("code_download"), span(icon("download"), " Code"))),
 
                 radioButtons("code_load_source", label = NULL, inline = TRUE,

@@ -1,8 +1,8 @@
 #' Isoviewer App Server
 #'
 #' @description Generates the server part of the isoviewer app
-#' @param data_dir the directory for local data files
-app_server <- function(data_dir) {
+#' @inheritParams isofilesLoadServer
+app_server <- function(data_dir, allow_data_upload, store_data) {
   shinyServer(function(input, output, session) {
 
     # SETTINGS ----
@@ -29,18 +29,15 @@ app_server <- function(data_dir) {
       scan_files_data = NULL
     )
 
-    message("MY SERVER")
-    output$text1 <- renderText({
-      str_c("You have selected this", str_c(input$checkGroup, collapse = ", "), " ", data_dir)
-    })
+    # DUAL INLET SERVER LOGIC
+    di_load <- callModule(isofilesLoadServer, "di_load",
+                          data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
+                          extensions = isoreader:::get_supported_di_files()$extension)
 
-    #server_component()
-
-    di_files_select <- callModule(
-      fileSelectorServer, "files", pattern = "\\.did$",
-      root = data_dir, root_name = "Data", multiple = TRUE, start_sort_desc = TRUE,
-      enable_recent = TRUE, start_recent = FALSE, start_n_recent = 20)
-
+    # CONTINUOUS FLOW SERVER LOGIC
+    cf_load <- callModule(isofilesLoadServer, "cf_load",
+                          data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
+                          extensions = isoreader:::get_supported_cf_files()$extension)
 
   })
 

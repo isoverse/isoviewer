@@ -14,3 +14,7 @@ fileSelectorUI(id, size = 12)
 \description{
 File Selector UI
 }
+\seealso{
+Other file selection module functions: \code{\link{fileSelectorServer}},
+  \code{\link{modalFileSelectorUI}}
+}

@@ -9,10 +9,7 @@ app_ui_welcome <- function(id) {
   )
 }
 
-app_ui_di_load <- function(id) {
-  tabItem(
-    tabName = id,
-    h1("Load Dual Inlet Data"),
-    fileSelectorUI("files", size = 12)
-  )
+# dual inlet load screen
+app_ui_di_load <- function(id, allow_data_upload) {
+
 }

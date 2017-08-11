@@ -4,9 +4,11 @@
 \alias{app_ui}
 \title{Isoviewer App UI}
 \usage{
-app_ui(sidebar_width = 170, default_menu = "di_load")
+app_ui(allow_data_upload, sidebar_width = 170, start_menu = "di_load")
 }
 \arguments{
+\item{allow_data_upload}{whether to allow uploading of data}
+
 \item{sidebar_width}{the width of the sidebar}
 
 \item{deault_menu}{default selected menu}

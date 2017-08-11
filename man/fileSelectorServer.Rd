@@ -31,3 +31,7 @@ fileSelectorServer(input, output, session, root, root_name = basename(root),
 \description{
 file selector server side
 }
+\seealso{
+Other file selection module functions: \code{\link{fileSelectorUI}},
+  \code{\link{modalFileSelectorUI}}
+}

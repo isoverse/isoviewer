@@ -24,3 +24,7 @@ modalFileSelectorUI(id, size, dialog_size = "large",
 \description{
 modalFileSelector
 }
+\seealso{
+Other file selection module functions: \code{\link{fileSelectorServer}},
+  \code{\link{fileSelectorUI}}
+}
