@@ -127,10 +127,11 @@ fileSelectorServer <- function(
         # find recent files (recursive from root)
         recent_files <- find_recent_files(root, pattern, exclude_recent) %>%
           filter(row_number() <= values$n_recent) %>%  # get the right number of recent
-          mutate(rel_dir = sub("^[\\/]?", "", sub(root, "", folder, fixed = TRUE))) %>% # replace root in folder
+          mutate(rel_dir = sub("^[\\/]?", "", sub(root, "", folder, fixed = TRUE)), # replace root in folder
+                 label = ifelse(nchar(rel_dir) > 0, sprintf("%s (%s)", time_file_label, rel_dir), time_file_label)) %>%
           { if (values$sort_desc) arrange(., desc(mtime)) else arrange(., mtime) } # sort
         content_hash <- generate_content_hash(recent_files$mtime)
-        new_content <- setNames(recent_files$filepath, with(recent_files, sprintf("%s (%s)", time_file_label, rel_dir)))
+        new_content <- setNames(recent_files$filepath, recent_files$label)
       } else {
         # content of selected folder (files and subfolders) in right sorting order
         folders <- list.dirs(values$current_directory, rec=FALSE, full.names = T) %>%
