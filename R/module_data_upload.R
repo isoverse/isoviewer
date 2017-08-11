@@ -3,12 +3,20 @@
 #' Data Upload Server
 #' @param folder should be a reactive function that returns the upload folder
 #' @param show_folder reactive function that shows the view folder
+#' @param extract_zip whether to extract zip files
+#' @param pattern pattern for file types to allow (only these type of files are kept from unpacked .zip and direct file upload)
 #' @family data upload module functions
-dataUploadServer <- function(input, output, session, folder, show_folder = NULL) {
+dataUploadServer <- function(input, output, session, folder, show_folder = NULL, extract_zip = TRUE, pattern = NULL) {
+
+  # namespace
+  ns <- session$ns
 
   # reactive values
   values <- reactiveValues(
-    upload_counter = 0
+    upload_counter = 0L,
+    upload_batch = 0L,
+    last_upload_path = c(), # absolute upload paths
+    last_upload_path_relative = c() # paths relative to the folder()
   )
 
   # update the shown folder
@@ -21,20 +29,51 @@ dataUploadServer <- function(input, output, session, folder, show_folder = NULL)
     # upload (expand zip)
     req(input$upload_file)
     isolate({
-      upload <- input$upload_file
-      ext <- stringr::str_match(basename(upload$name), "\\.(\\w+$)")[1,2]
       target <- folder()
-      if (!is.na(ext) && ext == "zip") upload$datapath %>% unzip(exdir = target)
-      else upload$datapath %>% file.copy(to = file.path(target, upload$name))
-
-      # info and update trigger
-      values$upload_counter <- values$upload_counter + 1
-      module_message(session$ns, "info",
-                     sprintf("Upload #%d complete: %s", values$upload_counter,
-                             file.path(target, upload$name)))
+      values$last_upload_path <- c()
+      values$last_upload_path_relative <- c()
+      # upload all selected files
+      mapply(
+        input$upload_file$name, input$upload_file$datapath,
+        FUN = function(name, datapath) {
+          # info and uplaod counter
+          values$upload_counter <- values$upload_counter + 1L
+          module_message(ns, "info", sprintf("Processing upload #%d: %s", values$upload_counter, name))
+          ext <- str_match(basename(name), "\\.(\\w+$)")[1,2]
+          if (!is.na(ext) && ext == "zip") {
+            if (extract_zip) {
+              unzip_files <- unzip(datapath, list = TRUE)$Name
+              if (!is.null(pattern)) unzip_files <- str_subset(unzip_files, pattern)
+              module_message(ns, "debug", sprintf("unpacking .zip with %d suitable files", length(unzip_files)))
+              if (length(unzip_files) > 0) {
+                unzip(datapath, exdir = target, files = unzip_files)
+                values$last_upload_path <- c(values$last_upload_path, file.path(target, unzip_files))
+                values$last_upload_path_relative <- c(values$last_upload_path_relative, unzip_files)
+              }
+            } else
+              module_message(ns, "debug", "uploading zip files is not allow")
+          } else {
+            if (grepl(pattern, name)) {
+              module_message(ns, "debug", "keeping suitable file")
+              file.copy(datapath, to = file.path(target, name))
+              values$last_upload_path <- c(values$last_upload_path, file.path(target, name))
+              values$last_upload_path_relative <- c(values$last_upload_path_relative, name)
+            } else {
+              module_message(ns, "debug", "not keeping unsuitable file")
+            }
+          }
+      })
+      # update batch information
+      values$upload_batch <- values$upload_batch + 1L
     })
   })
 
+  # return reative values with the upload
+  list(
+    upload_batch = reactive({ values$upload_batch }),
+    last_upload_path = reactive({ values$last_upload_path }),
+    last_upload_path_relative = reactive({ values$last_upload_path_relative })
+  )
 }
 
 

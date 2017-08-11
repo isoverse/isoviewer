@@ -12,6 +12,7 @@ Imports:
     methods,
     dplyr (>= 0.7.0),
     tidyr,
+    tibble,
     stringr,
     ggplot2,
     isoreader,

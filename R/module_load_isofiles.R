@@ -16,10 +16,11 @@ isofilesLoadServer <- function(
 
   # reactive values
   values <- reactiveValues(
-    load_list = list()
+    load_list = data_frame(path = character(), path_rel = character(), label = character()),
+    load_list_selected = c()
   )
 
-  # file selector
+  # file selector module
   root_name <- "Data"
   pattern <- str_c("\\.(", str_c(sprintf("(%s)", extensions), collapse = "|"), ")$")
   files_select <- callModule(
@@ -27,13 +28,79 @@ isofilesLoadServer <- function(
     root = data_dir, root_name = root_name, multiple = TRUE, start_sort_desc = TRUE,
     enable_recent = TRUE, start_recent = FALSE, start_n_recent = 20)
 
-
-
-  # upload yes/no
+  # upload module
+  temp_dir <- tempdir()
+  upload_folder <- if (store_data) files_select$path else reactive({ tem_dir })
   if (allow_data_upload) {
     show_folder <- if(store_data) reactive({ file.path(root_name, files_select$path_relative()) }) else NULL
-    upload_files <- callModule(dataUploadServer, "upload", folder = files_select$path, show_folder = show_folder)
+    upload_files <- callModule(dataUploadServer, "upload", folder = upload_folder, show_folder = show_folder,
+                               pattern = pattern)
+  } else {
+    upload_files <- list(last_upload = reactive({ c() }))
   }
+
+  # addition to load list
+  add_to_load_list <- function(path, path_relative) {
+    already_listed <- path %in% values$load_list$path
+    if (length(path[!already_listed]) > 0) {
+      module_message(ns, "debug", "adding files to load list: ", str_c(path_relative[!already_listed], collapse = ", "))
+      new <- data_frame(
+        path = path[!already_listed],
+        path_rel = path_relative[!already_listed])
+      values$load_list <- bind_rows(values$load_list, new)
+    }
+    # update directory information
+    values$load_list <- mutate(
+      values$load_list,
+      isdir = dir.exists(path),
+      n_files = ifelse(
+        isdir,
+        sapply(path, function(d) {
+          length(list.files(d, pattern = pattern, recursive = TRUE, include.dirs = FALSE))
+        }), 1L),
+      label = ifelse(isdir, sprintf("[%s] (%d files)", path_rel, n_files), path_rel)
+    )
+  }
+  observe({
+    req(input$add_files)
+    isolate({ add_to_load_list(path = files_select$selection(), path_relative = files_select$selection_relative()) })
+  })
+  observe({
+    req(upload_files$upload_batch())
+    isolate({
+      uploaded_files_rel <- upload_files$last_upload_path_relative()
+      if (length(uploaded_files_rel) > 0) {
+        uploaded_folder <- if (store_data) files_select$path_relative() else "temp"
+        if(nchar(uploaded_folder) > 0) uploaded_files_rel <- file.path(uploaded_folder, uploaded_files_rel)
+        add_to_load_list(path = upload_files$last_upload_path(), path_relative = uploaded_files_rel)
+      }
+    })
+  })
+
+  # remove from load list
+  remove_from_load_list <- function(remove_path) {
+    values$load_list <- filter(values$load_list, !path %in% remove_path)
+  }
+  observe({
+    req(input$remove_files)
+    isolate({ remove_from_load_list(input$load_files_list) })
+  })
+
+  # update load list
+  observe({
+    values$load_list # trigger whenever there is a change to the load list values
+    isolate({
+      options <- select(values$load_list, label, path) %>% arrange(label) %>% deframe()
+      values$load_list_selected <- options[options %in% values$load_list_selected]
+      updateSelectInput(session, "load_files_list", choices = options, selected = values$load_list_selected)
+    })
+  })
+
+  # keep track of load list selection (to keep it the same after reload)
+  observe({
+    req(input$load_files_list)
+    isolate({ values$load_list_selected <- input$load_files_list })
+  })
 
   # upload UI
   output$upload_wrap <- renderUI({
@@ -43,6 +110,9 @@ isofilesLoadServer <- function(
       } else {
         "Add data files from your local hard drive to the load list. Uploaded files will only be stored temporarily and are not available to anybody else."
       }
+    store_data_msg <- str_c(store_data_msg,
+                            " Uploaded zip archives (.zip) are automatically extracted.",
+                            " Only appropriate file types (", str_c(extensions, collapse = ", "), ") are used. All files are added to the load list.")
     if (allow_data_upload) {
       dataUploadUI(ns("upload"),
                    dialog_text = store_data_msg,
@@ -80,16 +150,9 @@ isofilesLoadUI <- function(id, label = NULL) {
     default_box(title = str_c(label, "Load List"), width = 6,
                 selectInput(ns("load_files_list"), label = NULL, multiple = TRUE, size = 8, selectize = FALSE,
                             choices = c(),
-                            selected = c())
-                # h4(
-                #   actionLink("data_files_remove", "Remove", icon = icon("remove")), " | ",
-                #   actionLink("data_files_export", "Export Excel", icon = icon("cloud-download")), " |",
-                #   bsTooltip("data_files_export", "Export the selected files to excel"),
-                #   downloadLink("data_files_download", class = NULL, icon("file-zip-o"), "Download"), " |",
-                #   bsTooltip("data_files_download", "Download data files as a zip archieve"),
-                #   actionLink("data_files_load", "Load", icon = icon("bar-chart")),
-                #   bsTooltip("data_files_load", "Load the selected files together")
-                # )
+                            selected = c()),
+                tooltipInput(actionButton, ns("remove_files"), "Remove", icon = icon("remove"),
+                             tooltip = "Remove selected files and folders from the load list")
     ),
 
     # code previes

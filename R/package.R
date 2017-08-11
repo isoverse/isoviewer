@@ -3,6 +3,7 @@
 
 #' @import isoreader
 #' @import dplyr
+#' @importFrom tibble enframe deframe
 #' @import stringr
 #' @import ggplot2
 #' @import shiny
