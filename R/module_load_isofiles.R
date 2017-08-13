@@ -4,25 +4,45 @@
 #' @inheritParams fileSelectorServer
 #' @param data_dir the directory for local data files
 #' @param extensions which extensions to allow
+#' @param load_func the loading function (as character!)
+#' @param load_params the loading checkboxes (parameter names and labels)
 #' @param allow_data_upload whether to allow uploading of data
 #' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
+#' @param collections_dir the director for collection files
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
   input, output, session, data_dir, extensions,
-  allow_data_upload = FALSE, store_data = TRUE) {
+  load_func, load_params = c(),
+  allow_data_upload = FALSE, store_data = TRUE,
+  collections_dir = file.path(data_dir, "collections")) {
 
   # namespace
   ns <- session$ns
 
+  # make sure collections dir exists
+  if (!dir.exists(collections_dir)) dir.create(collections_dir)
+
+  # file patterns
+  rda_pattern <- str_c("\\.(", str_c(sprintf("(%s)", str_subset(extensions, "rda")), collapse = "|"), ")$")
+  pattern <- str_c("\\.(", str_c(sprintf("(%s)", extensions), collapse = "|"), ")$")
+
   # reactive values
   values <- reactiveValues(
     load_list = data_frame(path = character(), path_rel = character(), label = character()),
-    load_list_selected = c()
+    load_list_selected = c(),
+    loaded_isofiles = NULL,
+    collections =
+      list.files(collections_dir, pattern = rda_pattern) %>%
+      { setNames(rep(list(NA), length(.)), .) }
   )
+
+  # update collections
+  observe({
+    updateSelectInput(session, "collections", choices = names(values$collections))
+  })
 
   # file selector module
   root_name <- "Data"
-  pattern <- str_c("\\.(", str_c(sprintf("(%s)", extensions), collapse = "|"), ")$")
   files_select <- callModule(
     fileSelectorServer, "files", pattern = pattern,
     root = data_dir, root_name = root_name, multiple = TRUE, start_sort_desc = TRUE,
@@ -38,6 +58,8 @@ isofilesLoadServer <- function(
   } else {
     upload_files <- list(last_upload = reactive({ c() }))
   }
+
+  # Managed load list =====
 
   # addition to load list
   add_to_load_list <- function(path, path_relative) {
@@ -102,6 +124,73 @@ isofilesLoadServer <- function(
     isolate({ values$load_list_selected <- input$load_files_list })
   })
 
+  # Load list ====
+
+  observe({
+    req(input$load_files)
+    isolate({
+      collection <- file.path(collections_dir, input$collection_name)
+      print(collection)
+      module_message(ns, "info", "loading file list and storing in collection file ", collection)
+
+      # retrieve paths
+      files <- isoreader:::retrieve_file_paths(paths = values$load_list$path, extensions = extensions)
+      n_files <- length(files)
+      args <- c(
+        as.list(setNames(names(load_params) %in% input$selected_params,
+                         names(load_params))),
+        list(cache = FALSE)) # never cache?
+
+      # read files
+      withProgress(message = 'Loading file list:', value = 0, {
+        isofiles <- lapply(files, function(file) {
+          incProgress(1/n_files, detail = sprintf("reading '%s'...", basename(file)))
+          isofile <- do.call(load_func, args = c(list(paths=file), args))
+          if(isoreader:::n_problems(isofile) > 0) {
+            setProgress(detail = sprintf("encountered PROBLEMS with '%s'...", basename(file)))
+            Sys.sleep(1)
+            # sk note: if at all possible, maybe change color if issues with file
+          }
+          return(isofile)
+        })
+
+        # finalize and save
+        values$loaded_isofiles <- as_isofile_list(isofiles)
+        setProgress(value = 1, detail = sprintf("finalizing and saving to %s",
+                                                file.path(basename(collections_dir), input$collection_name)))
+        export_to_rda(values$loaded_isofiles, filename = input$collection_name, folder = collections_dir)
+        Sys.sleep(1)
+      })
+    })
+  })
+
+  # enable load files button only if at least one file is selected
+  observe({
+    if (nrow(values$load_list) > 0)
+      enable("load_files")
+    else
+      disable("load_files")
+  })
+
+  # Code update ====
+
+  observe({
+    # trigger code update for any of these changing
+    values$load_list
+    module_message(ns, "debug", "updating code block")
+    code <- fill_code_template(
+      id = "read_files",
+      func = load_func, # FIXME, needs to be provided as character?
+      paths = values$load_list$path_rel,
+      params = setNames(names(load_params) %in% input$selected_params, names(load_params)),
+      save_file = input$collection_name,
+      save_folder = basename(collections_dir))
+    # NOTE: the ns wrap here is not typical shiny syntax and might get changed in the future
+    updateAceEditor(session, ns("load_code"), value = code)
+  })
+
+  # UI rendering =====
+
   # upload UI
   output$upload_wrap <- renderUI({
     store_data_msg <-
@@ -118,6 +207,16 @@ isofilesLoadServer <- function(
                    dialog_text = store_data_msg,
                    accept = c("application/octet-stream", str_c(".", extensions), "application/zip", ".zip"))
     } else NULL
+  })
+
+  # loading parameters UI
+
+  output$parameters <- renderUI({
+    tagList(
+      checkboxGroupInput(ns("selected_params"), NULL,
+                         choices = setNames(names(load_params), load_params),
+                         selected = names(load_params))
+    )
   })
 
   # return reactive functions
@@ -148,22 +247,31 @@ isofilesLoadUI <- function(id, label = NULL) {
 
     # load list
     default_box(title = str_c(label, "Load List"), width = 6,
+                inlineInput(textInput, ns("collection_name"), label = "Name:",
+                            value = format(Sys.time(), format = "%Y-%m-%d data collection"), width = "250px"),
                 selectInput(ns("load_files_list"), label = NULL, multiple = TRUE, size = 8, selectize = FALSE,
                             choices = c(),
                             selected = c()),
-                tooltipInput(actionButton, ns("remove_files"), "Remove", icon = icon("remove"),
-                             tooltip = "Remove selected files and folders from the load list")
+                footer = div(
+                  tooltipInput(actionButton, ns("remove_files"), "Remove", icon = icon("remove"),
+                               tooltip = "Remove selected files and folders from the load list"),
+                  tooltipInput(actionButton, ns("load_files"), "Load list", icon = icon("cog"),
+                               tooltip = "Load the files and folders in the load list and store as named collection"),
+                  br(),
+                  h4("Read Parameters:", id = ns("read_params_header")),
+                  bsTooltip(ns("read_params_header"), "Which information to read from the data files."),
+                  uiOutput(ns("parameters"))
+                ),
+                selectInput(ns("collections"), "Collections", choices = c())
     ),
 
     # code previes
     default_box(title = "Code Preview", width = 6,
-                div(class = "pull-right", downloadLink(ns("code_download"), span(icon("download"), " Code"))),
-
-                radioButtons("code_load_source", label = NULL, inline = TRUE,
-                             c("load from raw data files (dxf)"="dxf", "load from data export (xlsx)"="xlsx")),
-                aceEditor(ns("data_code"), "library(text); \n #blabal \n x <- 1:5", mode = "r",
+                # FIXME: implement code download link
+                #div(class = "pull-right", downloadLink(ns("code_download"), span(icon("download"), " Code"))),
+                aceEditor(ns("load_code"), "", mode = "r",
                           theme="ambiance", readOnly = TRUE,
-                          height = "200px")
+                          height = "400px")
     )
   )
 }

@@ -29,15 +29,25 @@ app_server <- function(data_dir, allow_data_upload, store_data) {
       scan_files_data = NULL
     )
 
+    # dual inlet and contuous flow parameters
+    params <- c(
+      read_raw_data = "Raw Data",
+      read_file_info = "File Info",
+      read_method_info = "Method Info",
+      read_vendor_data_table = "Vendor Data Table"
+    )
+
     # DUAL INLET SERVER LOGIC
     di_load <- callModule(isofilesLoadServer, "di_load",
                           data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
-                          extensions = isoreader:::get_supported_di_files()$extension)
+                          extensions = isoreader:::get_supported_di_files()$extension,
+                          load_func = "read_dual_inlet", load_params = params)
 
     # CONTINUOUS FLOW SERVER LOGIC
     cf_load <- callModule(isofilesLoadServer, "cf_load",
                           data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
-                          extensions = isoreader:::get_supported_cf_files()$extension)
+                          extensions = isoreader:::get_supported_cf_files()$extension,
+                          load_func = "read_continuous_flow", load_params = params)
 
   })
 

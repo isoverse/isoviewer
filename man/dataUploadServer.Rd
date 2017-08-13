@@ -4,12 +4,17 @@
 \alias{dataUploadServer}
 \title{Data Upload Server}
 \usage{
-dataUploadServer(input, output, session, folder, show_folder = NULL)
+dataUploadServer(input, output, session, folder, show_folder = NULL,
+  extract_zip = TRUE, pattern = NULL)
 }
 \arguments{
 \item{folder}{should be a reactive function that returns the upload folder}
 
 \item{show_folder}{reactive function that shows the view folder}
+
+\item{extract_zip}{whether to extract zip files}
+
+\item{pattern}{pattern for file types to allow (only these type of files are kept from unpacked .zip and direct file upload)}
 }
 \description{
 Data Upload Server

@@ -8,8 +8,8 @@
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
-#' @importFrom shinyjs enable disable hidden hide show addClass removeClass useShinyjs
-#' @importFrom shinyAce aceEditor
+#' @importFrom shinyjs enable disable hidden hide show toggle addClass removeClass useShinyjs
+#' @importFrom shinyAce aceEditor updateAceEditor
 #' @importFrom shinyBS bsTooltip bsModal
 #' @importFrom shinycssloaders withSpinner
 #' @importFrom stats setNames
