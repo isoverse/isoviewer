@@ -87,6 +87,10 @@ isofilesLoadServer <- function(
     req(input$add_files)
     isolate({ add_to_load_list(path = files_select$selection(), path_relative = files_select$selection_relative()) })
   })
+  observe({ # enable/disable add to load list button depending on selectoin
+    if (length(files_select$selection()) > 0) enable("add_files")
+    else disable("add_files")
+  })
   observe({
     req(upload_files$upload_batch())
     isolate({
@@ -106,6 +110,10 @@ isofilesLoadServer <- function(
   observe({
     req(input$remove_files)
     isolate({ remove_from_load_list(input$load_files_list) })
+  })
+  observe({ # enable/disable remove files button depending on selection
+    if (length(input$load_files_list) > 0) enable("remove_files")
+    else disable("remove_files")
   })
 
   # update load list
@@ -164,12 +172,10 @@ isofilesLoadServer <- function(
     })
   })
 
-  # enable load files button only if at least one file is selected
+  # enable load files and remove button only if at least one file is selected
   observe({
-    if (nrow(values$load_list) > 0)
-      enable("load_files")
-    else
-      disable("load_files")
+    if (nrow(values$load_list) > 0) enable("load_files")
+    else disable("load_files")
   })
 
   # Code update ====
