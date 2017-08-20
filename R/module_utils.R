@@ -21,6 +21,15 @@ tooltipInput <- function(input, inputId, ..., tooltip = NULL) {
   )
 }
 
+# convenience function for adding output with tooltip with default parameters
+tooltipOutput <- function(input, outputId, ..., tooltip = NULL) {
+  tagList(
+    do.call(input, args = c(list(outputId = outputId), list(...))),
+    if (!is.null(tooltip)) bsTooltip(outputId, tooltip)
+  )
+}
+
+
 # convenience function for inline inputs
 inlineInput <- function(input, inputId, label, ..., tooltip = NULL) {
   tagList(

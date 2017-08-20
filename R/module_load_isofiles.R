@@ -180,20 +180,27 @@ isofilesLoadServer <- function(
 
   # Code update ====
 
-  observe({
-    # trigger code update for any of these changing
-    values$load_list
-    module_message(ns, "debug", "updating code block")
-    code <- fill_code_template(
-      id = "read_files",
-      func = load_func, # FIXME, needs to be provided as character?
-      paths = values$load_list$path_rel,
-      params = setNames(names(load_params) %in% input$selected_params, names(load_params)),
-      save_file = input$collection_name,
-      save_folder = basename(collections_dir))
-    # NOTE: the ns wrap here is not typical shiny syntax and might get changed in the future
-    updateAceEditor(session, ns("load_code"), value = code)
+  code_update <- reactive({
+    # trigger code update for any of the below variables changing
+    req(values$load_list)
+    req(input$selected_params)
+    req(input$collection_name)
+
+    function(rmarkdown = TRUE, header = rmarkdown) {
+      module_message(ns, "debug", "generating updated code")
+      generate_load_list_code(
+        read_paths = values$load_list$path_rel,
+        read_func = load_func,
+        read_params = setNames(names(load_params) %in% input$selected_params, names(load_params)),
+        save_file = input$collection_name,
+        save_folder = basename(collections_dir),
+        rmarkdown = rmarkdown, header = header
+      )
+    }
   })
+  code_preview <- callModule(
+    codePreviewServer, "code_preview", code_func_reac = code_update,
+    download_file = reactive({ str_c("LOAD ", input$collection_name) }))
 
   # UI rendering =====
 
@@ -240,6 +247,9 @@ isofilesLoadServer <- function(
 isofilesLoadUI <- function(id, label = NULL) {
   ns <- NS(id)
   label <- if(!is.null(label)) str_c(label, " ")
+
+
+
   tagList(
     # file/folder selection
     default_box(title = str_c(label, "File and Folder Selection"), width = 12,
@@ -271,14 +281,8 @@ isofilesLoadUI <- function(id, label = NULL) {
                 selectInput(ns("collections"), "Collections", choices = c())
     ),
 
-    # code previes
-    default_box(title = "Code Preview", width = 6,
-                # FIXME: implement code download link
-                #div(class = "pull-right", downloadLink(ns("code_download"), span(icon("download"), " Code"))),
-                aceEditor(ns("load_code"), "", mode = "r",
-                          theme="ambiance", readOnly = TRUE,
-                          height = "400px")
-    )
+    # code preview
+    codePreviewUI(ns("code_preview"), width = 6, height = "400px")
   )
 }
 
