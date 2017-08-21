@@ -197,9 +197,8 @@ isofilesLoadServer <- function(
         removeModal() # done reading
 
         # problems
-        enable("show_problems")
         if (nrow(problems(values$loaded_isofiles)) > 0) {
-          showModal(problem_modal())
+          load_problems$show_problems()
         }
       })
     })
@@ -213,33 +212,11 @@ isofilesLoadServer <- function(
 
   # Problems ====
 
-  problem_modal <- reactive({
-    req(values$loaded_collection)
-    module_message(ns, "debug", "showing problems modal dialog")
-    mail_address <- "sebastian.kopf@colorado.edu"
-    mail_subject <- "Problematic Isofile"
-    mail_body <- "I have encountered problems reading the attached IRMS data file(s)."
-    modalDialog(
-      title = "Problems",
-      sprintf("The following problems were encountered during the loading of collection '%s'.", basename(values$loaded_collection)),
-      "If any problems are unexpected (i.e. the files should have valid data), please ",
-      strong(a(href = sprintf("mailto:%s?subject=%s&body=%s",
-                              mail_address, str_replace_all(mail_subject, " ", "%20"), str_replace_all(mail_body, " ", "%20")),
-               "send us an email")),
-      " and attach at least one of the problematic file(s). Your help is much appreciated.",
-      tableOutput(ns('problems')),
-      footer = NULL, fade = FALSE, easyClose = TRUE, size = "l"
-    )
-  })
+  load_problems <- callModule(
+    problemsServer, "load_problems",
+    collection = reactive(values$loaded_isofiles), collection_path = reactive(values$loaded_collection)
+  )
 
-  observeEvent(input$show_problems, showModal(problem_modal()))
-
-  output$problems <- renderTable({
-    req(values$loaded_isofiles)
-    probs <- problems(values$loaded_isofiles)
-    if (nrow(probs) == 0) data_frame(Problem = "no problems")
-    else select(probs, File = file_id, Type = type, Function = func, Problem = details)
-  }, striped = TRUE, spacing = 'xs', width = '100%', align = 'l')
 
   # Code update ====
 
@@ -339,10 +316,7 @@ isofilesLoadUI <- function(id, label = NULL) {
                   tooltipInput(actionButton, ns("load_files"), "Load list", icon = icon("cog"),
                                tooltip = "Load the files and folders in the load list and store as named collection"),
                   spaces(1),
-                  disabled(
-                    tooltipInput(actionButton, ns("show_problems"), "Problems", icon = icon("ambulance"),
-                               tooltip = "Show problems encountered during the previous 'Load list' operation.")
-                  ),
+                  problemsButton(ns("load_problems"), tooltip = "Show problems encountered during the previous \"Load list\" operation."),
                   br(),
                   h4("Read Parameters:", id = ns("read_params_header")),
                   bsTooltip(ns("read_params_header"), "Which information to read from the data files."),
