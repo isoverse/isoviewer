@@ -17,12 +17,31 @@ run <- function(data_dir = ".", allow_data_upload = FALSE, store_data = TRUE, ..
           if (setting("debug")) "\nINFO: Debug mode is turned ON" else "",
           "\nINFO: App directory: ", getwd(),
           "\nINFO: Data directory: ", data_dir
-          #"\nINFO: Settings file: ", file.path(data_dir, SETTINGS_FILE),
-          #"\nINFO: History folder: ", file.path(data_dir, INSTRUMENT_HISTORY_FOLDER)
   )
 
   # make sure shinyBS on attach runs
   shinyBS:::.onAttach()
+
+  # isoviewer information
+  cache_dir <- isoreader:::setting("cache_dir")
+  isoviewer_info <- list(
+    isoreader_version = packageVersion("isoreader")
+  )
+  isoviewer_info_file <- file.path(cache_dir, "isoviewer.rds")
+  if (!file.exists(cache_dir)) dir.create(cache_dir)
+
+  # isoreader version
+  message("INFO: Isoreader version: ", packageVersion("isoreader"))
+  if (file.exists(isoviewer_info_file)) {
+    old_isoviewer_info <- readRDS(isoviewer_info_file)
+    if (isoviewer_info$isoreader_version != old_isoviewer_info$isoreader_version) {
+      message("WARNING: Isoreader version has changed from previous run (",
+              as.character(old_isoviewer_info$isoreader_version), ") - clearing out cache...")
+      cleanup_isoreader_cache()
+    }
+  }
+  message("INFO: Storing isoviewer information: ", isoviewer_info_file)
+  saveRDS(isoviewer_info, file = isoviewer_info_file)
 
   # generate app
   app <- shinyApp(
