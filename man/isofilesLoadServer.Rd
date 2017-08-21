@@ -5,8 +5,7 @@
 \title{Isofiles Load Server}
 \usage{
 isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
-  load_params = c(), allow_data_upload = FALSE, store_data = TRUE,
-  collections_dir = file.path(data_dir, "collections"))
+  load_params = c(), allow_data_upload = FALSE, store_data = TRUE)
 }
 \arguments{
 \item{data_dir}{the directory for local data files}
@@ -20,8 +19,6 @@ isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
 \item{allow_data_upload}{whether to allow uploading of data}
 
 \item{store_data}{whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)}
-
-\item{collections_dir}{the director for collection files}
 }
 \description{
 Isofiles Load Server

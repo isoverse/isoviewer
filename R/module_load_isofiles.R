@@ -8,16 +8,16 @@
 #' @param load_params the loading checkboxes (parameter names and labels)
 #' @param allow_data_upload whether to allow uploading of data
 #' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
-#' @param collections_dir the director for collection files
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
   input, output, session, data_dir, extensions,
   load_func, load_params = c(),
-  allow_data_upload = FALSE, store_data = TRUE,
-  collections_dir = file.path(data_dir, "collections")) {
+  allow_data_upload = FALSE, store_data = TRUE) {
 
-  # namespace
+  # namespace, and top level params
   ns <- session$ns
+  collections_dir <- file.path(data_dir, "collections")
+  root <- if (!isAbsolutePath(data_dir)) filePath(getwd(), data_dir) else  data_dir
 
   # make sure collections dir exists
   if (!dir.exists(collections_dir)) dir.create(collections_dir)
@@ -28,7 +28,17 @@ isofilesLoadServer <- function(
 
   # reactive values
   values <- reactiveValues(
-    load_list = data_frame(path = character(), path_rel = character(), label = character()),
+    load_list =
+
+      structure(list(path = c("/Users/sk/Dropbox/Tools/software/R/isoviewer/inst/extdata/ref gas",
+                              "/Users/sk/Dropbox/Tools/software/R/isoviewer/inst/extdata/4420__AF-NCF-TS3-16-15_7_294.did"
+      ), path_rel = c("ref gas", "4420__AF-NCF-TS3-16-15_7_294.did"
+      ), label = c("[ref gas] (3 files)", "4420__AF-NCF-TS3-16-15_7_294.did"
+      ), isdir = c(TRUE, FALSE), n_files = c(3L, 1L)), .Names = c("path",
+                                                                  "path_rel", "label", "isdir", "n_files"), class = c("tbl_df",
+                                                                                                                      "tbl", "data.frame"), row.names = c(NA, -2L)),
+
+      #data_frame(path = character(), path_rel = character(), label = character()),
     load_list_selected = c(),
     loaded_isofiles = NULL,
     collections =
@@ -59,7 +69,7 @@ isofilesLoadServer <- function(
     upload_files <- list(last_upload = reactive({ c() }))
   }
 
-  # Managed load list =====
+  # Manage load list =====
 
   # addition to load list
   add_to_load_list <- function(path, path_relative) {
@@ -138,16 +148,27 @@ isofilesLoadServer <- function(
     req(input$load_files)
     isolate({
       collection <- file.path(collections_dir, input$collection_name)
-      print(collection)
       module_message(ns, "info", "loading file list and storing in collection file ", collection)
 
       # retrieve paths
-      files <- isoreader:::retrieve_file_paths(paths = values$load_list$path, extensions = extensions)
+      files <- NULL
+      tryCatch({
+        files <- isoreader:::retrieve_file_paths(paths = values$load_list$path, extensions = extensions)
+      }, error = function(e) {
+        error_msg <- str_replace_all(e$message, fixed(root), root_name) # make sure root directory replaced
+        alert(str_c("This list of files/folders cannot be loaded because ", error_msg))
+      })
       n_files <- length(files)
+      if (n_files == 0) {
+        module_message(ns, "debug", "no files to load, aborting load")
+        return()
+      }
+
+      # arguments for read files
       args <- c(
         as.list(setNames(names(load_params) %in% input$selected_params,
                          names(load_params))),
-        list(cache = FALSE)) # never cache?
+        list(cache = TRUE))
 
       # read files
       withProgress(message = 'Loading file list:', value = 0, {
@@ -166,8 +187,8 @@ isofilesLoadServer <- function(
         values$loaded_isofiles <- as_isofile_list(isofiles)
         setProgress(value = 1, detail = sprintf("finalizing and saving to %s",
                                                 file.path(basename(collections_dir), input$collection_name)))
-        export_to_rda(values$loaded_isofiles, filename = input$collection_name, folder = collections_dir)
-        Sys.sleep(1)
+        export_to_rda(values$loaded_isofiles, filepath = file.path(collections_dir, input$collection_name))
+        Sys.sleep(1) # wait a moment to let finalizing message sink in
       })
     })
   })
