@@ -41,6 +41,7 @@ isofilesLoadServer <- function(
       #data_frame(path = character(), path_rel = character(), label = character()),
     load_list_selected = c(),
     loaded_isofiles = NULL,
+    loaded_collection = NULL,
     collections =
       list.files(collections_dir, pattern = rda_pattern) %>%
       { setNames(rep(list(NA), length(.)), .) }
@@ -192,7 +193,14 @@ isofilesLoadServer <- function(
                     message = sprintf("Saving collection %s", input$collection_name))
         export_to_rda(values$loaded_isofiles, filepath = file.path(collections_dir, input$collection_name),
                       quiet = TRUE)
-        removeModal() # done
+        values$loaded_collection <- file.path(collections_dir, input$collection_name)
+        removeModal() # done reading
+
+        # problems
+        enable("show_problems")
+        if (nrow(problems(values$loaded_isofiles)) > 0) {
+          showModal(problem_modal())
+        }
       })
     })
   })
@@ -205,12 +213,33 @@ isofilesLoadServer <- function(
 
   # Problems ====
 
-  observeEvent(input$test, {
-    showModal(modalDialog(
-      title = "Important message",
-      "This is an important message!"
-    ))
+  problem_modal <- reactive({
+    req(values$loaded_collection)
+    module_message(ns, "debug", "showing problems modal dialog")
+    mail_address <- "sebastian.kopf@colorado.edu"
+    mail_subject <- "Problematic Isofile"
+    mail_body <- "I have encountered problems reading the attached IRMS data file(s)."
+    modalDialog(
+      title = "Problems",
+      sprintf("The following problems were encountered during the loading of collection '%s'.", basename(values$loaded_collection)),
+      "If any problems are unexpected (i.e. the files should have valid data), please ",
+      strong(a(href = sprintf("mailto:%s?subject=%s&body=%s",
+                              mail_address, str_replace_all(mail_subject, " ", "%20"), str_replace_all(mail_body, " ", "%20")),
+               "send us an email")),
+      " and attach at least one of the problematic file(s). Your help is much appreciated.",
+      tableOutput(ns('problems')),
+      footer = NULL, fade = FALSE, easyClose = TRUE, size = "l"
+    )
   })
+
+  observeEvent(input$show_problems, showModal(problem_modal()))
+
+  output$problems <- renderTable({
+    req(values$loaded_isofiles)
+    probs <- problems(values$loaded_isofiles)
+    if (nrow(probs) == 0) data_frame(Problem = "no problems")
+    else select(probs, File = file_id, Type = type, Function = func, Problem = details)
+  }, striped = TRUE, spacing = 'xs', width = '100%', align = 'l')
 
   # Code update ====
 
@@ -291,6 +320,7 @@ isofilesLoadUI <- function(id, label = NULL) {
                 footer = div(
                   tooltipInput(actionButton, ns("add_files"), "Add to load list", icon = icon("plus"),
                                tooltip = "Add selected files and folders to the load list"),
+                  spaces(1),
                   inline(uiOutput(ns("upload_wrap")))
                 )
     ),
@@ -305,9 +335,14 @@ isofilesLoadUI <- function(id, label = NULL) {
                 footer = div(
                   tooltipInput(actionButton, ns("remove_files"), "Remove", icon = icon("remove"),
                                tooltip = "Remove selected files and folders from the load list"),
+                  spaces(1),
                   tooltipInput(actionButton, ns("load_files"), "Load list", icon = icon("cog"),
                                tooltip = "Load the files and folders in the load list and store as named collection"),
-                  tooltipInput(actionButton, ns("test"), "Test"),
+                  spaces(1),
+                  disabled(
+                    tooltipInput(actionButton, ns("show_problems"), "Problems", icon = icon("ambulance"),
+                               tooltip = "Show problems encountered during the previous 'Load list' operation.")
+                  ),
                   br(),
                   h4("Read Parameters:", id = ns("read_params_header")),
                   bsTooltip(ns("read_params_header"), "Which information to read from the data files."),

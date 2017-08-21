@@ -8,7 +8,7 @@
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
-#' @importFrom shinyjs enable disable hidden hide show toggle addClass removeClass useShinyjs extendShinyjs alert
+#' @importFrom shinyjs enable disable disabled hidden hide show toggle addClass removeClass useShinyjs extendShinyjs alert
 #' @importFrom shinyAce aceEditor updateAceEditor
 #' @importFrom shinyBS bsTooltip bsModal
 #' @importFrom shinycssloaders withSpinner
