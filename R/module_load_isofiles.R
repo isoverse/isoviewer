@@ -121,10 +121,6 @@ isofilesLoadServer <- function(
     req(input$remove_files)
     isolate({ remove_from_load_list(input$load_files_list) })
   })
-  observe({ # enable/disable remove files button depending on selection
-    if (length(input$load_files_list) > 0) enable("remove_files")
-    else disable("remove_files")
-  })
 
   # update load list
   observe({
@@ -155,8 +151,14 @@ isofilesLoadServer <- function(
       tryCatch({
         files <- isoreader:::retrieve_file_paths(paths = values$load_list$path, extensions = extensions)
       }, error = function(e) {
-        error_msg <- str_replace_all(e$message, fixed(root), root_name) # make sure root directory replaced
-        alert(str_c("This list of files/folders cannot be loaded because ", error_msg))
+        error_msg <- e$message %>%
+          # make sure root directory replaced
+          str_replace_all(fixed(root), root_name) %>%
+          # list files in an HTML list
+          str_replace("\n", "<ul><li>") %>% str_replace_all("\n", "</li><li>") %>% str_c("</li></ul>")
+        showModal(modalDialog(title = "Error",
+                              HTML(str_c("This list of files/folders cannot be loaded because ", error_msg)),
+                              footer = NULL, fade = FALSE, easyClose = TRUE))
       })
       n_files <- length(files)
       if (n_files == 0) {
@@ -168,16 +170,17 @@ isofilesLoadServer <- function(
       args <- c(
         as.list(setNames(names(load_params) %in% input$selected_params,
                          names(load_params))),
-        list(cache = TRUE))
+        list(cache = TRUE, quiet = TRUE))
 
       # read files
-      withProgress(message = 'Loading file list:', value = 0, {
+      showModal(modalDialog("Reading data files...", footer = NULL, fade = FALSE))
+      withProgress(message = 'Loading file list', value = 0, {
         isofiles <- lapply(files, function(file) {
-          incProgress(1/n_files, detail = sprintf("reading '%s'...", basename(file)))
+          incProgress(1/n_files, message = sprintf("Reading '%s'...", basename(file)), detail = "")
           isofile <- do.call(load_func, args = c(list(paths=file), args))
           if(isoreader:::n_problems(isofile) > 0) {
-            setProgress(detail = sprintf("encountered PROBLEMS with '%s'...", basename(file)))
-            Sys.sleep(1)
+            setProgress(detail = sprintf("WARNING: encountered problems with this file", basename(file)))
+            Sys.sleep(0.5)
             # sk note: if at all possible, maybe change color if issues with file
           }
           return(isofile)
@@ -185,10 +188,11 @@ isofilesLoadServer <- function(
 
         # finalize and save
         values$loaded_isofiles <- as_isofile_list(isofiles)
-        setProgress(value = 1, detail = sprintf("finalizing and saving to %s",
-                                                file.path(basename(collections_dir), input$collection_name)))
-        export_to_rda(values$loaded_isofiles, filepath = file.path(collections_dir, input$collection_name))
-        Sys.sleep(1) # wait a moment to let finalizing message sink in
+        setProgress(value = 1, detail = "",
+                    message = sprintf("Saving collection %s", input$collection_name))
+        export_to_rda(values$loaded_isofiles, filepath = file.path(collections_dir, input$collection_name),
+                      quiet = TRUE)
+        removeModal() # done
       })
     })
   })
@@ -197,6 +201,15 @@ isofilesLoadServer <- function(
   observe({
     if (nrow(values$load_list) > 0) enable("load_files")
     else disable("load_files")
+  })
+
+  # Problems ====
+
+  observeEvent(input$test, {
+    showModal(modalDialog(
+      title = "Important message",
+      "This is an important message!"
+    ))
   })
 
   # Code update ====
@@ -294,6 +307,7 @@ isofilesLoadUI <- function(id, label = NULL) {
                                tooltip = "Remove selected files and folders from the load list"),
                   tooltipInput(actionButton, ns("load_files"), "Load list", icon = icon("cog"),
                                tooltip = "Load the files and folders in the load list and store as named collection"),
+                  tooltipInput(actionButton, ns("test"), "Test"),
                   br(),
                   h4("Read Parameters:", id = ns("read_params_header")),
                   bsTooltip(ns("read_params_header"), "Which information to read from the data files."),
