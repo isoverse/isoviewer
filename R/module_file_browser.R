@@ -67,7 +67,7 @@ fileSelectorServer <- function(
         module_message(ns, "info", "Moving to RECENT files")
         values$recent_active <- TRUE
       } else {
-        module_message(ns, "info", "Moving to directory ", sub(root, "root/", tabdir))
+        module_message(ns, "info", "Moving to directory ", sub(root, root_name, tabdir))
         values$current_directory <- tabdir
         values$recent_active <- FALSE
       }
@@ -84,7 +84,7 @@ fileSelectorServer <- function(
        item != values$current_directory) { # make sure not the same as current directory
       # check if directory or file
       if (dir.exists(item)) {
-        module_message(ns, "info", "Moving to sub directory ", sub(root, "root", item))
+        module_message(ns, "info", "Moving to sub directory ", sub(root, root_name, item))
         values$content_hash <- NULL # always reset content
         values$current_directory <- item
         values$recent_active <- FALSE
@@ -99,7 +99,7 @@ fileSelectorServer <- function(
   # on selected paths (to avoid anyone getting access to unintended parts of the file system)
   observe({
     req(values$current_directory)
-    module_message(ns, "debug", "safety checking folder ", sub(root, "root", values$current_directory))
+    module_message(ns, "debug", "safety checking folder ", sub(root, root_name, values$current_directory))
     stopifnot(file.exists(values$current_directory)) # must exists
     stopifnot(isAbsolutePath(values$current_directory)) # must be absolute path
     stopifnot(grepl(root, values$current_directory, fixed = TRUE)) # must be subdirectory of root
