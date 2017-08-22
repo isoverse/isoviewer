@@ -20,7 +20,13 @@ generate_load_list_code <- function(read_paths, read_func, read_params, save_fil
     ),
     chunk(
       code_only = !rmarkdown,
-      pre_chunk = "## Save Collection",
+      pre_chunk = "#### Check for problems",
+      code_block("show_problems"),
+      options = list("problems")
+    ),
+    chunk(
+      code_only = !rmarkdown,
+      pre_chunk = "## Save Dataset",
       code_block("export_rda", save_file = save_file, save_folder = save_folder),
       options = list("save")
     )
@@ -59,8 +65,9 @@ code_block <- function(id, ...) {
 
 # load library ----
 load_library =
-"# load library
-library(isoreader)",
+"# load library and adjust settings
+library(isoreader)
+turn_caching_on()",
 
 # read files ----
 file_paths =
@@ -75,9 +82,14 @@ isofiles <- ${func}(
   paths = data_paths,
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
+# look at problems ----
+show_problems =
+"# show problems
+problems(isofiles) %>% knitr::kable()",
+
 # export rda ----
 export_rda =
-"# save data collection
+"# save dataset
 export_to_rda(
   isofiles,
   filepath = file.path(

@@ -38,10 +38,20 @@ app_server <- function(data_dir, allow_data_upload, store_data) {
     )
 
     # DUAL INLET SERVER LOGIC
-    di_load <- callModule(isofilesLoadServer, "di_load",
-                          data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
-                          extensions = isoreader:::get_supported_di_files()$extension,
-                          load_func = "read_dual_inlet", load_params = params)
+    di_load <- callModule(
+      isofilesLoadServer, "di_load",
+      data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
+      extensions = isoreader:::get_supported_di_files()$extension,
+      load_func = "read_dual_inlet", load_params = params)
+
+    di_datasets <- callModule(
+      datasetsServer, "di_datasets",
+      data_dir = data_dir, extensions = isoreader:::get_supported_di_files()$extension,
+      load_func = "read_dual_inlet",
+      saved_datasets = di_load$saved_datasets)
+
+    # automatically load newly created datasets in the viewer
+    observeEvent(di_load$loaded_dataset(), di_datasets$load_dataset(di_load$loaded_dataset()))
 
     # CONTINUOUS FLOW SERVER LOGIC
     cf_load <- callModule(isofilesLoadServer, "cf_load",

@@ -274,9 +274,4 @@ find_recent_files <- function(folder, pattern, exclude = NULL) {
       time_file_label = str_c(format(mtime, format = "%b %d, %Hh %Mm: "), basename(file)))
 }
 
-# generate content hash
-generate_content_hash <- function(x) {
-  if (is.null(x) || length(x) == 0) return (unf("<EMPTY>")$unflong)
-  else return(unf(x)$unflong)
-}
 
