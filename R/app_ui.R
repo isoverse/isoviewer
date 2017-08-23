@@ -47,7 +47,7 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_view
           type="text/css",
           HTML(str_c(
             # error validation output
-            ".shiny-output-error-validation { color: red; font-size: 16px; }",
+            #".shiny-output-error-validation { color: red; font-size: 16px; }", # do we want this read?
             ".shiny-output-error-info { color: black; font-size: 20px; padding: 20px; }",
             # adjust sidebar height
             #".sidebar {height: 2000px}", # FIXME: make this dynamically long enough
