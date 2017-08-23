@@ -22,6 +22,8 @@ Imports:
     shinyBS,
     shinyAce,
     shinycssloaders,
+    rhandsontable,
+    DT,
     UNF
 Suggests:
     knitr,

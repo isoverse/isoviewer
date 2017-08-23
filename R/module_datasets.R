@@ -17,7 +17,11 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     datasets_hash = NULL, # to check for newly added datasets
     loaded_dataset = NULL, # currently loaded dataset (to make sure datasets are reloaded when file changes)
     loaded_dataset_hash = NULL, # loaded dataset hash
-    loaded_isofiles = NULL # loaded isofiles
+    loaded_isofiles = NULL, # loaded isofiles
+    omit_problematic = c(), # which files to omit
+    omit_isofiles = NULL, # used isofiles (after omit)
+    selected_isofiles = c(), # which files to select
+    update_selected = 0 # trigger selection update (circumventing circular triggers with user selection)
   )
 
   # available datasets ====
@@ -62,7 +66,6 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   # update datasets ====
   observe({
     req(values$datasets)
-
     if (nrow(values$datasets) == 0) {
       # no datasets
       updateSelectInput(session, "datasets", choices = c("No datasets available yet" = ""))
@@ -106,25 +109,148 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       values$loaded_dataset_hash <- loaded_dataset_hash
       if (dataset != input$datasets)
         updateSelectInput(session, "datasets", selected = dataset)
-      values$loaded_isofiles <- do.call(load_func, args = list(paths = dataset, quiet = TRUE))
+      values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE)))
+      omit_problematic()
     }
   }
 
+  # problems ===
+  omit_problematic <- function() {
+    if (length(values$omit_problematic) > 0 && !is.null(values$loaded_isofiles)) {
+      values$omit_isofiles <- omit_files_with_problems(values$loaded_isofiles, type = values$omit_problematic, quiet = TRUE)
+      if (length(values$omit_isofiles) == 0)
+        values$omit_isofiles <- NULL
+    } else {
+      values$omit_isofiles <- values$loaded_isofiles
+    }
+  }
+
+  # changing omit
+  observe({
+    new_omit <- input$omit
+    isolate({
+      if ( all(c("warning", "error") %in% input$omit) )
+        values$omit_problematic <- "both"
+      else
+        values$omit_problematic <- input$omit
+      omit_problematic()
+    })
+  })
+
+  # problems button
+  dataset_problems <- callModule(
+    problemsServer, "dataset_problems",
+    dataset = reactive(values$loaded_isofiles), dataset_path = reactive(values$loaded_dataset)
+  )
+
+  # button visibility
+  observeEvent(values$loaded_isofiles, toggle("dataset_actions", condition = !is.null(values$loaded_isofiles)))
+
+
+  # isofiles list ====
+  output$selected_isofiles = renderRHandsontable({
+
+    req(values$omit_isofiles)
+    req(length(values$omit_isofiles) > 0)
+    values$update_selected # if this changes
+    module_message(ns, "debug", "loading isofiles table")
+
+    # isolate hereafter to generate rhandsontable
+    isolate({
+      problems_summary(values$omit_isofiles) %>%
+        mutate(
+          include = file_id %in% values$selected_isofiles,
+          warning = as.character(warning),
+          error = as.character(error)
+        ) %>%
+        select(include, file_id, error, warning) %>%
+        rhandsontable(colHeaders = c(" ", "File", "Errors", "Warnings"), digits = 0) %>%
+        hot_table(readOnly = TRUE, highlightRow = TRUE, columnSorting = FALSE, contextMenu = FALSE) %>%
+        hot_col(col = " ", halign = "htCenter", readOnly = FALSE) %>%
+        hot_col(col = c("Errors", "Warnings"), halign = "htCenter")
+    })
+  })
+
+  # isofiles selection =======
+
+  observeEvent(input$selected_isofiles, {
+    values$selected_isofiles <-
+      input$selected_isofiles %>%
+      hot_to_r() %>%
+      filter(include) %>%
+      { .$file_id }
+  })
+
+  observeEvent(input$select_all, {
+    values$selected_isofiles <- names(values$omit_isofiles)
+    values$update_selected <- values$update_selected + 1
+  })
+
+  observeEvent(input$deselect_all, {
+    values$selected_isofiles <- c()
+    values$update_selected <- values$update_selected + 1
+  })
+
+  # button visibility
+  observe({
+    toggle("select_all", condition = !is.null(values$omit_isofiles))
+    toggle("deselect_all", condition = !is.null(values$omit_isofiles))
+  })
+
+
+  # dataset download ====
+  output$dataset_download <- downloadHandler(
+    filename = function() { basename(values$loaded_dataset) },
+    content = function(filename) {
+      req(values$loaded_dataset)
+      module_message(ns, "info", "downloading dataset ", basename(values$loaded_dataset))
+      file.copy(from = values$loaded_dataset, to = filename)
+    }
+  )
+
   # return functions
   list(
-    load_dataset = load_dataset
+    load_dataset = load_dataset, # loading function
+    get_loaded_dataset = reactive({ values$loaded_dataset }),
+    get_isofiles = reactive({
+      if (length(values$selected_isofiles) > 0) values$loaded_isofiles[values$selected_isofiles]
+      else NULL
+    })
   )
 }
 
 
 #' Dataset UI
 #' @param id the module id
+#' @param width box width
+#' @param file_list_height height of the file list
 #' @family datasets module functions
-datasetsUI <- function(id) {
+datasetsUI <- function(id, width = 12, file_list_height = "200px") {
   ns <- NS(id)
-  default_box(title = "Select Dataset", width = 12,
-    selectInput(ns("datasets"), label = NULL, choices = c("Loading..." = ""))
-    #%>% withSpinner(type = 7, proxy.height = "20px") # is not well hidden behind dataset
+  tagList(
+    default_box(
+      title = "Select Dataset", width = width,
+      selectInput(ns("datasets"), label = NULL, choices = c("Loading..." = "")),
+      #%>% withSpinner(type = 7, proxy.height = "20px") # is not well hidden behind dataset
+      rHandsontableOutput(ns("selected_isofiles"), width = "100%", height = file_list_height) %>%
+        withSpinner(type = 7, proxy.height = "200px"),
+      footer =
+        div(style = "height: 50px;",
+            div(id = ns("dataset_actions"),
+                tooltipOutput(downloadButton, ns("dataset_download"), "Download", icon = icon("download"),
+                              tooltip = "Download entire dataset"),
+                spaces(1),
+                problemsButton(ns("dataset_problems"), tooltip = "Show problems reported for this dataset."),
+                spaces(1),
+                hidden(actionButton(ns("select_all"), "Select all", icon = icon("check-square-o"))),
+                spaces(1),
+                hidden(actionButton(ns("deselect_all"), "Deselect all", icon = icon("square-o"))),
+                checkboxGroupInput(ns("omit"), label = NULL, inline = TRUE,
+                                   choices = c("Omit files with errors" = "error",
+                                               "Omit files with warnings" = "warning"))
+            ) %>% hidden()
+        )
+    )
   )
 }
 
@@ -143,7 +269,7 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
   mail_subject <- "Problematic Isofile"
   mail_body <- "I have encountered problems reading the attached IRMS data file(s)."
 
-  # the modal
+  # the modal dialog
   problem_modal <- reactive({
     req(dataset_path())
     module_message(ns, "debug", "showing problems modal dialog")
@@ -182,7 +308,14 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
       showModal(problem_modal())
   })
 
-  # return functions
+  # button label
+  observeEvent(problems(dataset()), {
+    req(dataset())
+    updateActionButton(session, "show_problems",
+                       label = sprintf("Problems (%.0f)", nrow(problems(dataset()))))
+  })
+
+  # return functions (note: toggling the button visibility somehow does not work)
   list(
     show_problems = show_problems
   )

@@ -4,7 +4,7 @@
 \alias{app_ui}
 \title{Isoviewer App UI}
 \usage{
-app_ui(allow_data_upload, sidebar_width = 170, start_menu = "di_load")
+app_ui(allow_data_upload, sidebar_width = 170, start_menu = "di_view")
 }
 \arguments{
 \item{allow_data_upload}{whether to allow uploading of data}

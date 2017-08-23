@@ -264,9 +264,9 @@ isofilesLoadServer <- function(
 
   # Return reactive functions ====
   list(
-    file_browser = files_select,
-    loaded_dataset = reactive(values$loaded_dataset),
-    saved_datasets = reactive(values$saved_datasets)
+    get_file_browser = files_select,
+    get_loaded_dataset = reactive(values$loaded_dataset),
+    get_saved_datasets = reactive(values$saved_datasets)
   )
 }
 

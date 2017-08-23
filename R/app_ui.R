@@ -75,9 +75,8 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_view
       app_ui_welcome("welcome"),
       # DI ====
       tabItem(tabName = "di_load", isofilesLoadUI("di_load", label = "Dual Inlet")),
-      tabItem(tabName = "di_view",
-              datasetsUI("di_datasets")
-              ),
+      tabItem(tabName = "di_view", dualInletViewUI("di_view")
+      ),
       # CF ====
       tabItem(tabName = "cf_load", isofilesLoadUI("cf_load", label = "Continuous Flow"))
     ) %>%

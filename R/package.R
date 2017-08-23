@@ -4,6 +4,7 @@
 #' @import isoreader
 #' @import dplyr
 #' @importFrom tibble enframe deframe
+#' @importFrom tidyr spread
 #' @import stringr
 #' @import ggplot2
 #' @import shiny
@@ -12,6 +13,8 @@
 #' @importFrom shinyAce aceEditor updateAceEditor
 #' @importFrom shinyBS bsTooltip bsModal
 #' @importFrom shinycssloaders withSpinner
+#' @importFrom DT dataTableOutput datatable dataTableAjax reloadData formatSignif dataTableProxy
+#' @importFrom rhandsontable rHandsontableOutput renderRHandsontable rhandsontable hot_table hot_col hot_to_r
 #' @importFrom stats setNames
 #' @importFrom utils packageVersion
 #' @importFrom R.utils isAbsolutePath filePath
