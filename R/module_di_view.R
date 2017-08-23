@@ -65,6 +65,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
         switch(di_data$get_data_tab(),
                file_info = "file info",
                method_info = "method info",
+               vendor_data_table = "vendor data table",
                NULL)
     }
 

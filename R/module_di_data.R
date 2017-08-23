@@ -18,12 +18,18 @@ dualInletDataServer <- function(input, output, session, isofiles) {
     methodInfoServer, "method_info",
     isofiles = isofiles, visible = reactive({ input$tabs == "method_info" }))
 
+  # Vendor Data Table ===
+  vdt <- callModule(
+    vendorDataTableServer, "vendor_data_table",
+    isofiles = isofiles, visible = reactive({ input$tabs == "vendor_data_table" }))
+
   # code update ====
   code_update <-  reactive({
     function(rmarkdown = TRUE) {
       code(
         file_info$get_code_update()(rmarkdown = rmarkdown),
-        method_info$get_code_update()(rmarkdown = rmarkdown)
+        method_info$get_code_update()(rmarkdown = rmarkdown),
+        vdt$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -49,7 +55,7 @@ dualInletDataUI <- function(id, width = 12) {
   tagList(
     # TABS ====
     tabBox(
-      title = NULL, width = 8, selected = "method_info",
+      title = NULL, width = 8, selected = "vendor_data_table",
       # The id lets us use input$tabset1 on the server to find the current tab
       id = ns("tabs"), #height = "250px",
       tabPanel("Raw Data", value = "raw_data", "First tab content",
@@ -60,12 +66,13 @@ dualInletDataUI <- function(id, width = 12) {
       # File Info =====
       tabPanel("File Info", value = "file_info", fileInfoTableUI(ns("file_info"))),
       tabPanel("Method Info", value = "method_info", methodInfoTableUI(ns("method_info"))),
-      tabPanel("Vendor Data Table", value = "vendor_data_table", h3("Tab content 2"), h1("bla"))
+      tabPanel("Vendor Data Table", value = "vendor_data_table", vendorDataTableTableUI(ns("vendor_data_table")))
     ),
 
     # TAB SPECIFIC BOXES
     fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px"),
-    methodInfoSelectorUI(ns("method_info"), width = 4)
+    methodInfoSelectorUI(ns("method_info"), width = 4),
+    vendorDataTableSelectorUI(ns("vendor_data_table"), width = 4, selector_height = "300px")
   ) %>% column(width = width) %>% fluidRow()
 }
 

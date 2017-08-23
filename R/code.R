@@ -1,5 +1,18 @@
 # specific code assembly functions ===
 
+# generate vendor data table code
+generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Show Vendor Data Table",
+    chunk_options = list("vendor data table"),
+    pipe(
+      code_block("aggregate_vendor_data_table", selection = selection),
+      if(rmarkdown) code_block("kable")
+    )
+  )
+}
+
 # generate methods info code
 generate_method_info_code <- function(rmarkdown = FALSE) {
   chunk(
@@ -172,6 +185,11 @@ aggregate_standards_info(isofiles)",
 aggregate_resistors_info =
 "# aggregate resistors method info
 aggregate_resistors_info(isofiles)",
+
+#### vendor data table
+aggregate_vendor_data_table =
+  "# aggregate vendor data table
+aggregate_vendor_data_table(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### file/folder loading ####
 
