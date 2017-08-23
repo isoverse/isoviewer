@@ -1,21 +1,31 @@
 # specific code assembly functions ===
 
+# generate file info code
+generate_file_info_code <- function(selection, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Show File Information",
+    chunk_options = list("file info"),
+    pipe(
+      code_block("aggregate_file_info", selection = selection),
+      if(rmarkdown) code_block("kable")
+    )
+  )
+}
+
 # generate code for dataset and data files selection
 generate_data_selection_code <- function(dataset, read_func, omit_type, select_files, rmarkdown = FALSE) {
-
-  # code
-  code(
-    chunk(
-      code_only = !rmarkdown,
-      pre_chunk = "## Load Dataset",
-      chunk_options = list("load"),
-      pipe(
-        code_block("load_dataset", func = read_func, dataset = dataset),
-        if (length(omit_type) >0)
-          code_block("omit_problems", type = omit_type),
-        if (length(select_files) == 0 || !is.na(select_files[1]))
-          code_block("select_files", files = select_files)
-      ))
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Load Dataset",
+    chunk_options = list("load"),
+    pipe(
+      code_block("load_dataset", func = read_func, dataset = dataset),
+      if (length(omit_type) >0)
+        code_block("omit_problems", type = omit_type),
+      if (length(select_files) == 0 || !is.na(select_files[1]))
+        code_block("select_files", files = select_files)
+    )
   )
 }
 
@@ -115,6 +125,11 @@ code_block <- function(id, ...) {
 
   templates <- c(
 
+#### file info
+aggregate_file_info =
+"# aggregate file info
+aggregate_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+
 #### data selection ####
 
 # load dataset ---
@@ -172,6 +187,11 @@ chunk =
 "```{r ${isoviewer:::chunk_options(chunk_options)}}
 ${content}
 ```",
+
+# knit kable pipe ---
+kable =
+"# format table
+knitr::kable()",
 
 # rmarkdown header ----
 header =

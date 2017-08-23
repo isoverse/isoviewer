@@ -1,5 +1,7 @@
 # general utilites for modules ====
 
+`%then%` <- shiny:::`%OR%`
+
 # generate content hash
 generate_content_hash <- function(x) {
   if (is.null(x) || length(x) == 0) return (unf("<EMPTY>")$unflong)
