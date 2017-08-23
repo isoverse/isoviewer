@@ -4,10 +4,12 @@
 \alias{dualInletDataServer}
 \title{Dual Inlet Data Server}
 \usage{
-dualInletDataServer(input, output, session, isofiles)
+dualInletDataServer(input, output, session, isofiles, dataset_name)
 }
 \arguments{
 \item{isofiles}{reactive function returning the currently loaded isofiles}
+
+\item{dataset_name}{reactive function with the dataset name}
 }
 \description{
 Dual Inlet Data Server

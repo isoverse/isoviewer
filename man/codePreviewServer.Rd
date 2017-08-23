@@ -7,7 +7,7 @@
 codePreviewServer(input, output, session, code_func_reac, download_file)
 }
 \arguments{
-\item{code_func_reac}{reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{header} that can be called to generate the code}
+\item{code_func_reac}{reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{front_matter} that can be called to generate the code}
 
 \item{download_file}{reactive function that returns the download file name (with or without .Rmd ending)}
 }
