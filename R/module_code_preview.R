@@ -62,7 +62,7 @@ focusCodePreview =
 
 #' Code Preview Server
 #' @inheritParams fileSelectorServer
-#' @param code_func_reac reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{header} that can be called to generate the code
+#' @param code_func_reac reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{front_matter} that can be called to generate the code
 #' @param download_file reactive function that returns the download file name (with or without .Rmd ending)
 #' @family code preview module functions
 codePreviewServer <- function(input, output, session, code_func_reac, download_file) {
@@ -103,7 +103,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
     code_func <- code_func_reac()
     if(!is.function(code_func)) # safety check
       stop("code function must be a reactive function returning a function, found ", class(code_function), call. = FALSE)
-    update_code_preview(code_func(rmarkdown = values$rmarkdown_view, header = FALSE))
+    update_code_preview(code_func(rmarkdown = values$rmarkdown_view, front_matter = FALSE))
   })
 
   # save/download RMarkdown
@@ -112,7 +112,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
     content = function(filename) {
       module_message(ns, "info", "preparing RMarkdown file for download")
       con <- file(filename)
-      writeLines(code_func_reac()(rmarkdown = TRUE, header = TRUE), con)
+      writeLines(code_func_reac()(rmarkdown = TRUE, front_matter = TRUE), con)
       close(con)
     }
   )

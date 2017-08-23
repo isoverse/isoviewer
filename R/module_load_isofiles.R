@@ -224,7 +224,7 @@ isofilesLoadServer <- function(
   # loading parameters UI
   output$parameters <- renderUI({
     tagList(
-      checkboxGroupInput(ns("selected_params"), NULL,
+      checkboxGroupInput(ns("selected_params"), NULL, inline = TRUE,
                          choices = setNames(names(load_params), load_params),
                          selected = names(load_params))
     )
@@ -245,15 +245,21 @@ isofilesLoadServer <- function(
     req(input$selected_params)
     req(input$dataset_name)
 
-    function(rmarkdown = TRUE, header = rmarkdown) {
-      module_message(ns, "debug", "generating updated code")
-      generate_load_list_code(
-        read_paths = values$load_list$path_rel,
-        read_func = load_func,
-        read_params = setNames(names(load_params) %in% input$selected_params, names(load_params)),
-        save_file = input$dataset_name,
-        save_folder = basename(datasets_dir),
-        rmarkdown = rmarkdown, header = header
+    function(rmarkdown = TRUE, front_matter = rmarkdown) {
+      module_message(ns, "debug", "generating updated code for isofiles load")
+      code(
+        generate_file_header_code(
+          title = str_c("Loading ", input$dataset_name),
+          setup = TRUE, caching_on = TRUE,
+          rmarkdown = rmarkdown, front_matter = front_matter),
+        generate_load_list_code(
+          read_paths = values$load_list$path_rel,
+          read_func = load_func,
+          read_params = setNames(names(load_params) %in% input$selected_params, names(load_params)),
+          save_file = input$dataset_name,
+          rmarkdown = rmarkdown
+        ),
+        "" # final new line
       )
     }
   })
@@ -283,7 +289,7 @@ isofilesLoadUI <- function(id, label = NULL) {
   tagList(
     # file/folder selection
     default_box(title = str_c(label, "File and Folder Selection"), width = 12,
-                fileSelectorUI(ns("files"), size = 10),
+                fileSelectorUI(ns("files"), size = 9),
                 footer = div(
                   tooltipInput(actionButton, ns("add_files"), "Add to load list", icon = icon("plus"),
                                tooltip = "Add selected files and folders to the load list"),
@@ -315,7 +321,7 @@ isofilesLoadUI <- function(id, label = NULL) {
     ),
 
     # code preview
-    codePreviewUI(ns("code_preview"), width = 6, height = "390px")
+    codePreviewUI(ns("code_preview"), width = 6, height = "305px")
   )
 }
 
