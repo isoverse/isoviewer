@@ -45,11 +45,13 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
 
   # selection
   observeEvent(input$selection_table, {
-    values$selected <-
-      input$selection_table %>%
-      hot_to_r() %>%
-      filter(include) %>%
-      { .[[id_column]] }
+    if (!identical(values$selected, input$selection_table)) {
+      values$selected <-
+        input$selection_table %>%
+        hot_to_r() %>%
+        filter(include) %>%
+        { .[[id_column]] }
+    }
   })
 
   observeEvent(input$select_all, {
@@ -68,14 +70,38 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
     toggle("deselect_all", condition = !is.null(values$table))
   })
 
+  # functions
+  set_table <- function(table, initial_selection = c()) {
+    isolate({
+      if (is.null(table) || is.null(values$table) || !identical(table, values$table)) {
+        initial <- is.null(values$table)
+        values$table <- table
+        if (initial && length(initial_selection) > 0)
+          set_selected(initial_selection)
+      }
+    })
+  }
+
+  set_selected <- function(selected) {
+    isolate({
+      if (!identical(selected, values$selected)) {
+        values$selected <- selected
+        values$update_selected <- values$update_selected + 1
+      }
+    })
+  }
+
+  get_selected <- reactive({
+    # make sure all returned selected are valid
+    if (length(values$selected) == 0) return(c())
+    else return(values$selected[values$selected %in% values$table[[id_column]]])
+  })
+
   # return functions
   list(
-    set_table = function(table) { values$table <- table },
-    set_selected = function(selected) { isolate({
-      values$selected <- selected
-      values$update_selected <- values$update_selected + 1
-    }) },
-    get_selected = reactive({ values$selected })
+    set_table = set_table,
+    set_selected = set_selected,
+    get_selected = get_selected
   )
 }
 
