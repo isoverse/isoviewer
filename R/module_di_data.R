@@ -4,9 +4,28 @@
 #' @family view dual inlet module functions
 dualInletDataServer <- function(input, output, session, isofiles) {
 
+  # namespace
+  ns <- session$ns
 
+
+  # File Info =====
+  file_info <- callModule(
+    fileInfoServer, "file_info",
+    isofiles = isofiles, visible = reactive({ input$tabs == "file_info" }))
+
+  # code update ====
+  code_update <-  reactive({
+    function(rmarkdown = TRUE) {
+      code(
+        file_info$get_code_update()(rmarkdown = rmarkdown)
+      )
+    }
+  })
+
+  # return functions
   list(
-    start = reactive({  })
+    get_code_update = code_update,
+    get_data_tab = reactive({ input$tabs })
   )
 }
 
@@ -17,32 +36,29 @@ dualInletDataServer <- function(input, output, session, isofiles) {
 #' @family view dual inlet module functions
 dualInletDataUI <- function(id, width = 12) {
   ns <- NS(id)
+
+  # parameters
+  file_info_selection_height <- "100px"
+
   tagList(
+    # TABS ====
     tabBox(
-      title = NULL, width = width,
+      title = NULL, width = 8, selected = "file_info",
       # The id lets us use input$tabset1 on the server to find the current tab
       id = ns("tabs"), #height = "250px",
-      tabPanel("Raw Data", "First tab content",
+      tabPanel("Raw Data", value = "raw_data", "First tab content",
 
                actionButton(ns("load"), "(Re)load", icon = icon("cog"))
 
       ),
-      tabPanel("File Info", "Tab content 2"),
-      tabPanel("Method Info", "Tab content 2"),
-      tabPanel("Vendor Data Table", h3("Tab content 2"), h1("bla"))
-    )
-  )
+      # File Info =====
+      tabPanel("File Info", value = "file_info", fileInfoTableUI(ns("file_info"))),
+      tabPanel("Method Info", value = "method_info", "Tab content 2"),
+      tabPanel("Vendor Data Table", value = "vendor_data_table", h3("Tab content 2"), h1("bla"))
+    ),
+
+    # TAB SPECIFIC BOXES
+    fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px")
+  ) %>% column(width = width) %>% fluidRow()
 }
 
-# observe({
-#   req(input$code_line)
-#   code_preview$focus_code_preview(line = input$code_line, center = TRUE)
-# })
-#
-# observe({
-#   req(input$code_search)
-#   code_preview$focus_code_preview(search = input$code_search, case_sensitive = FALSE)
-# })
-
-# numericInput(ns("code_line"), "Line", value = 0),
-# textInput(ns("code_search"), "Search", value = ""),

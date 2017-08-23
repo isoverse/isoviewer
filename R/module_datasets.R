@@ -168,7 +168,6 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   })
 
   get_selected_isofiles <- reactive({
-    req(isofiles_selector$get_selected())
     if (length(isofiles_selector$get_selected()) > 0)
       values$loaded_isofiles[isofiles_selector$get_selected()]
     else NULL

@@ -99,6 +99,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
   })
 
   # update code whenever code_func changes
+  # NOTE: could implemented search/jump to the same part in the file when switching from plain code to markdown code
   observe({
     code_func <- code_func_reac()
     if(!is.function(code_func)) # safety check
