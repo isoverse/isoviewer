@@ -51,7 +51,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
   })
   code_preview <- callModule(
     codePreviewServer, "di_code", code_func_reac = code_update,
-    download_file = reactive({ str_c("LOAD ", di_dataset$get_dataset_name()) }))
+    download_file = reactive({ str_c("VIEW ", di_dataset$get_dataset_name()) }))
 
 
   # code jumping
@@ -64,10 +64,11 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
       search_term <-
         switch(di_data$get_data_tab(),
                file_info = "file info",
+               method_info = "method info",
                NULL)
     }
 
-    module_message(ns, "debug", "jumping into code att: ", search_term)
+    module_message(ns, "debug", "jumping into code at: ", search_term)
 
     if (!is.null(search_term))
       code_preview$focus_code_preview(search = search_term, case_sensitive = FALSE)

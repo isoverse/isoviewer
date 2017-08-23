@@ -13,11 +13,17 @@ dualInletDataServer <- function(input, output, session, isofiles) {
     fileInfoServer, "file_info",
     isofiles = isofiles, visible = reactive({ input$tabs == "file_info" }))
 
+  # Method Info ===
+  method_info <- callModule(
+    methodInfoServer, "method_info",
+    isofiles = isofiles, visible = reactive({ input$tabs == "method_info" }))
+
   # code update ====
   code_update <-  reactive({
     function(rmarkdown = TRUE) {
       code(
-        file_info$get_code_update()(rmarkdown = rmarkdown)
+        file_info$get_code_update()(rmarkdown = rmarkdown),
+        method_info$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -43,7 +49,7 @@ dualInletDataUI <- function(id, width = 12) {
   tagList(
     # TABS ====
     tabBox(
-      title = NULL, width = 8, selected = "file_info",
+      title = NULL, width = 8, selected = "method_info",
       # The id lets us use input$tabset1 on the server to find the current tab
       id = ns("tabs"), #height = "250px",
       tabPanel("Raw Data", value = "raw_data", "First tab content",
@@ -53,12 +59,13 @@ dualInletDataUI <- function(id, width = 12) {
       ),
       # File Info =====
       tabPanel("File Info", value = "file_info", fileInfoTableUI(ns("file_info"))),
-      tabPanel("Method Info", value = "method_info", "Tab content 2"),
+      tabPanel("Method Info", value = "method_info", methodInfoTableUI(ns("method_info"))),
       tabPanel("Vendor Data Table", value = "vendor_data_table", h3("Tab content 2"), h1("bla"))
     ),
 
     # TAB SPECIFIC BOXES
-    fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px")
+    fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px"),
+    methodInfoSelectorUI(ns("method_info"), width = 4)
   ) %>% column(width = width) %>% fluidRow()
 }
 

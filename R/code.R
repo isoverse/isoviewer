@@ -1,5 +1,22 @@
 # specific code assembly functions ===
 
+# generate methods info code
+generate_method_info_code <- function(rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Show Method Information",
+    chunk_options = list("method info"),
+    pipe(
+      code_block("aggregate_standards_info"),
+      if(rmarkdown) code_block("kable")
+    ),
+    pipe(
+      code_block("aggregate_resistors_info"),
+      if(rmarkdown) code_block("kable")
+    )
+  )
+}
+
 # generate file info code
 generate_file_info_code <- function(selection, rmarkdown = FALSE) {
   chunk(
@@ -125,10 +142,7 @@ code_block <- function(id, ...) {
 
   templates <- c(
 
-#### file info
-aggregate_file_info =
-"# aggregate file info
-aggregate_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+
 
 #### data selection ####
 
@@ -144,6 +158,20 @@ omit_files_with_problems(type = \"${type}\")",
 select_files =
 "# select specific files
 filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n      ') })",
+
+#### file info
+aggregate_file_info =
+  "# aggregate file info
+aggregate_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+
+#### method info
+aggregate_standards_info =
+"# aggregate standards method info
+aggregate_standards_info(isofiles)",
+
+aggregate_resistors_info =
+"# aggregate resistors method info
+aggregate_resistors_info(isofiles)",
 
 #### file/folder loading ####
 
