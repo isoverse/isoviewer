@@ -23,17 +23,7 @@ isofilesLoadServer <- function(
 
   # reactive values
   values <- reactiveValues(
-    load_list =
-
-      structure(list(path = c("/Users/sk/Dropbox/Tools/software/R/isoviewer/inst/extdata/ref gas",
-                              "/Users/sk/Dropbox/Tools/software/R/isoviewer/inst/extdata/4420__AF-NCF-TS3-16-15_7_294.did"
-      ), path_rel = c("ref gas", "4420__AF-NCF-TS3-16-15_7_294.did"
-      ), label = c("[ref gas] (3 files)", "4420__AF-NCF-TS3-16-15_7_294.did"
-      ), isdir = c(TRUE, FALSE), n_files = c(3L, 1L)), .Names = c("path",
-                                                                  "path_rel", "label", "isdir", "n_files"), class = c("tbl_df",
-                                                                                                                      "tbl", "data.frame"), row.names = c(NA, -2L)),
-
-      #data_frame(path = character(), path_rel = character(), label = character()),
+    load_list = data_frame(path = character(), path_rel = character(), label = character()),
     load_list_selected = c(),
     loaded_isofiles = NULL,
     loaded_dataset = NULL,

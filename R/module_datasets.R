@@ -164,7 +164,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       ) %>%
       select(file_id, error, warning)
     # set table
-    isofiles_selector$set_table(selector_table)
+    isofiles_selector$set_table(selector_table, initial_selection = names(values$omit_isofiles)) # FIXME
   })
 
   get_selected_isofiles <- reactive({
@@ -182,6 +182,14 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       file.copy(from = values$loaded_dataset, to = filename)
     }
   )
+
+  output$export_excel <- downloadHandler(
+    filename = "mytest.xlsx",
+    content = function(filename) {
+      cat("test", file = filename)
+    }
+  )
+
 
   # code update ====
   code_update <- reactive({
@@ -204,7 +212,10 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   list(
     load_dataset = load_dataset, # loading function
     get_dataset_path = reactive({ values$loaded_dataset }),
-    get_dataset_name = reactive({ basename(values$loaded_dataset) %>% str_replace("\\.(\\w+)\\.rda$", "") }),
+    get_dataset_name = reactive({
+      if (is.null(values$loaded_dataset)) return(NULL)
+      else basename(values$loaded_dataset) %>% str_replace("\\.(\\w+)\\.rda$", "")
+    }),
     get_isofiles = get_selected_isofiles,
     get_code_update = code_update
   )
@@ -226,7 +237,7 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
       footer =
         div(style = "height: 50px;",
             div(id = ns("dataset_actions"),
-                tooltipOutput(downloadButton, ns("dataset_download"), "Download", icon = icon("download"),
+                tooltipOutput(downloadButton, ns("dataset_download"), "Download",
                               tooltip = "Download entire dataset"),
                 spaces(1),
                 problemsButton(ns("dataset_problems"), tooltip = "Show problems reported for this dataset."),

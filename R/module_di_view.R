@@ -30,7 +30,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
   # data viewer ====
   di_data <- callModule(
     dualInletDataServer, "di_data",
-    isofiles = di_dataset$get_isofiles
+    isofiles = di_dataset$get_isofiles, dataset_name = di_dataset$get_dataset_name
   )
 
   # code preview ====
@@ -66,6 +66,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
                file_info = "file info",
                method_info = "method info",
                vendor_data_table = "vendor data table",
+               export = "export",
                NULL)
     }
 
@@ -97,16 +98,3 @@ dualInletViewUI <- function(id, width = 12) {
     default_box("test", width = 12, checkboxInput(ns("testing_it"), "test", value = TRUE))
   )
 }
-
-# observe({
-#   req(input$code_line)
-#   code_preview$focus_code_preview(line = input$code_line, center = TRUE)
-# })
-#
-# observe({
-#   req(input$code_search)
-#   code_preview$focus_code_preview(search = input$code_search, case_sensitive = FALSE)
-# })
-
-# numericInput(ns("code_line"), "Line", value = 0),
-# textInput(ns("code_search"), "Search", value = ""),

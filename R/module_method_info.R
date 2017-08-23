@@ -8,19 +8,6 @@ methodInfoServer <- function(input, output, session, isofiles, visible = NULL) {
   # namespace
   ns <- session$ns
 
-  # file info selector
-  # file_info_selector <- callModule(
-  #   selectorTableServer, "selector", id_column = "info", col_headers = c("Info"))
-
-  # generate selector list
-  # observe({
-  #   req(length(isofiles()) > 0)
-  #   columns <- names(aggregate_file_info(isofiles(), quiet = TRUE)) %>%
-  #   { .[!. %in% c("file_id", "file_path", "file_subpath")] } # do not allow file path while on server
-  #   # set table
-  #   file_info_selector$set_table(data_frame(info = columns), initial_selection = "file_datetime")
-  # })
-
   # show selector box
   observe({
     if (is.function(visible))

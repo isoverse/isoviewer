@@ -1,5 +1,16 @@
 # specific code assembly functions ===
 
+# generate export code
+generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Export data",
+    code_block("export_to_excel", filepath = filepath, params = export_params),
+    code_block("export_to_feather", filepath = filepath, params = export_params),
+    chunk_options = list("export data")
+  )
+}
+
 # generate vendor data table code
 generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
   chunk(
@@ -174,7 +185,7 @@ filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n   
 
 #### file info
 aggregate_file_info =
-  "# aggregate file info
+"# aggregate file info
 aggregate_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### method info
@@ -188,8 +199,21 @@ aggregate_resistors_info(isofiles)",
 
 #### vendor data table
 aggregate_vendor_data_table =
-  "# aggregate vendor data table
+"# aggregate vendor data table
 aggregate_vendor_data_table(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+
+#### export
+# export to excel ----
+export_to_excel =
+"# export to excel
+export_to_excel(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
+
+# export to feather ----
+export_to_feather =
+  "# export to feather
+export_to_feather(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 #### file/folder loading ####
 

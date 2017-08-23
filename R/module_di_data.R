@@ -1,8 +1,9 @@
 #' Dual Inlet Data Server
 #' @inheritParams isofilesLoadServer
 #' @param isofiles reactive function returning the currently loaded isofiles
+#' @param dataset_name reactive function with the dataset name
 #' @family view dual inlet module functions
-dualInletDataServer <- function(input, output, session, isofiles) {
+dualInletDataServer <- function(input, output, session, isofiles, dataset_name) {
 
   # namespace
   ns <- session$ns
@@ -23,13 +24,20 @@ dualInletDataServer <- function(input, output, session, isofiles) {
     vendorDataTableServer, "vendor_data_table",
     isofiles = isofiles, visible = reactive({ input$tabs == "vendor_data_table" }))
 
+  # Export ===
+  export <- callModule(
+    exportServer, "export",
+    isofiles = isofiles, dataset_name = dataset_name,
+    visible = reactive({ input$tabs == "export" }))
+
   # code update ====
   code_update <-  reactive({
     function(rmarkdown = TRUE) {
       code(
         file_info$get_code_update()(rmarkdown = rmarkdown),
         method_info$get_code_update()(rmarkdown = rmarkdown),
-        vdt$get_code_update()(rmarkdown = rmarkdown)
+        vdt$get_code_update()(rmarkdown = rmarkdown),
+        export$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -49,30 +57,32 @@ dualInletDataServer <- function(input, output, session, isofiles) {
 dualInletDataUI <- function(id, width = 12) {
   ns <- NS(id)
 
-  # parameters
-  file_info_selection_height <- "100px"
-
   tagList(
     # TABS ====
     tabBox(
-      title = NULL, width = 8, selected = "vendor_data_table",
-      # The id lets us use input$tabset1 on the server to find the current tab
-      id = ns("tabs"), #height = "250px",
+      title = NULL, width = 8, selected = "export",
+      id = ns("tabs"),
       tabPanel("Raw Data", value = "raw_data", "First tab content",
 
                actionButton(ns("load"), "(Re)load", icon = icon("cog"))
 
       ),
-      # File Info =====
-      tabPanel("File Info", value = "file_info", fileInfoTableUI(ns("file_info"))),
-      tabPanel("Method Info", value = "method_info", methodInfoTableUI(ns("method_info"))),
-      tabPanel("Vendor Data Table", value = "vendor_data_table", vendorDataTableTableUI(ns("vendor_data_table")))
+      tabPanel("File Info", value = "file_info",
+               fileInfoTableUI(ns("file_info"))),
+      tabPanel("Method Info", value = "method_info",
+               methodInfoTableUI(ns("method_info"))),
+      tabPanel("Vendor Data Table", value = "vendor_data_table",
+               vendorDataTableTableUI(ns("vendor_data_table"))),
+      tabPanel("Export Data", value = "export",
+               exportUI(ns("export")))
     ),
 
     # TAB SPECIFIC BOXES
     fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px"),
     methodInfoSelectorUI(ns("method_info"), width = 4),
-    vendorDataTableSelectorUI(ns("vendor_data_table"), width = 4, selector_height = "300px")
+    vendorDataTableSelectorUI(ns("vendor_data_table"), width = 4, selector_height = "300px"),
+    exportSettingsUI(ns("export"), width = 4)
+
   ) %>% column(width = width) %>% fluidRow()
 }
 

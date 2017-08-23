@@ -60,3 +60,10 @@ rightInline <- function(...) {
 default_box <- function(..., status = "info", solidHeader = TRUE, collapsible = TRUE) {
   box(..., status = status, solidHeader = solidHeader, collapsible = collapsible)
 }
+
+# custom download
+customDownloadButton <- function(outputId, label = "Download", icon = icon("download"), class = NULL, ...) {
+  tags$a(id = outputId, class = paste("btn btn-default shiny-download-link", class),
+         href = "", target = "_blank", download = NA,
+         icon, label, ...)
+}
