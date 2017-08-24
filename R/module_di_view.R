@@ -77,16 +77,16 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
       code_preview$focus_code_preview(search = search_term, center = TRUE, case_sensitive = FALSE)
   })
 
-  # FIXME/DEBUG
-  observe({
-    input$testing_it
-    isolate(di_dataset$load_dataset("inst/extdata/datasets/test.di.rda"))
-  })
+  # # FIXME/DEBUG
+  # observe({
+  #   input$testing_it
+  #   isolate(di_dataset$load_dataset("inst/extdata/datasets/test.di.rda"))
+  # })
 
 }
 
 
-# Dual Inlet View UI
+#' Dual Inlet View UI
 #' @inheritParams isofilesLoadUI
 #' @param width box width
 #' @family view dual inlet module functions
@@ -95,7 +95,9 @@ dualInletViewUI <- function(id, width = 12) {
   tagList(
     datasetsUI(ns("di_dataset"), width = 6),
     codePreviewUI(ns("di_code"), width = 6, height = "300px"),
-    dualInletDataUI(ns("di_data"), width = 12),
-    default_box("test", width = 12, checkboxInput(ns("testing_it"), "test", value = TRUE))
+    dualInletDataUI(ns("di_data"), width = 12)
+
+    #FIXME
+    #default_box("test", width = 12, checkboxInput(ns("testing_it"), "test", value = TRUE))
   )
 }

@@ -27,13 +27,14 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   observe({
     req(length(isofiles()) > 0)
     masses <- aggregate_raw_data(isofiles(), gather = TRUE, quiet = TRUE)$data %>% unique()
-    ratios <- filter(ratios, top %in% masses, bot %in% masses)$ratio
-    mass_ratio_selector$set_table(
-      bind_rows(
-        data_frame(column = masses, type = "mass"),
-        data_frame(column = ratios, type = "ratio")
-      ),
-      initial_selection = c(masses, ratios))
+    if (length(masses) > 0) {
+      ratios <- filter(ratios, top %in% masses, bot %in% masses)$ratio
+      mass_ratio_selector$set_table(
+        bind_rows(
+          data_frame(column = masses, type = "mass"),
+          data_frame(column = ratios, type = "ratio")
+        ))
+    }
   })
 
   # functions
