@@ -1,3 +1,6 @@
+# FIXME: exports should reflect the data processing that happens on the raw tab (i.e. signal scaling and ratio calculations)
+# FIXME: have default for export be TRUE, not FALSE (if panel is never visited)
+
 #' Export Server
 #' @inheritParams fileInfoServer
 #' @inheritParams isofilesLoadServer
@@ -40,13 +43,6 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
         selected = names(params))
     )
   })
-#
-#   observeEvent(input$params, {
-#     args <- c(
-#       as.list(setNames(names(load_params) %in% input$selected_params,
-#                        names(load_params))),
-#       list(cache = TRUE, quiet = TRUE))
-#   })
 
   # download excel ====
   output$export_excel <- downloadHandler(
