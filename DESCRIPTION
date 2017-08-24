@@ -1,7 +1,7 @@
 Package: isoviewer
 Title: Visualize IRMS data
 Description: Graphical user interface components for exploring isotope data.
-Version: 0.1.2.9999
+Version: 0.5.0.9999
 Authors@R: person("Sebastian", "Kopf", email = "sebastian.kopf@colorado.edu",
     role = c("aut", "cre"))
 URL: https://github.com/kopflab/isoviewer

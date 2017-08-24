@@ -4,7 +4,7 @@
 #' @inheritParams app_server
 #' @param sidebar_width the width of the sidebar
 #' @param deault_menu default selected menu
-app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_view") {
+app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "welcome") {
 
   color <- "red" # see ?dashboardPage for options
   #box_default <- "#222d32" # darker
@@ -22,21 +22,19 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_view
 
     # SIDEBAR ----
     sidebarMenu(
-
+      id = "menu",
       "welcome" %>% { menuItem("Welcome", tabName = ., icon = icon("info"), selected = start_menu == .) },
 
       menuItem(
         "Dual Inlet", icon = icon("signal"), startExpanded = TRUE,
         "di_load" %>% { menuSubItem("Load", tabName = ., icon = icon("folder-open"), selected = start_menu == .) },
-        "di_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = start_menu == .) },
-        "di_export" %>% { menuSubItem("Export", tabName = ., icon = icon("mail-forward"), selected = start_menu == .) }
+        "di_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = start_menu == .) }
       ),
 
       menuItem(
         "Continuous Flow", icon = icon("area-chart"), startExpanded = TRUE,
         "cf_load" %>% { menuSubItem("Load", tabName = ., icon = icon("folder-open"), selected = start_menu == .) },
-        "cf_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = start_menu == .) },
-        "cf_export" %>% { menuSubItem("Export", tabName = ., icon = icon("mail-forward"), selected = start_menu == .) }
+        "cf_view" %>% { menuSubItem("View", tabName = ., icon = icon("pie-chart"), selected = start_menu == .) }
       ),
 
      "scans" %>% { menuItem("Scans", tabName = ., icon = icon("line-chart"), selected = start_menu == .) },
@@ -78,7 +76,13 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_view
       tabItem(tabName = "di_view", dualInletViewUI("di_view")
       ),
       # CF ====
-      tabItem(tabName = "cf_load", isofilesLoadUI("cf_load", label = "Continuous Flow"))
+      tabItem(tabName = "cf_load", isofilesLoadUI("cf_load", label = "Continuous Flow")),
+      tabItem(tabName = "cf_view", continuousFlowViewUI("cf_view")),
+      # Scans ====
+      tabItem(tabName = "scans", default_box(
+        title = "Scans", width = 12,
+        div(style = "height: 400px;", h5("Scan files are not yet supported in the GUI."))
+      ))
     ) %>%
       # div class row necessary to have proper full sized body
       div(class = "row") %>%

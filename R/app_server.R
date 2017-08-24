@@ -5,29 +5,7 @@
 app_server <- function(data_dir, allow_data_upload, store_data) {
   shinyServer(function(input, output, session) {
 
-    # SETTINGS ----
     message("\n\nINFO: Loading GUI instance ...")
-    message("INFO: Loading settings ...")
-    #global <- read_excel(file.path(data_dir, SETTINGS_FILE), sheet = "global")
-    #modes <- read_excel(file.path(data_dir, SETTINGS_FILE), sheet = "modes")
-    #parameters <- read_excel(file.path(data_dir, SETTINGS_FILE), sheet = "parameters")
-
-    # REACTIVE VALUES ----
-    values <- reactiveValues(
-      full_scan_file = NULL, # last saved full scan file
-      peak_shape_file = NULL, # last saved peak shape file
-      tuning_peak_shape_file = NULL, # last saved tuning peak shape file
-      history_variables = c(),
-      data_files_list = c(),
-      data_files_selected = c(),
-      data_files_objects = list(),
-      data_files_table_data = NULL,
-      data_files_mass_data = NULL,
-      scan_files_list = c(),
-      scan_files_selected = c(),
-      scan_files_objects = list(),
-      scan_files_data = NULL
-    )
 
     # dual inlet and contuous flow parameters
     params <- c(
@@ -49,10 +27,22 @@ app_server <- function(data_dir, allow_data_upload, store_data) {
       load_server = di_load)
 
     # CONTINUOUS FLOW SERVER LOGIC
-    cf_load <- callModule(isofilesLoadServer, "cf_load",
-                          data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
-                          extensions = isoreader:::get_supported_cf_files()$extension,
-                          load_func = "read_continuous_flow", load_params = params)
+    cf_load <- callModule(
+      isofilesLoadServer, "cf_load",
+      data_dir = data_dir, allow_data_upload = allow_data_upload, store_data = store_data,
+      extensions = isoreader:::get_supported_cf_files()$extension,
+      load_func = "read_continuous_flow", load_params = params)
+
+    cf_view <- callModule(
+      continuousFlowViewServer, "cf_view", data_dir = data_dir,
+      load_server = cf_load)
+
+    # NAVIGATION (todo: into separate file?)
+
+    observeEvent(input$di_load, updateTabItems(session, "menu", "di_load"))
+    observeEvent(input$di_view, updateTabItems(session, "menu", "di_view"))
+    observeEvent(input$cf_load, updateTabItems(session, "menu", "cf_load"))
+    observeEvent(input$cf_view, updateTabItems(session, "menu", "cf_view"))
 
   })
 
