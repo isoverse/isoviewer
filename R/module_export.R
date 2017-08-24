@@ -13,7 +13,9 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
   # show selector box
   observe({
     if (is.function(visible))
-      toggle("settings_box", condition = visible())
+      toggle("settings_box", condition = visible() & length(isofiles()) > 0 )
+    else
+      toggle("settings_box", condition = length(isofiles()) > 0)
   })
 
   # info and visibility of export buttons
