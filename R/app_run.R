@@ -71,7 +71,7 @@ install <- function(install_dir, ...) {
   dots <- list(...)
   parameters <-
     lapply(dots, function(i)
-      if(is.numeric(i)) str_c("=", i)
+      if(is.numeric(i) || is.logical(i)) str_c("=", i)
       else if (is.character(i)) str_c(" = \"", i, "\"")
       else stop("don't know how to process ", class(i))
     ) %>%
