@@ -1,4 +1,5 @@
 # Module for the selection of a dataset =====
+# TODO: show withProgress for loading data file (and/or modal dialog)
 
 #' Datasets server
 #' @inheritParams isofilesLoadServer
@@ -154,17 +155,19 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     hot_mods = function(hot) hot_col(hot, col = c("Errors", "Warnings"), halign = "htCenter"))
 
   observe({
-    req(values$omit_isofiles)
-    req(length(values$omit_isofiles) > 0)
-    selector_table <-
-      problems_summary(values$omit_isofiles) %>%
-      mutate(
-        warning = as.character(warning),
-        error = as.character(error)
-      ) %>%
-      select(file_id, error, warning)
-    # set table
-    isofiles_selector$set_table(selector_table, initial_selection = names(values$omit_isofiles)) # FIXME
+    if (length(values$omit_isofiles) == 0) {
+      isofiles_selector$set_table(NULL)
+    } else {
+      selector_table <-
+        problems_summary(values$omit_isofiles) %>%
+        mutate(
+          warning = as.character(warning),
+          error = as.character(error)
+        ) %>%
+        select(file_id, error, warning)
+      # set table
+      isofiles_selector$set_table(selector_table)
+    }
   })
 
   get_selected_isofiles <- reactive({
@@ -197,7 +200,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     function(rmarkdown = TRUE) {
       generate_data_selection_code(
         dataset = values$loaded_dataset %>% { if(is.null(.)) NULL else basename(.) },
-        read_func = "read_dual_inlet",
+        read_func = load_func,
         omit_type = values$omit_problematic,
         select_files = # omit file selection if ALL files are selected
           if (!is.null(values$omit_isofiles) && all(names(values$omit_isofiles) %in% isofiles_selector$get_selected()))

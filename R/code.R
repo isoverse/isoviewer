@@ -1,6 +1,21 @@
 # specific code assembly functions ===
 
 # generate processing code
+generate_cf_processing_code <- function(scale_signal, scale_time, ratios, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Process raw data",
+    chunk_options = list("plot data"),
+    pipe(
+      "# process raw data\nisofiles <- isofiles",
+      if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
+      if(scale_time != "<NONE>") code_block("convert_time", units = scale_time),
+      code_block("calculate_ratios", ratios = ratios)
+    )
+  )
+}
+
+# generate processing code
 generate_di_processing_code <- function(scale_signal, ratios, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
@@ -19,8 +34,8 @@ generate_plot_code <- function(data, plot_params, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Plot raw data",
-    code_block("plot_raw_data", data = data, params = plot_params),
-    chunk_options = list("plot data")
+    chunk_options = list("plot data", fig.width = 8, fig.height = 6),
+    code_block("plot_raw_data", data = data, params = plot_params)
   )
 }
 
@@ -196,6 +211,12 @@ code_block <- function(id, ...) {
 convert_signal =
 "# convert signal
 convert_signals(to = \"${units}\")",
+
+# convert signal ----
+convert_time =
+"# convert time
+convert_time(to = \"${units}\")",
+
 
 # calculate ratios ----
 calculate_ratios =
