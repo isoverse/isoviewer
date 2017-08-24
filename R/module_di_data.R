@@ -8,6 +8,11 @@ dualInletDataServer <- function(input, output, session, isofiles, dataset_name) 
   # namespace
   ns <- session$ns
 
+  # Raw Data ====
+  raw_data <- callModule(
+    diRawDataServer , "raw_data",
+    isofiles = isofiles, dataset_name = dataset_name,
+    visible = reactive({ input$tabs == "raw_data" }))
 
   # File Info =====
   file_info <- callModule(
@@ -34,6 +39,7 @@ dualInletDataServer <- function(input, output, session, isofiles, dataset_name) 
   code_update <-  reactive({
     function(rmarkdown = TRUE) {
       code(
+        raw_data$get_code_update()(rmarkdown = rmarkdown),
         file_info$get_code_update()(rmarkdown = rmarkdown),
         method_info$get_code_update()(rmarkdown = rmarkdown),
         vdt$get_code_update()(rmarkdown = rmarkdown),
@@ -60,13 +66,10 @@ dualInletDataUI <- function(id, width = 12) {
   tagList(
     # TABS ====
     tabBox(
-      title = NULL, width = 8, selected = "export",
+      title = NULL, width = 8, selected = "raw_data",
       id = ns("tabs"),
-      tabPanel("Raw Data", value = "raw_data", "First tab content",
-
-               actionButton(ns("load"), "(Re)load", icon = icon("cog"))
-
-      ),
+      tabPanel("Raw Data", value = "raw_data",
+               diRawDataPlotUI(ns("raw_data"))),
       tabPanel("File Info", value = "file_info",
                fileInfoTableUI(ns("file_info"))),
       tabPanel("Method Info", value = "method_info",
@@ -78,6 +81,8 @@ dualInletDataUI <- function(id, width = 12) {
     ),
 
     # TAB SPECIFIC BOXES
+    diRawDataSelectorUI(ns("raw_data"), width = 4, selector_height = "200px"),
+    diRawDataSettingsUI(ns("raw_data"), width = 4),
     fileInfoSelectorUI(ns("file_info"), width = 4, selector_height = "200px"),
     methodInfoSelectorUI(ns("method_info"), width = 4),
     vendorDataTableSelectorUI(ns("vendor_data_table"), width = 4, selector_height = "300px"),

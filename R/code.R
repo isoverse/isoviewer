@@ -1,5 +1,29 @@
 # specific code assembly functions ===
 
+# generate processing code
+generate_di_processing_code <- function(scale_signal, ratios, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Process raw data",
+    chunk_options = list("plot data"),
+    pipe(
+      "# process raw data\nisofiles <- isofiles",
+      if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
+      code_block("calculate_ratios", ratios = ratios)
+    )
+  )
+}
+
+# generate plot code
+generate_plot_code <- function(data, plot_params, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "## Plot raw data",
+    code_block("plot_raw_data", data = data, params = plot_params),
+    chunk_options = list("plot data")
+  )
+}
+
 # generate export code
 generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
   chunk(
@@ -166,7 +190,27 @@ code_block <- function(id, ...) {
 
   templates <- c(
 
+#### processing ####
 
+# convert signal ----
+convert_signal =
+"# convert signal
+convert_signals(to = \"${units}\")",
+
+# calculate ratios ----
+calculate_ratios =
+"# calculate_ratios
+calculate_ratios(${ if (!is.null(ratios)) isoviewer:::char_vector(ratios, spacer = ' ') else NA})",
+
+
+#### plotting ####
+
+# plot raw data ---
+plot_raw_data =
+"# plot raw data
+plot_raw_data(isofiles,
+  data = ${ if (!is.null(data)) isoviewer:::char_vector(data, spacer = ' ') else NA },
+  ${paste0(paste0(names(params), ' = \"', params, '\"'), collapse = ',\n  ')})",
 
 #### data selection ####
 
@@ -213,7 +257,7 @@ export_to_excel(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath
 export_to_feather =
   "# export to feather
 export_to_feather(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
-${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
+  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 #### file/folder loading ####
 

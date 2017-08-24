@@ -63,6 +63,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
     else {
       search_term <-
         switch(di_data$get_data_tab(),
+               raw_data = "raw data",
                file_info = "file info",
                method_info = "method info",
                vendor_data_table = "vendor data table",
@@ -73,7 +74,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
     module_message(ns, "debug", "jumping into code at: ", search_term)
 
     if (!is.null(search_term))
-      code_preview$focus_code_preview(search = search_term, case_sensitive = FALSE)
+      code_preview$focus_code_preview(search = search_term, center = TRUE, case_sensitive = FALSE)
   })
 
   # FIXME/DEBUG
