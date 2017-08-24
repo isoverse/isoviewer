@@ -35,7 +35,8 @@ plotDownloadServer <- function(input, output, session, plot_func, filename_func)
 
 
 #' Plot Download Link
-#' @param
+#' @inheritParams isofilesLoadUI
+#' @param label Label for the download link
 plotDownloadLink <- function(id, label = "Save plot") {
   ns <- NS(id)
   tooltipInput(actionButton, ns("download_dialog"), label, icon = icon("download"),
