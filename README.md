@@ -20,3 +20,8 @@ Once isoviewer is installed, you can easily launch the user interface on your lo
 library(isoviewer)
 run(data_dir = ".")
 ```
+
+Online Demo
+-----------
+
+An online demo of the isoviewer GUI is [available on our server](http://server.kopflab.com/shiny/apps/isoviewer/) but has limited computational resources (i.e. could be slow).
