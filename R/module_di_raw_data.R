@@ -57,6 +57,16 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   observe({
     toggle("plot_actions", condition =
              length(isofiles()) > 0 & length(mass_ratio_selector$get_selected()) > 0)
+    toggle("plot_messages", condition =
+             length(isofiles()) == 0 | length(mass_ratio_selector$get_selected()) == 0)
+  })
+
+  # plot messages
+  output$plot_message <- renderText({
+    validate(
+      need(length(isofiles()) > 0, "Please select a dataset and at least one data file.") %then%
+        need(length(mass_ratio_selector$get_selected()) > 0, "Please select at least one mass or ratio.")
+    )
   })
 
   # generate  plot ====
@@ -70,18 +80,17 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   })
 
   generate_plot <- reactive({
-    # immediate updates
-    validate(
-      need(length(isofiles()) > 0, "Please select a dataset and at least one data file.") %then%
-        need(length(mass_ratio_selector$get_selected()) > 0, "Please select at least one mass or ratio.")
-    )
 
-    # onclick updates
-    input$refresh
-    input$scale_signal
+    # update triggers
+    dataset_name()
+    input$render_plot
+    input$selector_refresh
+    input$settings_refresh
 
     # rest is isolated
     isolate({
+      req(length(isofiles()) > 0)
+      req(length(mass_ratio_selector$get_selected()) > 0)
       module_message(ns, "debug", "rendering dual inlet raw data plot")
 
       # prep data
@@ -159,7 +168,12 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
 diRawDataPlotUI <- function(id) {
   ns <- NS(id)
   div(style = "min-height: 500px;",
+      div(id = ns("plot_messages"),
+          textOutput(ns("plot_message"))),
       div(align = "right", id = ns("plot_actions"),
+          tooltipInput(actionButton, ns("render_plot"), "Render plot", icon = icon("refresh"),
+                       tooltip = "Refresh the plot with the selected files and parameters."),
+          spaces(1),
           plotDownloadLink(ns("plot_download"))
       ) %>% hidden(),
       plotOutput(ns("plot"), height = "100%") %>%
@@ -186,7 +200,10 @@ diRawDataSelectorUI <- function(id, width = 4, selector_height = "200px") {
           h4("Scale signals:") %>% column(width = 4),
           selectInput(ns("scale_signal"), NULL, choices = scaling_options) %>% column(width = 8)),
         selectorTableUI(ns("selector"), height = selector_height),
-        footer = div(style = "height: 35px;", selectorTableButtons(ns("selector")))
+        footer = div(style = "height: 35px;", selectorTableButtons(ns("selector")),
+                     spaces(1),
+                     tooltipInput(actionButton, ns("selector_refresh"), label = "Render plot", icon = icon("refresh"),
+                                  tooltip = "Refresh plot with new scale, mass and ratio selections."))
       )
   )%>% hidden()
 }
@@ -228,7 +245,7 @@ diRawDataSettingsUI <- function(id, width = 4) {
           h4("Legend:") %>% column(width = 4),
           selectInput(ns("legend_position"), NULL, choices = c("right", "bottom", "hide"), selected = "right") %>% column(width = 8)
         ),
-        footer = tooltipInput(actionButton, ns("refresh"), label = "Apply", icon = icon("refresh"),
+        footer = tooltipInput(actionButton, ns("settings_refresh"), label = "Render plot", icon = icon("refresh"),
                               tooltip = "Refresh plot with new plot settings.")
       )
   )%>% hidden()

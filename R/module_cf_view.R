@@ -77,6 +77,13 @@ continuousFlowViewServer <- function(input, output, session, data_dir, load_serv
       code_preview$focus_code_preview(search = search_term, center = TRUE, case_sensitive = FALSE)
   })
 
+
+  # # FIXME/DEBUG
+  observe({
+    input$testing_it
+    isolate(cf_dataset$load_dataset("inst/extdata/datasets/peak_jumping_run.cf.rda"))
+  })
+
 }
 
 
@@ -89,6 +96,8 @@ continuousFlowViewUI <- function(id, width = 12) {
   tagList(
     datasetsUI(ns("cf_dataset"), width = 6),
     codePreviewUI(ns("cf_code"), width = 6, height = "300px"),
-    continuousFlowDataUI(ns("cf_data"), width = 12)
+    continuousFlowDataUI(ns("cf_data"), width = 12),
+    #FIXME
+    default_box("test", width = 12, checkboxInput(ns("testing_it"), "test", value = TRUE))
   )
 }
