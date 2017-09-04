@@ -94,10 +94,19 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       }
 
       # plot data
-      do.call(plot_raw_data, args =
+      p <- do.call(plot_raw_data, args =
                 c(list(isofiles = plot_isofiles, data = mass_ratio_selector$get_selected()),
                   as.list(get_plot_params()))) +
         theme(text = element_text(size = 18))
+
+      # legend position
+      if (input$legend_position == "bottom") {
+        p <- p + theme(legend.position = "bottom", legend.direction="vertical")
+      } else if (input$legend_position == "hide") {
+        p <- p + theme(legend.position = "none")
+      }
+
+      return(p)
     })
   })
 
@@ -113,6 +122,12 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
 
   # code update ====
   code_update <- reactive({
+
+    theme_extra <-
+      if (input$legend_position == "bottom") 'legend.position = "bottom", legend.direction = "vertical"'
+      else if (input$legend_position == "hide") 'legend.position = "none"'
+      else NULL
+
     function(rmarkdown = TRUE) {
       code(
         generate_di_processing_code(
@@ -123,6 +138,8 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
         generate_plot_code(
           data = mass_ratio_selector$get_selected(),
           plot_params = get_plot_params(),
+          theme1 = "text = element_text(size = 18)",
+          theme2 = theme_extra,
           rmarkdown = rmarkdown
         )
       )
@@ -206,6 +223,10 @@ diRawDataSettingsUI <- function(id, width = 4) {
         fluidRow(
           h4("Shape by:") %>% column(width = 4),
           selectInput(ns("shape_by"), NULL, choices = aes_options, selected = "SA|STD") %>% column(width = 8)
+        ),
+        fluidRow(
+          h4("Legend:") %>% column(width = 4),
+          selectInput(ns("legend_position"), NULL, choices = c("right", "bottom", "hide"), selected = "right") %>% column(width = 8)
         ),
         footer = tooltipInput(actionButton, ns("refresh"), label = "Apply", icon = icon("refresh"),
                               tooltip = "Refresh plot with new plot settings.")

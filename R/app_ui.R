@@ -4,7 +4,7 @@
 #' @inheritParams app_server
 #' @param sidebar_width the width of the sidebar
 #' @param deault_menu default selected menu
-app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "di_load") {
+app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "cf_view") {
 
   color <- "red" # see ?dashboardPage for options
   #box_default <- "#222d32" # darker

@@ -30,12 +30,16 @@ generate_di_processing_code <- function(scale_signal, ratios, rmarkdown = FALSE)
 }
 
 # generate plot code
-generate_plot_code <- function(data, plot_params, rmarkdown = FALSE) {
+generate_plot_code <- function(data, plot_params, theme1 = NULL, theme2 = NULL, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Plot raw data",
     chunk_options = list("plot data", fig.width = 8, fig.height = 6),
-    code_block("plot_raw_data", data = data, params = plot_params)
+    plus(
+      code_block("plot_raw_data", data = data, params = plot_params),
+      if (!is.null(theme1)) code_block("plot_theme", theme = theme1),
+      if (!is.null(theme2)) code_block("plot_theme", theme = theme2)
+    )
   )
 }
 
@@ -181,6 +185,17 @@ pipe <- function(...) {
   str_c(unlist(blocks), collapse = " %>%\n")
 }
 
+# function to assemple plusses
+plus <- function(...) {
+  blocks <-
+    list(...) %>%
+    # remove NULL items
+    { .[!sapply(., is.null)] } %>%
+    # add indentation to all but first item
+    { c(.[1], sapply(.[-1], indent)) }
+  str_c(unlist(blocks), collapse = " +\n")
+}
+
 # function to indent a code block (with each newline)
 indent <- function(block, spaces = "  ") {
   if (length(block) == 0) return(NULL)
@@ -232,6 +247,11 @@ plot_raw_data =
 plot_raw_data(isofiles,
   data = ${ if (!is.null(data)) isoviewer:::char_vector(data, spacer = ' ') else NA },
   ${paste0(paste0(names(params), ' = \"', params, '\"'), collapse = ',\n  ')})",
+
+# plot theme ---
+plot_theme =
+"# add plot styling
+theme(${theme})",
 
 #### data selection ####
 
