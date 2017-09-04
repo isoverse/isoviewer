@@ -13,7 +13,7 @@ app_ui_welcome <- function(id) {
 
       h4("The second purpose is to provide an example for a web-based IRMS data repository that is easy to run on any computer/server completely platform-independent and open-source. The isoviewer package provides some rudimentary GUI modules that could be used in other more customized applications. However, while this example app is relatively light weight and does not use a database back-end, one could consider more elaborate use cases of the isoreader and similar packages as a programmatic interface to IRMS data that allows large scale parallel processing, reproducible aggregation and potentially sharing of years of accumulated data."),
 
-      h3("Howto"),
+      h3("How to use this GUI"),
       h4("The easiest way to get started is to upload a few data files (or use existing examples) to put together at data set, either for ", actionLink("di_load", "dual inlet files"), " or for ", actionLink("cf_load", "continuous flow files"), ". The datasets are stored as R Data Archives that then can be quickly loaded, visualized, downloaded or exported to other file formats (currently supported are excel and the Python/R joint feather format) again for either ", actionLink("di_view", "dual inlet datasets"), " or ", actionLink("cf_view", "continous flow datasets"), ". Make sure to check the different tabs ('Raw data', 'File Info', 'Method Info', etc.) when viewing the data to explore what information is currently retrieved from the raw data files and what functionality is available. If you prefer to run the GUI on your own computer or server, check out the ", a(href="http://www.github.com/KopfLab/isoviewer#installation", target = "_new", "instructions on GitHub"), "."),
 
       h3("Disclaimer"),
