@@ -7,12 +7,13 @@
 #' @param load_func the loading function (as character!)
 #' @param load_params the loading checkboxes (parameter names and labels)
 #' @param allow_data_upload whether to allow uploading of data
+#' @param allow_folder_creation whether to allow creation of folders on the server
 #' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
   input, output, session, data_dir, extensions,
   load_func, load_params = c(),
-  allow_data_upload = FALSE, store_data = TRUE) {
+  allow_data_upload = FALSE, allow_folder_creation = FALSE, store_data = TRUE) {
 
   # namespace, and top level params
   ns <- session$ns
@@ -64,6 +65,44 @@ isofilesLoadServer <- function(
                    dialog_text = store_data_msg,
                    accept = c("application/octet-stream", str_c(".", extensions), "application/zip", ".zip"))
     } else NULL
+  })
+
+  # Folder creation ===
+  output$folder_creation_wrap <- renderUI({
+    if (allow_folder_creation) {
+      tooltipInput(actionButton, ns("create_folder_dialog"), "Create folder", icon = icon("folder"),
+                   tooltip = "Create a sub directory in the current folder.")
+    } else NULL
+  })
+
+  # the modal dialog
+  folder_modal <- reactive({
+    show_folder <- file.path(root_name, files_select$path_relative())
+    modalDialog(
+      title = "Create folder",
+      "Create a new subdirectory at the following location:",
+      h4(show_folder),
+      textInput(ns("folder_name"), NULL, placeholder = "Enter name of new folder"),
+      footer = tagList(
+        actionButton(ns("create_folder"), "Create"),
+        modalButton("Close")),
+      fade = FALSE, easyClose = TRUE, size = "s"
+    )
+  })
+
+  observeEvent(input$create_folder_dialog, showModal(folder_modal()))
+  observeEvent(input$create_folder, {
+    if (!is.null(input$folder_name) && input$folder_name != "") {
+      new_folder <- str_replace_all(input$folder_name, "[^0-9A-Za-z_-]", "")
+      new_folder <- file.path(files_select$path(), new_folder)
+      if (!file.exists(new_folder)) {
+        module_message(ns, "info", "Creating new sub folder: ", basename(new_folder))
+        dir.create(new_folder)
+      } else {
+        module_message(ns, "info", "Already exists: ", basename(new_folder))
+      }
+    }
+    removeModal()
   })
 
   # Manage load list =====
@@ -284,7 +323,9 @@ isofilesLoadUI <- function(id, label = NULL) {
                   tooltipInput(actionButton, ns("add_files"), "Add to load list", icon = icon("plus"),
                                tooltip = "Add selected files and folders to the load list"),
                   spaces(1),
-                  inline(uiOutput(ns("upload_wrap")))
+                  inline(uiOutput(ns("upload_wrap"))),
+                  spaces(1),
+                  inline(uiOutput(ns("folder_creation_wrap")))
                 )
     ),
 

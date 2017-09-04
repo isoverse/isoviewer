@@ -5,7 +5,7 @@
 #' @param ... passed on to the \code{\link[shiny]{runApp}} call (only if \code{launch = TRUE}), can include server-specific parameters such as host or port
 #' @param launch whether to launch the app (TRUE) or return a shiny app object (FALSE) that then can be launched via \code{\link[shiny]{runApp}}
 #' @export
-run <- function(data_dir = ".", allow_data_upload = FALSE, store_data = TRUE, ..., launch = TRUE) {
+run <- function(data_dir = ".", allow_data_upload = FALSE, allow_folder_creation = FALSE, store_data = TRUE, ..., launch = TRUE) {
 
   # safety checks
   if (!file.exists(data_dir))
@@ -48,6 +48,7 @@ run <- function(data_dir = ".", allow_data_upload = FALSE, store_data = TRUE, ..
     ui = app_ui(allow_data_upload = allow_data_upload),
     server = app_server(data_dir,
                         allow_data_upload = allow_data_upload,
+                        allow_folder_creation = allow_folder_creation,
                         store_data = store_data)
   )
 
