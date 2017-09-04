@@ -33,7 +33,8 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
     include_raw_data = "Raw Data",
     include_file_info = "File Info",
     include_method_info = "Method Info",
-    include_vendor_data_table = "Vendor Data Table"
+    include_vendor_data_table = "Vendor Data Table",
+    include_problems = "Problems"
   )
   output$parameters <- renderUI({
     tagList(
@@ -131,8 +132,6 @@ exportUI <- function(id) {
 #' @param width box width
 #' @family export module
 exportSettingsUI <- function(id, width = 4) {
-
-
 
   ns <- NS(id)
   div(id = ns("settings_box"),
