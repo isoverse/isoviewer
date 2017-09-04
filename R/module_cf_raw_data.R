@@ -208,7 +208,7 @@ cfRawDataSelectorUI <- function(id, width = 4, selector_height = "200px") {
           selectInput(ns("scale_signal"), NULL, choices = scaling_options) %>% column(width = 8)),
         fluidRow(
           h4("Scale time:") %>% column(width = 4),
-          selectInput(ns("scale_time"), NULL, choices = time_options) %>% column(width = 8)),
+          selectInput(ns("scale_time"), NULL, choices = time_options, selected = "seconds") %>% column(width = 8)),
         selectorTableUI(ns("selector"), height = selector_height),
         footer = div(
           style = "height: 35px;", selectorTableButtons(ns("selector")),
