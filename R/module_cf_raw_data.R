@@ -8,6 +8,86 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   # namespace
   ns <- session$ns
 
+  # zooming ====
+  zoom_factor <- 2 # zoom in and out factor with each click
+  zoom_move <- 0.5 # sideways move interval
+  values <- reactiveValues(
+    zoom_stack = list(list(zoom = NULL, x_min = NULL, x_max = NULL)),
+    zoom_update = 0,
+    rendered_time = "seconds" # to keep track what x units last rendered in
+  )
+
+  # add to zoom stack
+  add_to_zoom_stack <- function(zoom, x_min, x_max, update = TRUE, only_add_if_new = TRUE) {
+    if (missing(zoom)) zoom <- get_last_zoom()$zoom
+    if (missing(x_min)) x_min <- get_last_zoom()$x_min
+    if (missing(x_max)) x_max <- get_last_zoom()$x_max
+    new_zoom <- list(zoom = zoom, x_min = x_min, x_max = x_max)
+    if (only_add_if_new && identical(get_last_zoom(), new_zoom)) return(NULL)
+    module_message(ns, "debug", "adding to zoom stack: ", zoom, " time: ", x_min, " to ", x_max)
+    values$zoom_stack <- c(values$zoom_stack, list(new_zoom))
+    if (update) values$zoom_update <- values$zoom_update + 1
+  }
+
+  # load last zoom
+  load_last_zoom <- function(update = TRUE) {
+    last_element <- length(values$zoom_stack)
+    if (last_element > 1) values$zoom_stack[last_element] <- NULL
+    if (update) values$zoom_update <- values$zoom_update + 1
+  }
+
+  # get current zoom
+  get_last_zoom <- function() {
+    values$zoom_stack[[length(values$zoom_stack)]]
+  }
+
+  # reset zoom stack
+  observeEvent(dataset_name(), {
+    values$zoom_stack <- list(list(zoom = NULL, x_min = NULL, x_max = NULL))
+  })
+  # zoom back
+  observeEvent(input$zoom_back, load_last_zoom())
+  observeEvent(input$plot_dblclick, load_last_zoom())
+  # zoom whole chromatogram
+  observeEvent(input$zoom_all, {
+    add_to_zoom_stack(zoom = NULL, x_min = NULL, x_max = NULL)
+  })
+  # zoom fit
+  observeEvent(input$zoom_fit, {
+    add_to_zoom_stack(zoom = NULL)
+  })
+  # zoom in
+  observeEvent(input$zoom_in, {
+    if (is.null(get_last_zoom()$zoom)) add_to_zoom_stack(zoom = zoom_factor)
+    else add_to_zoom_stack(zoom = get_last_zoom()$zoom * zoom_factor)
+  })
+  # zoom out
+  observeEvent(input$zoom_out, {
+    if (is.null(get_last_zoom()$zoom)) add_to_zoom_stack(zoom = 1/zoom_factor)
+    else add_to_zoom_stack(zoom = get_last_zoom()$zoom/zoom_factor)
+  })
+  # time zoom
+  observeEvent(input$plot_brush, {
+    brush <- input$plot_brush
+    if (!is.null(brush$xmin) && !is.null(brush$xmax)) {
+      # convert to seconds
+      x_min <- isoreader:::scale_time(brush$xmin, to = "seconds", from = values$rendered_time)
+      x_max <- isoreader:::scale_time(brush$xmax, to = "seconds", from = values$rendered_time)
+      add_to_zoom_stack(x_min = x_min, x_max = x_max)
+    }
+  })
+  # left right movening
+  move_zoom <- function(direction) {
+    if ( !is.null(get_last_zoom()$x_min) && !is.null(get_last_zoom()$x_max) ) {
+      add_to_zoom_stack(
+        x_min = get_last_zoom()$x_min + direction * zoom_move * (get_last_zoom()$x_max - get_last_zoom()$x_min),
+        x_max = get_last_zoom()$x_max + direction * zoom_move * (get_last_zoom()$x_max - get_last_zoom()$x_min)
+      )
+    }
+  }
+  observeEvent(input$zoom_move_left, move_zoom(-1))
+  observeEvent(input$zoom_move_right, move_zoom(+1))
+
   # masses and ratios ====
 
   #FIXME: determine these dynamically
@@ -86,11 +166,13 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
     input$render_plot
     input$selector_refresh
     input$settings_refresh
+    values$zoom_update
 
     # rest is isolated
     isolate({
       req(length(isofiles()) > 0)
       req(length(mass_ratio_selector$get_selected()) > 0)
+      req(input$scale_time)
       module_message(ns, "debug", "rendering continuous flow raw data plot")
 
       # prep data
@@ -98,16 +180,24 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       if (input$scale_signal != "<NONE>") {
         plot_isofiles <- convert_signals(plot_isofiles, to = input$scale_signal)
       }
-      if (input$scale_time != "<NONE>") {
-        plot_isofiles <- convert_time(plot_isofiles, to = input$scale_time)
-      }
+      plot_isofiles <- convert_time(plot_isofiles, to = input$scale_time)
+      values$rendered_time <- input$scale_time
       if (length(get_ratios()) > 0) {
         plot_isofiles <- calculate_ratios(plot_isofiles, get_ratios())
       }
 
+      # time interval
+      time_params <- list()
+      if (!is.null(get_last_zoom()$x_min) && !is.null(get_last_zoom()$x_max)) {
+        time_params <- list(time_interval = c(get_last_zoom()$x_min, get_last_zoom()$x_max))
+      }
+
       # plot data
       p <- do.call(plot_raw_data, args =
-                c(list(isofiles = plot_isofiles, data = mass_ratio_selector$get_selected()),
+                c(list(isofiles = plot_isofiles,
+                       data = mass_ratio_selector$get_selected(),
+                       zoom = get_last_zoom()$zoom),
+                  time_params,
                   as.list(get_plot_params()))) +
         theme(text = element_text(size = 18))
 
@@ -140,6 +230,20 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       else if (input$legend_position == "hide") 'legend.position = "none"'
       else NULL
 
+    plot_params <- get_plot_params() %>% { setNames(sprintf("\"%s\"",.), names(.))  }
+    if (!is.null(get_last_zoom()$x_min) && !is.null(get_last_zoom()$x_max)) {
+      scaled_x_min <- isoreader:::scale_time(get_last_zoom()$x_min, to = input$scale_time, from = "seconds")
+      scaled_x_max <- isoreader:::scale_time(get_last_zoom()$x_max, to = input$scale_time, from = "seconds")
+      plot_params <- c(
+        c(time_interval = sprintf("c(%.2f, %.2f)", scaled_x_min, scaled_x_max),
+          time_interval_units = sprintf("\"%s\"", input$scale_time)),
+        plot_params)
+    }
+    if (!is.null(get_last_zoom()$zoom)) {
+      plot_params <- c(zoom = get_last_zoom()$zoom, plot_params)
+    }
+
+
     function(rmarkdown = TRUE) {
       code(
         generate_cf_processing_code(
@@ -150,7 +254,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
         ),
         generate_plot_code(
           data = mass_ratio_selector$get_selected(),
-          plot_params = get_plot_params(),
+          plot_params = plot_params,
           theme1 = "text = element_text(size = 18)",
           theme2 = theme_extra,
           rmarkdown = rmarkdown
@@ -174,13 +278,43 @@ cfRawDataPlotUI <- function(id) {
   div(style = "min-height: 500px;",
       div(id = ns("plot_messages"),
           textOutput(ns("plot_message"))),
-      div(align = "right", id = ns("plot_actions"),
-          tooltipInput(actionButton, ns("render_plot"), "Render plot", icon = icon("refresh"),
-                       tooltip = "Refresh the plot with the selected files and parameters."),
-          spaces(1),
-          plotDownloadLink(ns("plot_download"))
+      # plot actions
+      div(id = ns("plot_actions"),
+          fluidRow(
+            column(width = 3),
+            column(width = 6, align = "center",
+                   tooltipInput(actionButton, ns("zoom_all"), "", icon = icon("resize-full", lib = "glyphicon"),
+                                tooltip = "Show whole chromatogram"),
+                   tooltipInput(actionButton, ns("zoom_in"), "", icon = icon("plus"),
+                                tooltip = "Zoom in"),
+                   tooltipInput(actionButton, ns("zoom_out"), "", icon = icon("minus"),
+                                tooltip = "Zoom out"),
+                   tooltipInput(actionButton, ns("zoom_fit"), "", icon = icon("resize-vertical", lib = "glyphicon"),
+                                type = "toggle", tooltip = "Switch to optimal zoom<br/>for visible peaks"),
+                   tooltipInput(actionButton, ns("zoom_move_left"), "", icon = icon("arrow-left"),
+                                tooltip = "Move along the chromatogram<br/>to the left"),
+                   tooltipInput(actionButton, ns("zoom_move_right"), "", icon = icon("arrow-right"),
+                                tooltip = "Move along the chromatogram<br/>to the right"),
+                   tooltipInput(actionButton, ns("zoom_back"), "", icon = icon("rotate-left"),
+                                tooltip = "Revert to previous zoom")
+
+            ),
+            column(width = 3, align = "right",
+                   tooltipInput(actionButton, ns("render_plot"), "Render", icon = icon("refresh"),
+                                tooltip = "Refresh the plot with the selected files and parameters."),
+                   spaces(1),
+                   plotDownloadLink(ns("plot_download"), label = "Save")
+            )
+          )
       ) %>% hidden(),
-      plotOutput(ns("plot"), height = "100%") %>%
+      plotOutput(ns("plot"), height = "100%",
+                 dblclick = ns("plot_dblclick"),
+                 brush = brushOpts(
+                   id = ns("plot_brush"),
+                   delayType = "debounce",
+                   direction = "x",
+                   resetOnNew = TRUE
+                 )) %>%
         withSpinner(type = 5, proxy.height = "450px")
   )
 }

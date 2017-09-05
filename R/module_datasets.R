@@ -167,6 +167,8 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
         select(file_id, error, warning)
       # set table
       isofiles_selector$set_table(selector_table)
+      # FIXME/DEBUG mode: auto select
+      # isofiles_selector$set_table(selector_table, initial_selection = selector_table$file_id)
     }
   })
 

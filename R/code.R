@@ -246,7 +246,7 @@ plot_raw_data =
 "# plot raw data
 plot_raw_data(isofiles,
   data = ${ if (!is.null(data)) isoviewer:::char_vector(data, spacer = ' ') else NA },
-  ${paste0(paste0(names(params), ' = \"', params, '\"'), collapse = ',\n  ')})",
+  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 # plot theme ---
 plot_theme =

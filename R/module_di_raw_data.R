@@ -146,7 +146,7 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
         ),
         generate_plot_code(
           data = mass_ratio_selector$get_selected(),
-          plot_params = get_plot_params(),
+          plot_params = get_plot_params() %>% { setNames(sprintf("\"%s\"",.), names(.))  },
           theme1 = "text = element_text(size = 18)",
           theme2 = theme_extra,
           rmarkdown = rmarkdown
