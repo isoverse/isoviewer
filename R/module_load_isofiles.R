@@ -40,7 +40,7 @@ isofilesLoadServer <- function(
 
   # Upload module ====
   temp_dir <- tempdir()
-  upload_folder <- if (store_data) files_select$path else reactive({ tem_dir })
+  upload_folder <- if (store_data) files_select$path else reactive({ temp_dir })
   if (allow_data_upload) {
     show_folder <- if(store_data) reactive({ file.path(root_name, files_select$path_relative()) }) else NULL
     upload_files <- callModule(dataUploadServer, "upload", folder = upload_folder, show_folder = show_folder,
