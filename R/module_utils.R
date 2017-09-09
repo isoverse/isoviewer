@@ -13,7 +13,7 @@ generate_content_hash <- function(x) {
 module_message <- function(ns, type = c("info", "debug"), ...) {
   if (type == "debug" && !setting("debug")) return()
   prefix <- if(type == "info") "INFO: " else if (type == "debug") "DEBUG: " else stop("don't know message type", type)
-  message(prefix, ..., " (NS: ", ns(NULL),")")
+  cat(file=stderr(), prefix, ..., " (NS: ", ns(NULL),")\n", sep = "")
 }
 
 # convenience function for adding spaces (not the most elegant way but works)
