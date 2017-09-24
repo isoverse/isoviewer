@@ -80,10 +80,11 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
           label = sprintf("%s (%s)", basename(filepath_rel), dirname(filepath_rel))
         ) %>%
         arrange(desc(sorting), label) %>% # sort by names
-        group_by(grouping) %>%
+        group_by(sorting, grouping) %>%
         do({
           data_frame(items = list(setNames(.$filepath, .$label)))
         }) %>%
+        arrange(desc(sorting)) %>% # resort after group_by messes up this part of sorting
         { setNames(as.list(.$items), .$grouping) }
       updateSelectInput(session, "datasets", choices = c("Choose a dataset" = "", datasets), selected = values$loaded_dataset)
     }
@@ -106,12 +107,16 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     loaded_dataset_hash <- generate_content_hash(list(file = dataset, mtime = file.mtime(dataset)))
     if (is.null(values$loaded_dataset_hash) || values$loaded_dataset_hash != loaded_dataset_hash ) {
       module_message(ns, "info", "(re)loading dataset '", basename(dataset), "'")
-      values$loaded_dataset <- dataset
-      values$loaded_dataset_hash <- loaded_dataset_hash
-      if (dataset != input$datasets)
-        updateSelectInput(session, "datasets", selected = dataset)
-      values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE, cache = FALSE)))
-      omit_problematic()
+
+      # read dataset
+      withProgress(message = str_c('Loading dataset ', basename(dataset)), value = 0.5, {
+        values$loaded_dataset <- dataset
+        values$loaded_dataset_hash <- loaded_dataset_hash
+        if (dataset != input$datasets)
+          updateSelectInput(session, "datasets", selected = dataset)
+        values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE, cache = FALSE)))
+        omit_problematic()
+      })
     }
   }
 
@@ -236,7 +241,7 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
   ns <- NS(id)
   tagList(
     default_box(
-      title = "Select Dataset", width = width,
+      title = "Dataset", width = width,
       selectInput(ns("datasets"), label = NULL, choices = c("Loading..." = "")),
       selectorTableUI(ns("isofiles_selector"), height = "200px"),
       footer =
@@ -276,16 +281,16 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
   problem_modal <- reactive({
     req(dataset_path())
     module_message(ns, "debug", "showing problems modal dialog")
-    name <- basename(dataset_path()) %>% str_replace("\\.(\\w+)\\.rda$", "")
+    name <- basename(dataset_path())
     modalDialog(
       title = "Problems",
-      sprintf("The following problems were encountered during the loading of dataset '%s'.", name),
-      "If any problems are unexpected (i.e. the files should have valid data), please ",
+      p("The following problems were encountered during the loading of dataset ", strong(name)),
+      p("If any problems are unexpected (i.e. the files should have valid data), please ",
       strong(a(href = sprintf("mailto:%s?subject=%s&body=%s",
                               mail_address, str_replace_all(mail_subject, " ", "%20"), str_replace_all(mail_body, " ", "%20")),
                "send us an email")),
-      " and attach at least one of the problematic file(s). Your help is much appreciated.",
-      tableOutput(ns('problems')),
+      " and attach at least one of the problematic file(s). Your help is much appreciated."),
+      tableOutput(ns('problems')) %>% withSpinner(type = 7, proxy.height = "50px;"),
       footer = modalButton("Close"), fade = FALSE, easyClose = TRUE, size = "l"
     )
   })
@@ -300,7 +305,8 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
 
   # functions
   show_problems <- function() {
-    showModal(problem_modal())
+    modal <- problem_modal()
+    showModal(modal)
   }
 
   # button trigger

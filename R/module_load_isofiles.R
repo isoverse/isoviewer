@@ -6,13 +6,14 @@
 #' @param extensions which extensions to allow
 #' @param load_func the loading function (as character!)
 #' @param load_params the loading checkboxes (parameter names and labels)
+#' @param post_load function to run after loading a file list/creating the dataset is completed
 #' @param allow_data_upload whether to allow uploading of data
 #' @param allow_folder_creation whether to allow creation of folders on the server
 #' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
   input, output, session, data_dir, extensions,
-  load_func, load_params = c(),
+  load_func, load_params = c(), post_load = NULL,
   allow_data_upload = FALSE, allow_folder_creation = FALSE, store_data = TRUE) {
 
   # namespace, and top level params
@@ -273,6 +274,9 @@ isofilesLoadServer <- function(
     if (nrow(problems(values$loaded_isofiles)) > 0) {
       load_problems$show_problems()
     }
+
+    # post load
+    if (is.function(post_load)) post_load()
   }
 
   # enable load files and remove button only if at least one file is selected
@@ -374,7 +378,8 @@ isofilesLoadUI <- function(id, label = NULL) {
                   tooltipInput(actionButton, ns("load_files"), "Create dataset", icon = icon("cog"),
                                tooltip = "Load the files and folders in the load list and store as named dataset"),
                   spaces(1),
-                  problemsButton(ns("load_problems"), tooltip = "Show problems encountered during the previous \"Load list\" operation."),
+                  #jumping directly to dataset view makes problems button obsolete here
+                  #problemsButton(ns("load_problems"), tooltip = "Show problems encountered during the previous \"Load list\" operation."),
                   br(),
                   h4("Read Parameters:", id = ns("read_params_header")),
                   bsTooltip(ns("read_params_header"), "Which information to read from the data files."),

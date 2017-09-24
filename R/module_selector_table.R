@@ -45,7 +45,7 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
 
   # selection
   observeEvent(input$selection_table, {
-    if (!identical(values$selected, input$selection_table)) {
+    if (!identical(values$selected, input$selection_table) && !is.null(values$table) && nrow(values$table) > 0) {
       values$selected <-
         input$selection_table %>%
         hot_to_r() %>%
