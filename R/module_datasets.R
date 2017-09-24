@@ -110,7 +110,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       values$loaded_dataset_hash <- loaded_dataset_hash
       if (dataset != input$datasets)
         updateSelectInput(session, "datasets", selected = dataset)
-      values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE)))
+      values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE, cache = FALSE)))
       omit_problematic()
     }
   }
