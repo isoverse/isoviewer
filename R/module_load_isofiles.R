@@ -186,7 +186,7 @@ isofilesLoadServer <- function(
       # modal dialog to ask
       showModal(
         modalDialog(
-          h4("The dataset ", strong(dataset_name), " already exists"),
+          h4("A dataset named ", strong(dataset_name), " already exists"),
           p("Do you want to overwrite/update the existing collection of data files?"),
           p("Choose ", strong("Yes"), "to overwrite/update."),
           p("Choose ", strong("Cancel"), "to return to the load list and enter a different name for the new dataset."),
