@@ -1,7 +1,7 @@
 # specific code assembly functions ===
 
 # generate processing code
-generate_cf_processing_code <- function(scale_signal, scale_time, ratios, rmarkdown = FALSE) {
+generate_cf_processing_code <- function(scale_signal, scale_time, ratios = c(), rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Process raw data",
@@ -10,13 +10,13 @@ generate_cf_processing_code <- function(scale_signal, scale_time, ratios, rmarkd
       "# process raw data\nisofiles <- isofiles",
       if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
       if(scale_time != "<NONE>") code_block("convert_time", units = scale_time),
-      code_block("calculate_ratios", ratios = ratios)
+      if(length(ratios) > 0) code_block("calculate_ratios", ratios = ratios)
     )
   )
 }
 
 # generate processing code
-generate_di_processing_code <- function(scale_signal, ratios, rmarkdown = FALSE) {
+generate_di_processing_code <- function(scale_signal, ratios = c(), rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Process raw data",
@@ -24,7 +24,7 @@ generate_di_processing_code <- function(scale_signal, ratios, rmarkdown = FALSE)
     pipe(
       "# process raw data\nisofiles <- isofiles",
       if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
-      code_block("calculate_ratios", ratios = ratios)
+      if(length(ratios) > 0) code_block("calculate_ratios", ratios = ratios)
     )
   )
 }
@@ -244,6 +244,7 @@ calculate_ratios(${ if (!is.null(ratios)) isoviewer:::char_vector(ratios, spacer
 # plot raw data ---
 plot_raw_data =
 "# plot raw data
+library(ggplot2)
 plot_raw_data(isofiles,
   data = ${ if (!is.null(data)) isoviewer:::char_vector(data, spacer = ' ') else NA },
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
@@ -353,7 +354,7 @@ header =
 "---
 title: \"${title}\"
 date: \"`r Sys.Date()`\"
-output: html_document
+output: html_notebook
 ---",
 
 # install_github ---
