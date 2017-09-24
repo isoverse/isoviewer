@@ -21,7 +21,7 @@ app_ui_welcome <- function(id) {
              a(href="http://www.gnu.org/licenses/gpl-2.0.html", target = "_new", "GPL-2")," and is available on ",
              a(href="https://www.github.com/KopfLab", target = "_new", "GitHub"), "."),
       h3("Feedback"),
-      h4("Any and all feedback is most welcome. These packages are intended as tools for data aggregation and large scale reproducible data processing for the scientific geochemical community but are unlikely to capture all relevant data formats at this point. Please use the repositories' respective issue trackers for any feedback, suggestions and bug reports (",
+      h4("Feedback is most welcome. These packages are intended as tools for data aggregation and large scale reproducible data processing for the scientific geochemical community but are unlikely to capture all relevant data formats at this point. Please use the repositories' respective issue trackers for any feedback, suggestions and especially bug reports (",
              a(href="https://github.com/KopfLab/isoviewer/issues", target = "_new", "isoviewer issues"), ", ",
              a(href="https://github.com/KopfLab/isoreader/issues", target = "_new", "isoreader issues"), ").")
     )

@@ -123,6 +123,6 @@ selectorTableButtons <- function(id) {
   tagList(
     hidden(actionButton(ns("select_all"), "Select all", icon = icon("check-square-o"))),
     spaces(1),
-    hidden(actionButton(ns("deselect_all"), "Deselect all", icon = icon("square-o")))
+    hidden(actionButton(ns("deselect_all"), "Deselect", icon = icon("square-o")))
   )
 }
