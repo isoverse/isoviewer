@@ -350,7 +350,8 @@ cfRawDataSelectorUI <- function(id, width = 4, selector_height = "200px") {
           selectInput(ns("scale_time"), NULL, choices = time_options, selected = "seconds") %>% column(width = 8)),
         selectorTableUI(ns("selector"), height = selector_height),
         footer = div(
-          style = "height: 35px;", selectorTableButtons(ns("selector")),
+          #style = "height: 35px;",
+          selectorTableButtons(ns("selector")),
           spaces(1),
           tooltipInput(actionButton, ns("selector_refresh"), label = "Plot", icon = icon("refresh"),
                        tooltip = "Refresh plot with new scale, mass and ratio selections.")

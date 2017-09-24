@@ -240,7 +240,7 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
       selectInput(ns("datasets"), label = NULL, choices = c("Loading..." = "")),
       selectorTableUI(ns("isofiles_selector"), height = "200px"),
       footer =
-        div(style = "height: 50px;",
+        div(#style = "height: 50px;",
             div(id = ns("dataset_actions"),
                 tooltipOutput(downloadButton, ns("dataset_download"), "Download",
                               tooltip = "Download entire dataset"),

@@ -78,7 +78,9 @@ vendorDataTableSelectorUI <- function(id, width = 4, selector_height = "200px") 
       default_box(
         title = "Data Table Selector", width = width,
         selectorTableUI(ns("selector"), height = selector_height),
-        footer = div(style = "height: 35px;", selectorTableButtons(ns("selector")))
+        footer = div(
+          #style = "height: 35px;",
+          selectorTableButtons(ns("selector")))
       )
   )%>% hidden()
 }
