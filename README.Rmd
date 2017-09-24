@@ -14,10 +14,10 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-You can install isoviewer and its prerequisite [isoreader](http://www.github.com/KopfLab/isoreader) from github with:
+Since [isoreader](http://www.github.com/KopfLab/isoreader) and isoviewer are still going through the vetting process, they are not yet submitted to the Comprehensive R Archive Network (CRAN) you can install them easily from GitHub using the `devtools` package:
 
 ```{r gh-installation, eval = FALSE}
-# install.packages("devtools")
+install.packages("devtools") # only if you don't have this installed yet
 devtools::install_github("KopfLab/isoreader")
 devtools::install_github("KopfLab/isoviewer")
 ```
