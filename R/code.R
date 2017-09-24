@@ -5,7 +5,7 @@ generate_cf_processing_code <- function(scale_signal, scale_time, ratios = c(), 
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Process raw data",
-    chunk_options = list("plot data"),
+    chunk_options = list("process data"),
     pipe(
       "# process raw data\nisofiles <- isofiles",
       if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
@@ -20,7 +20,7 @@ generate_di_processing_code <- function(scale_signal, ratios = c(), rmarkdown = 
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Process raw data",
-    chunk_options = list("plot data"),
+    chunk_options = list("process data"),
     pipe(
       "# process raw data\nisofiles <- isofiles",
       if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
