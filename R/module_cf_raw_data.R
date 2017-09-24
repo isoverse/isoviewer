@@ -137,6 +137,8 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   observe({
     toggle("plot_actions", condition =
              length(isofiles()) > 0 & length(mass_ratio_selector$get_selected()) > 0)
+    toggle("plot_div", condition =
+             length(isofiles()) > 0 & length(mass_ratio_selector$get_selected()) > 0)
     toggle("plot_messages", condition =
              length(isofiles()) == 0 | length(mass_ratio_selector$get_selected()) == 0)
   })
@@ -312,15 +314,17 @@ cfRawDataPlotUI <- function(id) {
             )
           )
       ) %>% hidden(),
-      plotOutput(ns("plot"), height = "100%",
-                 dblclick = ns("plot_dblclick"),
-                 brush = brushOpts(
-                   id = ns("plot_brush"),
-                   delayType = "debounce",
-                   direction = "x",
-                   resetOnNew = TRUE
-                 )) %>%
-        withSpinner(type = 5, proxy.height = "450px")
+      div(id = ns("plot_div"),
+          plotOutput(ns("plot"), height = "100%",
+                     dblclick = ns("plot_dblclick"),
+                     brush = brushOpts(
+                       id = ns("plot_brush"),
+                       delayType = "debounce",
+                       direction = "x",
+                       resetOnNew = TRUE
+                     )) %>%
+            withSpinner(type = 5, proxy.height = "450px")
+      )
   )
 }
 

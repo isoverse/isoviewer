@@ -47,9 +47,11 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
     if (is.function(visible)) {
       toggle("selector_box", condition = visible() & length(isofiles()) > 0 )
       toggle("settings_box", condition = visible() & length(isofiles()) > 0 )
+      toggle("plot_div", condition = visible() & length(isofiles()) > 0 )
     } else {
       toggle("selector_box", condition = length(isofiles()) > 0)
       toggle("settings_box", condition = length(isofiles()) > 0)
+      toggle("plot_div", condition = length(isofiles()) > 0 )
     }
   })
 
@@ -181,8 +183,10 @@ diRawDataPlotUI <- function(id) {
           spaces(1),
           plotDownloadLink(ns("plot_download"))
       ) %>% hidden(),
-      plotOutput(ns("plot"), height = "100%") %>%
-        withSpinner(type = 5, proxy.height = "450px")
+      div(id = ns("plot_div"),
+          plotOutput(ns("plot"), height = "100%") %>%
+            withSpinner(type = 5, proxy.height = "450px")
+      )
   )
 }
 
