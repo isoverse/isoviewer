@@ -159,14 +159,19 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
     )
   })
 
-  generate_plot <- reactive({
-
-    # update triggers
-    dataset_name()
+  refresh_plot <- reactive({
+    # all plot referesh triggers
     input$render_plot
     input$selector_refresh
     input$settings_refresh
     values$zoom_update
+  })
+
+  generate_plot <- reactive({
+
+    # update triggers
+    dataset_name()
+    refresh_plot()
 
     # rest is isolated
     isolate({
@@ -214,7 +219,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
 
   output$plot <- renderPlot(
     generate_plot(),
-    height = reactive({ input$refresh; isolate(input$plot_height) }))
+    height = reactive({ refresh_plot(); isolate(input$plot_height) }))
 
   # plot download ====
   download_handler <- callModule(
@@ -300,7 +305,7 @@ cfRawDataPlotUI <- function(id) {
 
             ),
             column(width = 3, align = "right",
-                   tooltipInput(actionButton, ns("render_plot"), "Render", icon = icon("refresh"),
+                   tooltipInput(actionButton, ns("render_plot"), "Plot", icon = icon("refresh"),
                                 tooltip = "Refresh the plot with the selected files and parameters."),
                    spaces(1),
                    plotDownloadLink(ns("plot_download"), label = "Save")
@@ -347,7 +352,7 @@ cfRawDataSelectorUI <- function(id, width = 4, selector_height = "200px") {
         footer = div(
           style = "height: 35px;", selectorTableButtons(ns("selector")),
           spaces(1),
-          tooltipInput(actionButton, ns("selector_refresh"), label = "Apply", icon = icon("refresh"),
+          tooltipInput(actionButton, ns("selector_refresh"), label = "Plot", icon = icon("refresh"),
                        tooltip = "Refresh plot with new scale, mass and ratio selections.")
         )
       )
@@ -386,7 +391,7 @@ cfRawDataSettingsUI <- function(id, width = 4) {
           h4("Legend:") %>% column(width = 4),
           selectInput(ns("legend_position"), NULL, choices = c("right", "bottom", "hide"), selected = "right") %>% column(width = 8)
         ),
-        footer = tooltipInput(actionButton, ns("settings_refresh"), label = "Apply", icon = icon("refresh"),
+        footer = tooltipInput(actionButton, ns("settings_refresh"), label = "Plot", icon = icon("refresh"),
                               tooltip = "Refresh plot with new plot settings.")
       )
   )%>% hidden()
