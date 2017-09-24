@@ -45,12 +45,11 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
 
   # selection
   observeEvent(input$selection_table, {
-    if (!identical(values$selected, input$selection_table) && !is.null(values$table) && nrow(values$table) > 0) {
-      values$selected <-
-        input$selection_table %>%
-        hot_to_r() %>%
-        filter(include) %>%
-        { .[[id_column]] }
+    if (!identical(values$selected, input$selection_table) && !is.null(input$selection_table) && !is.null(values$table) && nrow(values$table) > 0) {
+      selections <- input$selection_table %>% hot_to_r()
+      if (nrow(selections) > 0) {
+        values$selected <- selections %>% filter(include) %>% { .[[id_column]] }
+      }
     }
   })
 
