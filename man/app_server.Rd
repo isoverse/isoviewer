@@ -4,12 +4,14 @@
 \alias{app_server}
 \title{Isoviewer App Server}
 \usage{
-app_server(data_dir, allow_data_upload, store_data)
+app_server(data_dir, allow_data_upload, allow_folder_creation, store_data)
 }
 \arguments{
 \item{data_dir}{the directory for local data files}
 
 \item{allow_data_upload}{whether to allow uploading of data}
+
+\item{allow_folder_creation}{whether to allow creation of folders on the server}
 
 \item{store_data}{whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)}
 }

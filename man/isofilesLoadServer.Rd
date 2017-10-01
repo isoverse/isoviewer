@@ -5,7 +5,8 @@
 \title{Isofiles Load Server}
 \usage{
 isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
-  load_params = c(), allow_data_upload = FALSE, store_data = TRUE)
+  load_params = c(), allow_data_upload = FALSE,
+  allow_folder_creation = FALSE, store_data = TRUE)
 }
 \arguments{
 \item{data_dir}{the directory for local data files}
@@ -17,6 +18,8 @@ isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
 \item{load_params}{the loading checkboxes (parameter names and labels)}
 
 \item{allow_data_upload}{whether to allow uploading of data}
+
+\item{allow_folder_creation}{whether to allow creation of folders on the server}
 
 \item{store_data}{whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)}
 }

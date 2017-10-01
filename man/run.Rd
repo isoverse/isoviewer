@@ -4,13 +4,15 @@
 \alias{run}
 \title{Start the user interface}
 \usage{
-run(data_dir = ".", allow_data_upload = FALSE, store_data = TRUE, ...,
-  launch = TRUE)
+run(data_dir = ".", allow_data_upload = FALSE,
+  allow_folder_creation = FALSE, store_data = TRUE, ..., launch = TRUE)
 }
 \arguments{
 \item{data_dir}{the directory for local data files}
 
 \item{allow_data_upload}{whether to allow uploading of data}
+
+\item{allow_folder_creation}{whether to allow creation of folders on the server}
 
 \item{store_data}{whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)}
 
