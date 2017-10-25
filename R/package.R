@@ -3,6 +3,7 @@
 
 #' @import isoreader
 #' @import dplyr
+#' @import googledrive
 #' @importFrom tibble enframe deframe
 #' @importFrom tidyr spread
 #' @import stringr
