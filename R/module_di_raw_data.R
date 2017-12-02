@@ -26,7 +26,7 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   # generate selector list
   observe({
     req(length(isofiles()) > 0)
-    masses <- aggregate_raw_data(isofiles(), gather = TRUE, quiet = TRUE)$data %>% unique()
+    masses <- iso_get_raw_data(isofiles(), gather = TRUE, quiet = TRUE)$data %>% unique()
     if (length(masses) > 0) {
       ratios <- filter(ratios, top %in% masses, bot %in% masses)$ratio
       mass_ratio_selector$set_table(
@@ -103,15 +103,15 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       # prep data
       plot_isofiles <- isofiles()
       if (input$scale_signal != "<NONE>") {
-        plot_isofiles <- convert_signals(plot_isofiles, to = input$scale_signal)
+        plot_isofiles <- iso_convert_signals(plot_isofiles, to = input$scale_signal)
       }
       if (length(get_ratios()) > 0) {
-        plot_isofiles <- calculate_ratios(plot_isofiles, get_ratios())
+        plot_isofiles <- iso_calculate_ratios(plot_isofiles, get_ratios())
       }
 
       # plot data
-      p <- do.call(plot_raw_data, args =
-                c(list(isofiles = plot_isofiles, data = mass_ratio_selector$get_selected()),
+      p <- do.call(iso_plot_dual_inlet_data, args =
+                c(list(iso_files = plot_isofiles, data = mass_ratio_selector$get_selected()),
                   as.list(get_plot_params()))) +
         theme(text = element_text(size = 18))
 

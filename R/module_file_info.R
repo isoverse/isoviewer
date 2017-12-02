@@ -15,7 +15,7 @@ fileInfoServer <- function(input, output, session, isofiles, visible = NULL) {
   # generate selector list
   observe({
     req(length(isofiles()) > 0)
-    columns <- names(aggregate_file_info(isofiles(), quiet = TRUE)) %>%
+    columns <- names(iso_get_file_info(isofiles(), quiet = TRUE)) %>%
       { .[!. %in% c("file_id", "file_path", "file_subpath")] } # do not allow file path while on server
     # set table
     file_info_selector$set_table(data_frame(info = columns), initial_selection = "file_datetime")
@@ -36,7 +36,7 @@ fileInfoServer <- function(input, output, session, isofiles, visible = NULL) {
         need(length(file_info_selector$get_selected()) > 0, "Please select at least one file info column.")
     )
     module_message(ns, "debug", "rendering file info table")
-    table <- aggregate_file_info(isofiles(), select = c("file_id", file_info_selector$get_selected()), quiet = TRUE)
+    table <- iso_get_file_info(isofiles(), select = c("file_id", file_info_selector$get_selected()), quiet = TRUE)
     for (col in which(sapply(table, inherits, "POSIXct"))) # xtable does not deal well with datetime
       table[[col]] <- format(table[[col]])
     return(table)

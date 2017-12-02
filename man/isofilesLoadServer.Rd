@@ -5,7 +5,7 @@
 \title{Isofiles Load Server}
 \usage{
 isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
-  load_params = c(), allow_data_upload = FALSE,
+  load_params = c(), post_load = NULL, allow_data_upload = FALSE,
   allow_folder_creation = FALSE, store_data = TRUE)
 }
 \arguments{
@@ -16,6 +16,8 @@ isofilesLoadServer(input, output, session, data_dir, extensions, load_func,
 \item{load_func}{the loading function (as character!)}
 
 \item{load_params}{the loading checkboxes (parameter names and labels)}
+
+\item{post_load}{function to run after loading a file list/creating the dataset is completed}
 
 \item{allow_data_upload}{whether to allow uploading of data}
 

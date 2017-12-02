@@ -41,7 +41,7 @@ gdrive_storage <- function(root, root_name = "Data", oauth_token = "gdrive_token
       root_name = root_name, # root name
       root_obj = NULL, # the actual google drive root entry
       local_dir = local_dir, # local directory for backup
-      oauth_token = file.path(isoreader:::setting("cache_dir"), oauth_token), # token path
+      oauth_token = file.path(isoreader:::default("cache_dir"), oauth_token), # token path
       token = NULL # the actual token
     ),
     class = c("gdrive", "isoviewer_storage")
@@ -192,6 +192,36 @@ get_directory_tree <- function(storage) {
   return(storage$directory_tree)
 }
 
+# select folder ====
+
+#' Select a current folder in the directory tree
+#' @param folder which folder to select
+#' @export
+select_current_folder <- function(storage, folder) {
+  storage <- init_storage(storage)
+  if (is_local_storage(storage)) {
+    storage$current_folder <- select_local_current_folder(storage, folder)
+    storage$current_folder_files <- fetch_local_folder_files(storage)
+    storage$current_folder_folders <- fetch_local_folder_folders(storage)
+  } else if (is_gdrive_storage(storage)) {
+    storage$current_folder <- select_gdrive_current_folder(storage, folder)
+  } else {
+    stop("unknown storage object", call. = FALSE)
+  }
+  return(storage)
+
+  # while (tmp_path != dirname(root)){
+  #   if (tmp_path == root)
+  #     parent <- root_name
+  #   else
+  #     parent <- basename(tmp_path)
+  #   parents <- c(parents, list(tabPanel(parent, value = tmp_path)))
+  #   tmp_path <- dirname(tmp_path)
+  # }
+
+}
+
+
 # local operations ====
 
 # Fetch local directory tree
@@ -225,6 +255,7 @@ fetch_local_recent_files <- function(storage, file_pattern = NULL, n_max = 20, v
     filter(row_number() <= n_max) %>%
     select(parent, name, mtime)
 }
+
 
 # gdrive operations ====
 

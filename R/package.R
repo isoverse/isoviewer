@@ -6,6 +6,7 @@
 #' @import googledrive
 #' @importFrom tibble enframe deframe
 #' @importFrom tidyr spread
+#' @importFrom purrr map map2_chr
 #' @import stringr
 #' @import ggplot2
 #' @import shiny

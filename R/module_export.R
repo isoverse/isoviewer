@@ -55,7 +55,7 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
         module_message(ns, "info", "exporting dataset to excel: ", basename(temp_file))
         withProgress(message = "Exporting to Excel...", value = 0.5, {
           params <- as.list(setNames(names(params) %in% input$export_params, names(params)))
-          do.call(export_to_excel, args = c(list(isofiles(), temp_file), params, list(quiet = TRUE)))
+          do.call(iso_export_to_excel, args = c(list(isofiles(), temp_file), params, list(quiet = TRUE)))
           file.copy(from = temp_file, to = filename)
           file.remove(temp_file)
         })
@@ -72,7 +72,7 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
         module_message(ns, "info", "exporting dataset to feather with basepath: ", temp_files[['base']])
         withProgress(message = "Exporting to Feather...", value = 0.5, {
           params <- as.list(setNames(names(params) %in% input$export_params, names(params)))
-          do.call(export_to_feather, args = c(list(isofiles(), temp_files[['base']]), params, list(quiet = TRUE)))
+          do.call(iso_export_to_feather, args = c(list(isofiles(), temp_files[['base']]), params, list(quiet = TRUE)))
 
           # zip up the files
           feather_files <- temp_files %>% str_subset("\\.feather$") %>% { .[file.exists(.)] }

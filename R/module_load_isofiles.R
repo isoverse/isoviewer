@@ -180,8 +180,18 @@ isofilesLoadServer <- function(
 
   # observe load files button push
   observeEvent(input$load_files, {
+
+    # make sure dataset name is entered
+    dataset_name <- input$dataset_name
+    if (is.null(dataset_name) || nchar(input$dataset_name) == 0) {
+      showModal(modalDialog(title = "Missing dataset name",
+                            p("Please enter a name for the dataset first"),
+                            footer = modalButton("Close"), fade = FALSE, easyClose = TRUE))
+      return(NULL)
+    }
+
     # ask user about overwrite
-    dataset_name <- str_c(input$dataset_name, ".", datasets_ext)
+    dataset_name <- str_c(dataset_name, ".", datasets_ext)
     if (file.exists(file.path(datasets_dir, dataset_name))) {
       module_message(ns, "info", "asking whether to overwrite dataset file '", dataset_name, "'")
       # modal dialog to ask
@@ -198,15 +208,15 @@ isofilesLoadServer <- function(
         ))
     } else {
       # load dataset straight away
-      load_dataset()
+      create_dataset()
     }
   })
 
   # modal dialog yes pressed for overwrite
-  observeEvent(input$overwrite, load_dataset())
+  observeEvent(input$overwrite, create_dataset())
 
   # create dataset
-  load_dataset <- function() {
+  create_dataset <- function() {
 
     # dataset
     dataset_name <- str_c(input$dataset_name, ".", datasets_ext)
@@ -214,10 +224,10 @@ isofilesLoadServer <- function(
     dataset_path_rel <- file.path(names(datasets_dir), dataset_name)
     module_message(ns, "info", "loading file list and storing in dataset file '", dataset_path_rel, "'")
 
-    # retrieve paths
+    # retrieve paths for safety check that they point to valid files
     files <- NULL
     tryCatch({
-      files <- isoreader:::retrieve_file_paths(paths = values$load_list$path, extensions = extensions)
+      files <- isoreader:::expand_file_paths(paths = values$load_list$path, extensions = extensions)
     }, error = function(e) {
       error_msg <- e$message %>%
         # make sure root directory replaced
@@ -236,6 +246,7 @@ isofilesLoadServer <- function(
 
     # arguments for read files
     args <- c(
+      list(values$load_list$path),
       as.list(setNames(names(load_params) %in% input$selected_params,
                        names(load_params))),
       list(cache = TRUE, quiet = TRUE))
@@ -247,22 +258,20 @@ isofilesLoadServer <- function(
       footer = NULL, fade = FALSE, size = "s"))
 
     withProgress(message = 'Loading file list', value = 0, {
-      isofiles <- lapply(files, function(file) {
-        incProgress(1/(n_files+1), message = sprintf("Reading '%s'...", basename(file)), detail = "")
-        isofile <- do.call(load_func, args = c(list(paths=file), args))
-        if(isoreader:::n_problems(isofile) > 0) {
-          setProgress(detail = sprintf("WARNING: encountered problems with this file", basename(file)))
-          Sys.sleep(0.5)
-          # sk note: if at all possible, maybe change color if issues with file
-        }
-        return(isofile)
-      })
+
+      # set read file event expression (executed in the local environment of the read) to update the progress bar
+      isoreader:::set_read_file_event_expr(
+        { incProgress(1/(nrow(files) + 1), message = sprintf("Reading '%s'...", basename(filepath))) })
+
+      # read the files
+      isofiles <- do.call(load_func, args = args)
+      isoreader:::set_read_file_event_expr(NULL)
 
       # finalize and save
-      values$loaded_isofiles <- as_isofile_list(isofiles)
+      values$loaded_isofiles <- iso_as_file_list(isofiles)
       setProgress(value = 1, detail = "",
                   message = sprintf("Saving dataset %s", dataset_name))
-      export_to_rda(values$loaded_isofiles, filepath = dataset_path, quiet = TRUE)
+      iso_export_to_rda(values$loaded_isofiles, filepath = dataset_path, quiet = TRUE)
       values$loaded_dataset <- dataset_path
       values$saved_datasets <- c(values$saved_datasets, setNames(dataset_path, dataset_path_rel))
     })
@@ -271,7 +280,7 @@ isofilesLoadServer <- function(
     removeModal()
 
     # problems
-    if (nrow(problems(values$loaded_isofiles)) > 0) {
+    if (nrow(iso_get_problems(values$loaded_isofiles)) > 0) {
       load_problems$show_problems()
     }
 
@@ -366,8 +375,8 @@ isofilesLoadUI <- function(id, label = NULL) {
 
     # load list
     default_box(title = str_c(label, "Load List"), width = 6,
-                inlineInput(textInput, ns("dataset_name"), label = "Name:",
-                            value = format(Sys.time(), format = "%Y-%m-%d dataset"), width = "250px"),
+                inlineInput(textInput, ns("dataset_name"), label = "Name:", placeholder = "Please enter a name for the dataset",
+                            value = "", width = "250px"), # or default date/time: format(Sys.time(), format = "%Y-%m-%d dataset")
                 selectInput(ns("load_files_list"), label = NULL, multiple = TRUE, size = 8, selectize = FALSE,
                             choices = c(),
                             selected = c()),

@@ -18,7 +18,7 @@ continuousFlowViewServer <- function(input, output, session, data_dir, load_serv
   cf_dataset <- callModule(
     datasetsServer, "cf_dataset",
     data_dir = data_dir, extensions = isoreader:::get_supported_cf_files()$extension,
-    load_func = "read_continuous_flow",
+    load_func = "iso_read_continuous_flow",
     saved_datasets = saved_datasets)
 
   # automatically load newly created datasets in the viewer

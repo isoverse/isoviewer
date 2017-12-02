@@ -21,7 +21,7 @@ app_server <- function(data_dir, allow_data_upload, allow_folder_creation, store
       data_dir = data_dir, allow_data_upload = allow_data_upload,
       allow_folder_creation = allow_folder_creation, store_data = store_data,
       extensions = isoreader:::get_supported_di_files()$extension,
-      load_func = "read_dual_inlet", load_params = params,
+      load_func = "iso_read_dual_inlet", load_params = params,
       post_load = function() { updateTabItems(session, "menu", "di_view") })
 
     di_view <- callModule(
@@ -34,7 +34,7 @@ app_server <- function(data_dir, allow_data_upload, allow_folder_creation, store
       data_dir = data_dir, allow_data_upload = allow_data_upload,
       allow_folder_creation = allow_folder_creation, store_data = store_data,
       extensions = isoreader:::get_supported_cf_files()$extension,
-      load_func = "read_continuous_flow", load_params = params,
+      load_func = "iso_read_continuous_flow", load_params = params,
       post_load = function() { updateTabItems(session, "menu", "cf_view") })
 
     cf_view <- callModule(

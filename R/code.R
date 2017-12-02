@@ -8,9 +8,9 @@ generate_cf_processing_code <- function(scale_signal, scale_time, ratios = c(), 
     chunk_options = list("process data"),
     pipe(
       "# process raw data\nisofiles <- isofiles",
-      if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
-      if(scale_time != "<NONE>") code_block("convert_time", units = scale_time),
-      if(length(ratios) > 0) code_block("calculate_ratios", ratios = ratios)
+      if(scale_signal != "<NONE>") code_block("iso_convert_signal", units = scale_signal),
+      if(scale_time != "<NONE>") code_block("iso_convert_time", units = scale_time),
+      if(length(ratios) > 0) code_block("iso_calculate_ratios", ratios = ratios)
     )
   )
 }
@@ -23,8 +23,8 @@ generate_di_processing_code <- function(scale_signal, ratios = c(), rmarkdown = 
     chunk_options = list("process data"),
     pipe(
       "# process raw data\nisofiles <- isofiles",
-      if(scale_signal != "<NONE>") code_block("convert_signal", units = scale_signal),
-      if(length(ratios) > 0) code_block("calculate_ratios", ratios = ratios)
+      if(scale_signal != "<NONE>") code_block("iso_convert_signal", units = scale_signal),
+      if(length(ratios) > 0) code_block("iso_calculate_ratios", ratios = ratios)
     )
   )
 }
@@ -36,7 +36,7 @@ generate_plot_code <- function(data, plot_params, theme1 = NULL, theme2 = NULL, 
     pre_chunk = "## Plot raw data",
     chunk_options = list("plot data", fig.width = 8, fig.height = 6),
     plus(
-      code_block("plot_raw_data", data = data, params = plot_params),
+      code_block("iso_plot_raw_data", data = data, params = plot_params),
       if (!is.null(theme1)) code_block("plot_theme", theme = theme1),
       if (!is.null(theme2)) code_block("plot_theme", theme = theme2)
     )
@@ -48,8 +48,8 @@ generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Export data",
-    code_block("export_to_excel", filepath = filepath, params = export_params),
-    code_block("export_to_feather", filepath = filepath, params = export_params),
+    code_block("iso_export_to_excel", filepath = filepath, params = export_params),
+    code_block("iso_export_to_feather", filepath = filepath, params = export_params),
     chunk_options = list("export data")
   )
 }
@@ -61,7 +61,7 @@ generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
     pre_chunk = "## Show Vendor Data Table",
     chunk_options = list("vendor data table"),
     pipe(
-      code_block("aggregate_vendor_data_table", selection = selection),
+      code_block("iso_get_vendor_data_table", selection = selection),
       if(rmarkdown) code_block("kable")
     )
   )
@@ -74,11 +74,11 @@ generate_method_info_code <- function(rmarkdown = FALSE) {
     pre_chunk = "## Show Method Information",
     chunk_options = list("method info"),
     pipe(
-      code_block("aggregate_standards_info"),
+      code_block("iso_get_standards_info"),
       if(rmarkdown) code_block("kable")
     ),
     pipe(
-      code_block("aggregate_resistors_info"),
+      code_block("iso_get_resistors_info"),
       if(rmarkdown) code_block("kable")
     )
   )
@@ -91,7 +91,7 @@ generate_file_info_code <- function(selection, rmarkdown = FALSE) {
     pre_chunk = "## Show File Information",
     chunk_options = list("file info"),
     pipe(
-      code_block("aggregate_file_info", selection = selection),
+      code_block("iso_get_file_info", selection = selection),
       if(rmarkdown) code_block("kable")
     )
   )
@@ -99,6 +99,12 @@ generate_file_info_code <- function(selection, rmarkdown = FALSE) {
 
 # generate code for dataset and data files selection
 generate_data_selection_code <- function(dataset, read_func, omit_type, select_files, rmarkdown = FALSE) {
+  omit_params <- list(remove_files_with_warnings = FALSE, remove_files_with_errors = FALSE)
+  if ("warning" %in% omit_type)
+    omit_params$remove_files_with_warnings <- TRUE
+  if ("error" %in% omit_type)
+    omit_params$remove_files_with_errors <- TRUE
+
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "## Load Dataset",
@@ -106,7 +112,7 @@ generate_data_selection_code <- function(dataset, read_func, omit_type, select_f
     pipe(
       code_block("load_dataset", func = read_func, dataset = dataset),
       if (length(omit_type) >0)
-        code_block("omit_problems", type = omit_type),
+        code_block("omit_problems", params = omit_params),
       if (length(select_files) == 0 || !is.na(select_files[1]))
         code_block("select_files", files = select_files)
     )
@@ -223,29 +229,29 @@ code_block <- function(id, ...) {
 #### processing ####
 
 # convert signal ----
-convert_signal =
+iso_convert_signal =
 "# convert signal
-convert_signals(to = \"${units}\")",
+iso_convert_signals(to = \"${units}\")",
 
 # convert signal ----
-convert_time =
+iso_convert_time =
 "# convert time
-convert_time(to = \"${units}\")",
+iso_convert_time(to = \"${units}\")",
 
 
 # calculate ratios ----
-calculate_ratios =
+iso_calculate_ratios =
 "# calculate_ratios
-calculate_ratios(${ if (!is.null(ratios)) isoviewer:::char_vector(ratios, spacer = ' ') else NA})",
+iso_calculate_ratios(${ if (!is.null(ratios)) isoviewer:::char_vector(ratios, spacer = ' ') else NA})",
 
 
 #### plotting ####
 
 # plot raw data ---
-plot_raw_data =
+iso_plot_raw_data =
 "# plot raw data
 library(ggplot2)
-plot_raw_data(isofiles,
+iso_plot_raw_data(isofiles,
   data = ${ if (!is.null(data)) isoviewer:::char_vector(data, spacer = ' ') else NA },
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
@@ -263,42 +269,42 @@ isofiles <- ${func}(${if (!is.null(dataset)) paste0('\"', dataset, '\"') else NA
 
 omit_problems =
 "# omit problems
-omit_files_with_problems(type = \"${type}\")",
+iso_omit_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 select_files =
 "# select specific files
 filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n      ') })",
 
 #### file info
-aggregate_file_info =
+iso_get_file_info =
 "# aggregate file info
-aggregate_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+iso_get_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### method info
-aggregate_standards_info =
+iso_get_standards_info =
 "# aggregate standards method info
-aggregate_standards_info(isofiles)",
+iso_get_standards_info(isofiles)",
 
-aggregate_resistors_info =
+iso_get_resistors_info =
 "# aggregate resistors method info
-aggregate_resistors_info(isofiles)",
+iso_get_resistors_info(isofiles)",
 
 #### vendor data table
-aggregate_vendor_data_table =
+iso_get_vendor_data_table =
 "# aggregate vendor data table
-aggregate_vendor_data_table(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+iso_get_vendor_data_table(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### export
 # export to excel ----
-export_to_excel =
+iso_export_to_excel =
 "# export to excel
-export_to_excel(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+iso_export_to_excel(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 # export to feather ----
-export_to_feather =
+iso_export_to_feather =
   "# export to feather
-export_to_feather(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+iso_export_to_feather(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 #### file/folder loading ####
@@ -319,12 +325,12 @@ isofiles <- ${func}(
 # look at problems ----
 show_problems =
 "# show problems
-problems(isofiles) %>% knitr::kable()",
+iso_get_problems(isofiles) %>% knitr::kable()",
 
 # export rda ----
 export_rda =
 "# save dataset
-export_to_rda(isofiles, \"${save_file}\")",
+iso_export_to_rda(isofiles, \"${save_file}\")",
 
 #### general purpose ####
 
@@ -363,7 +369,7 @@ install_github =
 )
 
   # fill template
-  stopifnot(id %in% names(templates))
+  if(!id %in% names(templates)) stop("missing template: ", id, call. = FALSE)
   str_interp(templates[id], list(...))
 }
 

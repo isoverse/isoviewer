@@ -114,7 +114,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
         values$loaded_dataset_hash <- loaded_dataset_hash
         if (dataset != input$datasets)
           updateSelectInput(session, "datasets", selected = dataset)
-        values$loaded_isofiles <- as_isofile_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE, cache = FALSE)))
+        values$loaded_isofiles <- iso_as_file_list(do.call(load_func, args = list(paths = dataset, quiet = TRUE, cache = FALSE)))
         omit_problematic()
       })
     }
@@ -123,7 +123,10 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   # problems ===
   omit_problematic <- function() {
     if (length(values$omit_problematic) > 0 && !is.null(values$loaded_isofiles)) {
-      values$omit_isofiles <- omit_files_with_problems(values$loaded_isofiles, type = values$omit_problematic, quiet = TRUE)
+      values$omit_isofiles <- iso_omit_files_with_problems(
+        values$loaded_isofiles, quiet = TRUE,
+        remove_files_with_errors = "error" %in% values$omit_problematic,
+        remove_files_with_warnings = "warning" %in% values$omit_problematic)
       if (length(values$omit_isofiles) == 0)
         values$omit_isofiles <- NULL
     } else {
@@ -135,10 +138,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   observe({
     new_omit <- input$omit
     isolate({
-      if ( all(c("warning", "error") %in% input$omit) )
-        values$omit_problematic <- "both"
-      else
-        values$omit_problematic <- input$omit
+      values$omit_problematic <- input$omit
       omit_problematic()
     })
   })
@@ -164,7 +164,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       isofiles_selector$set_table(NULL)
     } else {
       selector_table <-
-        problems_summary(values$omit_isofiles) %>%
+        iso_get_problems_summary(values$omit_isofiles, problem_files_only = FALSE) %>%
         mutate(
           warning = as.character(warning),
           error = as.character(error)
@@ -200,6 +200,47 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     }
   )
 
+
+  # dataset reread =====
+  observeEvent(input$dataset_reread, {
+    if (!is.null(values$loaded_dataset)) {
+      module_message(ns, "info", "re-reading dataset ", basename(values$loaded_dataset))
+      reread_dataset(values$loaded_dataset)
+    }
+  })
+
+  reread_dataset <- function(dataset) {
+    if (is.null(dataset)) return()
+    # safety check
+    if(!file.exists(dataset))
+      module_message(ns, "debug", "ERROR: cannot re-read, dataset file does not exist: ", dataset)
+    dataset_name <- basename(dataset)
+
+    # read files
+    showModal(modalDialog(
+      h4("Re-reading files in dataset ", dataset_name),
+      p("This may take a few seconds per file for files that have changed or were read previously with an older version of isoreader."),
+      footer = NULL, fade = FALSE, size = "s"))
+
+    withProgress(message = 'Re-reading dataset files', value = 0, {
+
+      # set read file event expression (executed in the local environment of the read) to update the progress bar
+      isoreader:::set_read_file_event_expr(
+        { incProgress(1/(nrow(files) + 1), message = sprintf("Re-reading '%s'...", basename(filepath))) })
+
+      # re-read the files
+      values$loaded_isofiles <- iso_reread_files(values$loaded_isofiles, read_cache = TRUE, quiet = TRUE, stop_if_missing = FALSE)
+      isoreader:::set_read_file_event_expr(NULL)
+
+      # re-save collection
+      setProgress(value = 1, detail = "", message = sprintf("Re-saving dataset %s", dataset_name))
+      iso_export_to_rda(values$loaded_isofiles, filepath = dataset, quiet = TRUE)
+    })
+
+    # done reading
+    removeModal()
+    load_dataset(dataset)
+  }
 
   # code update ====
   code_update <- reactive({
@@ -250,6 +291,9 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
                 tooltipOutput(downloadButton, ns("dataset_download"), "Download",
                               tooltip = "Download entire dataset"),
                 spaces(1),
+                tooltipInput(actionButton, ns("dataset_reread"), label = "Re-read", icon = icon("cog"),
+                              tooltip = "Re-read entire dataset. This will re-read any files that have changed since the dataset was created or were read with an old version of isoreader."),
+                spaces(1),
                 problemsButton(ns("dataset_problems"), tooltip = "Show problems reported for this dataset."),
                 spaces(1),
                 selectorTableButtons(ns("isofiles_selector")),
@@ -298,10 +342,14 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
   # problems table
   output$problems <- renderTable({
     req(dataset())
-    probs <- problems(dataset())
-    if (nrow(probs) == 0) data_frame(Problem = "no problems")
-    else select(probs, File = file_id, Type = type, Function = func, Problem = details)
-  }, striped = TRUE, spacing = 'xs', width = '100%', align = 'l')
+    probs <-iso_get_problems(dataset())
+    if (nrow(probs) == 0) {
+      data_frame(Problem = "no problems")
+    } else {
+      select(probs, File = file_id, Type = type, Function = func, Problem = details) %>%
+        mutate(Function = wrap_function_name(Function, max_length = 15))
+    }
+  }, striped = TRUE, spacing = 'xs', width = 'auto', align = 'l')
 
   # functions
   show_problems <- function() {
@@ -318,10 +366,10 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
   })
 
   # button label
-  observeEvent(problems(dataset()), {
+  observeEvent(iso_get_problems(dataset()), {
     req(dataset())
     updateActionButton(session, "show_problems",
-                       label = sprintf("Problems (%.0f)", nrow(problems(dataset()))))
+                       label = sprintf("Problems (%.0f)", nrow(iso_get_problems(dataset()))))
   })
 
   # return functions (note: toggling the button visibility somehow does not work)

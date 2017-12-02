@@ -23,7 +23,7 @@ run <- function(data_dir = ".", allow_data_upload = FALSE, allow_folder_creation
   shinyBS:::.onAttach()
 
   # isoviewer information
-  cache_dir <- isoreader:::setting("cache_dir")
+  cache_dir <- isoreader:::default("cache_dir")
   isoviewer_info <- list(
     isoreader_version = packageVersion("isoreader")
   )
@@ -33,11 +33,13 @@ run <- function(data_dir = ".", allow_data_upload = FALSE, allow_folder_creation
   # isoreader version
   message("INFO: Isoreader version: ", packageVersion("isoreader"))
   if (file.exists(isoviewer_info_file)) {
-    old_isoviewer_info <- readRDS(isoviewer_info_file)
-    if (isoviewer_info$isoreader_version != old_isoviewer_info$isoreader_version) {
-      message("WARNING: Isoreader version has changed from previous run (",
-              as.character(old_isoviewer_info$isoreader_version), ") - clearing out cache...")
-      cleanup_isoreader_cache()
+    last_version <- readRDS(isoviewer_info_file)$isoreader_version
+    if (!isoreader:::same_as_isoreader_version(last_version)) {
+      # Note: this is not strictly necessary with the newest isoreader package (will not try to read old cache files)
+      # but it does help keeping the cache folder clean
+      message("WARNING: Isoreader version has changed majorly from previous run (",
+              as.character(last_version), ") - clearing out cache...")
+      iso_cleanup_reader_cache()
     }
   }
   message("INFO: Storing isoviewer information: ", isoviewer_info_file)
@@ -65,11 +67,11 @@ run <- function(data_dir = ".", allow_data_upload = FALSE, allow_folder_creation
 # Installs the user interface in the target folder with the provided call parameters for launching it via \code{\link[shiny]{runApp}} or as a server application.
 # @param install_dir the installation directory (has to exist)
 # @param ... parameters for the \code{run} function
-install <- function(install_dir, ...) {
+install <- function(install_dir, data_dir = ".", ...) {
   if(!dir.exists(install_dir)) stop("directory does not exist: ", install_dir, call. = FALSE)
 
   # generate function call
-  dots <- list(...)
+  dots <- c(list(data_dir = data_dir), list(...))
   parameters <-
     lapply(dots, function(i)
       if(is.numeric(i) || is.logical(i)) str_c("=", i)

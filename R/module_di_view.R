@@ -18,7 +18,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
   di_dataset <- callModule(
     datasetsServer, "di_dataset",
     data_dir = data_dir, extensions = isoreader:::get_supported_di_files()$extension,
-    load_func = "read_dual_inlet",
+    load_func = "iso_read_dual_inlet",
     saved_datasets = saved_datasets)
 
   # automatically load newly created datasets in the viewer

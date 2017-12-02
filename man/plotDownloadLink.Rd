@@ -4,7 +4,7 @@
 \alias{plotDownloadLink}
 \title{Plot Download Link}
 \usage{
-plotDownloadLink(id, label = "Save plot")
+plotDownloadLink(id, label = "Save")
 }
 \arguments{
 \item{id}{the module id}

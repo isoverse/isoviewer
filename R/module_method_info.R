@@ -20,14 +20,14 @@ methodInfoServer <- function(input, output, session, isofiles, visible = NULL) {
   output$standards_table <- renderTable({
     validate(need(length(isofiles()) > 0, "Please select a dataset and at least one data file."))
     module_message(ns, "debug", "rendering standards info table")
-    aggregate_standards_info(isofiles(), quiet = TRUE)
+    iso_get_standards_info(isofiles(), quiet = TRUE)
   }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
 
   # resistors info
   output$resistors_table <- renderTable({
     validate(need(length(isofiles()) > 0, "Please select a dataset and at least one data file."))
     module_message(ns, "debug", "rendering resistors info table")
-    aggregate_resistors_info(isofiles(), quiet = TRUE)
+    iso_get_resistors_info(isofiles(), quiet = TRUE)
   }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
 
   # toggle visibility
