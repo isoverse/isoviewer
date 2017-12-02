@@ -316,7 +316,6 @@ isofilesLoadServer <- function(
     # trigger code update for any of the below variables changing
     req(values$load_list)
     req(input$selected_params)
-    req(input$dataset_name)
 
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       module_message(ns, "debug", "generating updated code for isofiles load")
