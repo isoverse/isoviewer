@@ -60,10 +60,7 @@ generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
     code_only = !rmarkdown,
     pre_chunk = "## Show Vendor Data Table",
     chunk_options = list("vendor data table"),
-    pipe(
-      code_block("iso_get_vendor_data_table", selection = selection),
-      if(rmarkdown) code_block("kable")
-    )
+    code_block("iso_get_vendor_data_table", selection = selection)
   )
 }
 
@@ -73,14 +70,8 @@ generate_method_info_code <- function(rmarkdown = FALSE) {
     code_only = !rmarkdown,
     pre_chunk = "## Show Method Information",
     chunk_options = list("method info"),
-    pipe(
-      code_block("iso_get_standards_info"),
-      if(rmarkdown) code_block("kable")
-    ),
-    pipe(
-      code_block("iso_get_resistors_info"),
-      if(rmarkdown) code_block("kable")
-    )
+    code_block("iso_get_standards_info"),
+    code_block("iso_get_resistors_info")
   )
 }
 
@@ -90,10 +81,7 @@ generate_file_info_code <- function(selection, rmarkdown = FALSE) {
     code_only = !rmarkdown,
     pre_chunk = "## Show File Information",
     chunk_options = list("file info"),
-    pipe(
-      code_block("iso_get_file_info", selection = selection),
-      if(rmarkdown) code_block("kable")
-    )
+    code_block("iso_get_file_info", selection = selection)
   )
 }
 
@@ -157,7 +145,8 @@ generate_file_header_code <- function(title, rmarkdown = FALSE, front_matter = r
     if (setup) chunk(
       code_only = !rmarkdown,
       pre_chunk = "## Setup",
-      post_chunk = "This document was generated with isoreader version `r packageVersion(\"isoreader\")`.",
+      post_chunk = "
+This document was generated with [isoviewer](http://isoviewer.kopflab.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.kopflab.org) version `r packageVersion(\"isoreader\")`.",
       chunk_options = list("setup", message=FALSE, warning=FALSE),
       code_block("load_library"),
       if (caching_on) code_block("caching_on")
@@ -366,9 +355,7 @@ output:
     toc_float: true
     code_folding: show
     df_print: paged
----
-
-This document was generated with [isoviewer](http://isoviewer.kopflab.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.kopflab.org) version `r packageVersion(\"isoreader\")`.",
+---",
 
 # install_github ---
 install_github =
