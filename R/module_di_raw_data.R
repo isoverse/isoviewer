@@ -74,10 +74,10 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   # generate  plot ====
   get_plot_params <- reactive({
     c(
-      panel_by = input$panel_by,
-      color_by = input$color_by,
-      linetype_by = input$linetype_by,
-      shape_by = input$shape_by
+      panel = input$panel_by,
+      color = input$color_by,
+      linetype = input$linetype_by,
+      shape = input$shape_by
     )
   })
 
@@ -110,9 +110,12 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       }
 
       # plot data
-      p <- do.call(iso_plot_dual_inlet_data, args =
-                c(list(iso_files = plot_isofiles, data = mass_ratio_selector$get_selected()),
-                  as.list(get_plot_params()))) +
+      args <-
+        c(list(iso_files = plot_isofiles, data = mass_ratio_selector$get_selected()),
+          as.list(get_plot_params()) %>%
+            sapply(function(x) if (x=="NULL") NULL else sym(x)))
+
+      p <- do.call(iso_plot_dual_inlet_data, args = args) +
         theme(text = element_text(size = 18))
 
       # legend position
@@ -153,7 +156,7 @@ diRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
         ),
         generate_plot_code(
           data = mass_ratio_selector$get_selected(),
-          plot_params = get_plot_params() %>% { setNames(sprintf("\"%s\"",.), names(.))  },
+          plot_params = get_plot_params() %>% { setNames(sprintf("%s",.), names(.))  },
           theme1 = "text = element_text(size = 18)",
           theme2 = theme_extra,
           rmarkdown = rmarkdown
@@ -228,8 +231,8 @@ diRawDataSettingsUI <- function(id, width = 4) {
   ns <- NS(id)
 
   # options for aesthetics
-  aes_options <- c("None" = "none", "Masses & Ratios" = "data",
-                   "Files" = "file", "Standard/Sample" = "SA|STD")
+  aes_options <- c("None" = "NULL", "Masses & Ratios" = "data",
+                   "Files" = "file_id", "Standard/Sample" = "type")
 
   div(id = ns("settings_box"),
       default_box(
@@ -242,15 +245,15 @@ diRawDataSettingsUI <- function(id, width = 4) {
           selectInput(ns("panel_by"), NULL, choices = aes_options, selected = "data") %>% column(width = 8)),
         fluidRow(
           h4("Color by:") %>% column(width = 4),
-          selectInput(ns("color_by"), NULL, choices = aes_options, selected = "file") %>% column(width = 8)
+          selectInput(ns("color_by"), NULL, choices = aes_options, selected = "file_id") %>% column(width = 8)
         ),
         fluidRow(
           h4("Linetype by:") %>% column(width = 4),
-          selectInput(ns("linetype_by"), NULL, choices = aes_options, selected = "none") %>% column(width = 8)
+          selectInput(ns("linetype_by"), NULL, choices = aes_options, selected = "NULL") %>% column(width = 8)
         ),
         fluidRow(
           h4("Shape by:") %>% column(width = 4),
-          selectInput(ns("shape_by"), NULL, choices = aes_options, selected = "SA|STD") %>% column(width = 8)
+          selectInput(ns("shape_by"), NULL, choices = aes_options, selected = "type") %>% column(width = 8)
         ),
         fluidRow(
           h4("Legend:") %>% column(width = 4),
