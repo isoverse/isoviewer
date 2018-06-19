@@ -10,14 +10,30 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
+
+version <- as.character(packageVersion("isoviewer"))
 ```
+
+# isoprocessor
+
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
+[![Git_Hub_Version](https://img.shields.io/badge/GitHub-`r version`-orange.svg?style=flat-square)](/commits)
+[![Documentation](https://img.shields.io/badge/docs-online-green.svg)](https://kopflab.github.io/isoviewer/)
+
+## About
+
+The [isoviewer](https://kopflab.github.io/isoviewer/) graphical user interface (GUI) provided by this package is based on the functionlity implemented by the [isoreader](https://kopflab.github.io/isoreader/) package. The purpose of the GUI is two fold.
+
+First and foremost, it is a learning tool to illustrate how to build literate RMarkdown data processing files for IRMS data using the underlying isoreader package as a unified interface for reading, converting and quickly visualizing various raw IRMS data file formats. 
+
+The second purpose is to provide an example for a web-based IRMS data repository that is easy to run on any computer/server completely platform-independent and open-source. The isoviewer package provides some rudimentary GUI modules that could be used in other more customized applications. However, while this example app is relatively light weight and does not use a database back-end, one could consider more elaborate use cases of the isoreader and similar packages as a programmatic interface to IRMS data that allows large scale parallel processing, reproducible aggregation and potentially sharing of years of accumulated data.
 
 ## Installation
 
-Since [isoreader](http://www.github.com/KopfLab/isoreader) and isoviewer are still going through the vetting process, they are not yet submitted to the Comprehensive R Archive Network (CRAN) you can install them easily from GitHub using the `devtools` package:
+Since [isoreader](http://www.github.com/KopfLab/isoreader) and [isoviewer](https://kopflab.github.io/isoviewer/) are still in development, they are not yet available on the Comprehensive R Archive Network (CRAN) but can be installed easily from GitHub using the `devtools` package:
 
 ```{r gh-installation, eval = FALSE}
-install.packages("devtools") # only if you don't have this installed yet
+install.packages("devtools") # only needed if you don't have this installed yet
 devtools::install_github("KopfLab/isoreader")
 devtools::install_github("KopfLab/isoviewer")
 ```

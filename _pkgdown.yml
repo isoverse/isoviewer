@@ -1,0 +1,85 @@
+title: Isoviewer
+url: http://kopflab.github.io/isoviewer/
+template:
+  params:
+    bootswatch: simplex
+    ganalytics: UA-106138361-5
+
+development:
+  mode: unreleased
+  version_label: danger
+  version_tooltip: "early development"
+
+home:
+  strip_header: true
+
+navbar:
+  title: isoviewer
+  type: default
+  left:
+  - text: Demo
+    href: http://server.kopflab.com/shiny/apps/isoviewer/
+  - text: Reference
+    href: reference/index.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/kopflab/isoviewer
+
+reference:
+- title: Operation
+  desc: ~
+  contents:
+  - run
+- title: Under the hood
+  desc: >
+    Most are implemented as individual GUI modules and can be used for other interfaces.
+  contents:
+  - app_server
+  - app_ui
+  - cfRawDataPlotUI
+  - cfRawDataSelectorUI
+  - cfRawDataServer
+  - cfRawDataSettingsUI
+  - codePreviewServer
+  - codePreviewShinyjsExtension
+  - codePreviewUI
+  - continuousFlowDataServer
+  - continuousFlowDataUI
+  - continuousFlowViewServer
+  - continuousFlowViewUI
+  - dataUploadServer
+  - dataUploadUI
+  - datasetsServer
+  - datasetsUI
+  - diRawDataPlotUI
+  - diRawDataSelectorUI
+  - diRawDataServer
+  - diRawDataSettingsUI
+  - dualInletDataServer
+  - dualInletDataUI
+  - dualInletViewServer
+  - dualInletViewUI
+  - exportServer
+  - exportSettingsUI
+  - exportUI
+  - fileInfoSelectorUI
+  - fileInfoServer
+  - fileInfoTableUI
+  - fileSelectorServer
+  - fileSelectorUI
+  - isofilesLoadServer
+  - isofilesLoadUI
+  - methodInfoSelectorUI
+  - methodInfoServer
+  - methodInfoTableUI
+  - modalFileSelectorUI
+  - plotDownloadLink
+  - plotDownloadServer
+  - problemsButton
+  - problemsServer
+  - selectorTableButtons
+  - selectorTableServer
+  - selectorTableUI
+  - vendorDataTableSelectorUI
+  - vendorDataTableServer
+  - vendorDataTableTableUI
