@@ -34,7 +34,7 @@ vendorDataTableServer <- function(input, output, session, isofiles, visible = NU
         need(length(vdt_selector$get_selected()) > 0, "Please select at least one vendor data table column.")
     )
     module_message(ns, "debug", "rendering vendor data table")
-    iso_get_vendor_data_table(isofiles(), select = c("file_id", vdt_selector$get_selected()), quiet = TRUE)
+    iso_get_vendor_data_table(isofiles(), select = c("file_id", !!vdt_selector$get_selected()), quiet = TRUE)
   }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
 
 

@@ -36,7 +36,7 @@ fileInfoServer <- function(input, output, session, isofiles, visible = NULL) {
         need(length(file_info_selector$get_selected()) > 0, "Please select at least one file info column.")
     )
     module_message(ns, "debug", "rendering file info table")
-    table <- iso_get_file_info(isofiles(), select = c("file_id", file_info_selector$get_selected()), quiet = TRUE)
+    table <- iso_get_file_info(isofiles(), select = c("file_id", !!file_info_selector$get_selected()), quiet = TRUE)
     for (col in which(sapply(table, inherits, "POSIXct"))) # xtable does not deal well with datetime
       table[[col]] <- format(table[[col]])
     return(table)
