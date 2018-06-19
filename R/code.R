@@ -366,7 +366,9 @@ output:
     toc_float: true
     code_folding: show
     df_print: paged
----",
+---
+
+This document was generated with [isoviewer](http://isoviewer.kopflab.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.kopflab.org) version `r packageVersion(\"isoreader\")`.",
 
 # install_github ---
 install_github =
