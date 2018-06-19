@@ -154,10 +154,9 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   # generate  plot ====
   get_plot_params <- reactive({
     c(
-      panel_by = input$panel_by,
-      color_by = input$color_by,
-      linetype_by = input$linetype_by,
-      shape_by = input$shape_by
+      panel = input$panel_by,
+      color = input$color_by,
+      linetype = input$linetype_by
     )
   })
 
@@ -200,12 +199,15 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       }
 
       # plot data
-      p <- do.call(iso_plot_continuous_flow_data, args =
-                c(list(iso_files = plot_isofiles,
-                       data = mass_ratio_selector$get_selected(),
-                       zoom = get_last_zoom()$zoom),
-                  time_params,
-                  as.list(get_plot_params()))) +
+      args <-
+        c(list(iso_files = plot_isofiles,
+               data = mass_ratio_selector$get_selected(),
+               zoom = get_last_zoom()$zoom),
+          time_params,
+          as.list(get_plot_params())  %>%
+            sapply(function(x) if (x=="NULL") NULL else sym(x)))
+
+      p <- do.call(iso_plot_continuous_flow_data, args = args) +
         theme(text = element_text(size = 18))
 
       # legend position
@@ -237,7 +239,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       else if (input$legend_position == "hide") 'legend.position = "none"'
       else NULL
 
-    plot_params <- get_plot_params() %>% { setNames(sprintf("\"%s\"",.), names(.))  }
+    plot_params <- get_plot_params() %>% { setNames(sprintf("%s",.), names(.))  }
     if (!is.null(get_last_zoom()$x_min) && !is.null(get_last_zoom()$x_max)) {
       scaled_x_min <- isoreader:::scale_time(get_last_zoom()$x_min, to = input$scale_time, from = "seconds")
       scaled_x_max <- isoreader:::scale_time(get_last_zoom()$x_max, to = input$scale_time, from = "seconds")
@@ -373,7 +375,7 @@ cfRawDataSettingsUI <- function(id, width = 4) {
   ns <- NS(id)
 
   # options for aesthetics
-  aes_options <- c("None" = "none", "Masses & Ratios" = "data", "Files" = "file")
+  aes_options <- c("None" = "NULL", "Masses & Ratios" = "data", "Files" = "file_id")
 
   div(id = ns("settings_box"),
       default_box(
@@ -386,11 +388,11 @@ cfRawDataSettingsUI <- function(id, width = 4) {
           selectInput(ns("panel_by"), NULL, choices = aes_options, selected = "data") %>% column(width = 8)),
         fluidRow(
           h4("Color by:") %>% column(width = 4),
-          selectInput(ns("color_by"), NULL, choices = aes_options, selected = "file") %>% column(width = 8)
+          selectInput(ns("color_by"), NULL, choices = aes_options, selected = "file_id") %>% column(width = 8)
         ),
         fluidRow(
           h4("Linetype by:") %>% column(width = 4),
-          selectInput(ns("linetype_by"), NULL, choices = aes_options, selected = "none") %>% column(width = 8)
+          selectInput(ns("linetype_by"), NULL, choices = aes_options, selected = "NULL") %>% column(width = 8)
         ),
         fluidRow(
           h4("Legend:") %>% column(width = 4),
