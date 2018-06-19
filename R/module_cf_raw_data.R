@@ -239,7 +239,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
       else if (input$legend_position == "hide") 'legend.position = "none"'
       else NULL
 
-    plot_params <- get_plot_params() %>% { setNames(sprintf("\"%s\"",.), names(.))  }
+    plot_params <- get_plot_params() %>% { setNames(sprintf("%s",.), names(.))  }
     if (!is.null(get_last_zoom()$x_min) && !is.null(get_last_zoom()$x_max)) {
       scaled_x_min <- isoreader:::scale_time(get_last_zoom()$x_min, to = input$scale_time, from = "seconds")
       scaled_x_max <- isoreader:::scale_time(get_last_zoom()$x_max, to = input$scale_time, from = "seconds")

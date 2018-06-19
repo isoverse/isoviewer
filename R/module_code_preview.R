@@ -79,7 +79,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
   # @param id the aceEditor id
   # @param value the new value for the aceEditor
   update_code_preview <- function(value) {
-    shinyjs::js$updateCodePreview(id = ns("code_editor"), value = value)
+    shinyjs::js$updateCodePreview(id = "code_editor", value = value)
   }
 
   # focus code preview
@@ -89,7 +89,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
   # @param search if provided (but no line), will search for this term and move to the line
   # @param case_sensitive whether to search case sensitive
   focus_code_preview <- function(line = NULL, search = NULL, center = FALSE, case_sensitive = FALSE) {
-    shinyjs::js$focusCodePreview(id = ns("code_editor"), line = line, search = search, center = center, case_sensitive = case_sensitive)
+    shinyjs::js$focusCodePreview(id = "code_editor", line = line, search = search, center = center, case_sensitive = case_sensitive)
   }
 
   # update rmarkdown view style whenever link is toggled
