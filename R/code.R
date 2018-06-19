@@ -273,38 +273,38 @@ iso_omit_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), 
 
 select_files =
 "# select specific files
-filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n      ') })",
+iso_filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n      ') })",
 
 #### file info
 iso_get_file_info =
 "# aggregate file info
-iso_get_file_info(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+isofiles %>% iso_get_file_info(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### method info
 iso_get_standards_info =
 "# aggregate standards method info
-iso_get_standards_info(isofiles)",
+isofiles %>% iso_get_standards_info()",
 
 iso_get_resistors_info =
 "# aggregate resistors method info
-iso_get_resistors_info(isofiles)",
+isofiles %>% iso_get_resistors_info()",
 
 #### vendor data table
 iso_get_vendor_data_table =
 "# aggregate vendor data table
-iso_get_vendor_data_table(isofiles,\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+isofiles %>% iso_get_vendor_data_table(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### export
 # export to excel ----
 iso_export_to_excel =
 "# export to excel
-iso_export_to_excel(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+isofiles %>% iso_export_to_excel(${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 # export to feather ----
 iso_export_to_feather =
   "# export to feather
-iso_export_to_feather(isofiles, ${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
+isofiles %>% iso_export_to_feather(${if (is.null(filepath)) NA else paste0('\"', filepath, '\"')},
   ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 #### file/folder loading ####
@@ -325,12 +325,12 @@ isofiles <- ${func}(
 # look at problems ----
 show_problems =
 "# show problems
-iso_get_problems(isofiles) %>% knitr::kable()",
+isofiles %>% iso_get_problems()",
 
 # export rda ----
 export_rda =
 "# save dataset
-iso_export_to_rda(isofiles, \"${save_file}\")",
+isofiles %>% iso_export_to_rda(\"${save_file}\")",
 
 #### general purpose ####
 
@@ -342,7 +342,7 @@ library(isoreader)",
 # caching on ----
 caching_on =
   "# turn automatic data caching on
-turn_caching_on()",
+iso_turn_reader_caching_on()",
 
 # rmarkdown chunk ----
 chunk =
@@ -360,7 +360,12 @@ header =
 "---
 title: \"${title}\"
 date: \"`r Sys.Date()`\"
-output: html_notebook
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+    code_folding: show
+    df_print: paged
 ---",
 
 # install_github ---
