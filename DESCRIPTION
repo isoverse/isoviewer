@@ -10,6 +10,7 @@ Depends:
     R (>= 3.1)
 Imports:
     methods,
+    rlang,
     dplyr (>= 0.7.0),
     purrr,
     tidyr,

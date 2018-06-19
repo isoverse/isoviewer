@@ -1,6 +1,7 @@
 #' @keywords internal
 "_PACKAGE"
 
+#' @importFrom rlang sym
 #' @import isoreader
 #' @import dplyr
 #' @import googledrive
