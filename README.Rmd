@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 version <- as.character(packageVersion("isoviewer"))
 ```
 
-# isoprocessor
+# isoviewer <a href='http://isoviewer.isoverse.org'><img src='man/figures/isoviewer_logo_thumb.png' align="right" height="138.5"/></a>
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
 [![Git_Hub_Version](https://img.shields.io/badge/GitHub-`r version`-orange.svg?style=flat-square)](/commits)
@@ -51,3 +51,11 @@ run(data_dir = ".")
 
 An online demo of the isoviewer GUI is [available on our server](http://server.kopflab.com/shiny/apps/isoviewer/) but has limited computational resources (i.e. could be slow).
 
+
+## Open Source
+
+[isoviewer](http://isoviewer.isoverse.org/) is and will always be fully open-source (i.e. free as in 'freedom' and free as in 'free beer') and is provided as is. The source code is released under GPL-2.
+
+## isoverse <a href='http://www.isoverse.org'><img src='man/figures/isoverse_logo_thumb.png' align="right" height="138.5"/></a>
+
+This package is part of the isoverse suite of data tools for stable isotopes.
