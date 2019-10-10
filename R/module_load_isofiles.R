@@ -9,7 +9,7 @@
 #' @param post_load function to run after loading a file list/creating the dataset is completed
 #' @param allow_data_upload whether to allow uploading of data
 #' @param allow_folder_creation whether to allow creation of folders on the server
-#' @param store_data whether data files (including .rda exports) are stored permanently (TRUE) or just temporarily (FALSE)
+#' @param store_data whether data files (including .rds exports) are stored permanently (TRUE) or just temporarily (FALSE)
 #' @family isofiles load module functions
 isofilesLoadServer <- function(
   input, output, session, data_dir, extensions,
@@ -21,7 +21,10 @@ isofilesLoadServer <- function(
   root <- if (!isAbsolutePath(data_dir)) filePath(getwd(), data_dir) else  data_dir
 
   # file patterns
-  pattern <- str_c("\\.(", str_c(sprintf("(%s)", extensions), collapse = "|"), ")$")
+  pattern <-
+    sprintf("(%s)", stringr::str_replace_all(extensions, "\\.", "\\\\.")) %>%
+    paste(collapse = "|") %>%
+    { sprintf("(%s)$", .)}
 
   # reactive values
   values <- reactiveValues(
@@ -176,7 +179,7 @@ isofilesLoadServer <- function(
 
   # Load list ====
   datasets_dir <- if (store_data) get_datasets_path(data_dir) else setNames(temp_dir, "temp")
-  datasets_ext <- str_subset(extensions, "rda")
+  datasets_ext <- str_subset(extensions, "rds")
 
   # observe load files button push
   observeEvent(input$load_files, {
@@ -227,7 +230,7 @@ isofilesLoadServer <- function(
     # retrieve paths for safety check that they point to valid files
     files <- NULL
     tryCatch({
-      files <- isoreader:::expand_file_paths(paths = values$load_list$path, extensions = extensions)
+      files <- isoreader::iso_expand_paths(path = values$load_list$path, extensions = extensions)
     }, error = function(e) {
       error_msg <- e$message %>%
         # make sure root directory replaced
@@ -271,7 +274,7 @@ isofilesLoadServer <- function(
       values$loaded_isofiles <- iso_as_file_list(isofiles)
       setProgress(value = 1, detail = "",
                   message = sprintf("Saving dataset %s", dataset_name))
-      iso_export_to_rda(values$loaded_isofiles, filepath = dataset_path, quiet = TRUE)
+      iso_save(values$loaded_isofiles, filepath = dataset_path, quiet = TRUE)
       values$loaded_dataset <- dataset_path
       values$saved_datasets <- c(values$saved_datasets, setNames(dataset_path, dataset_path_rel))
     })
