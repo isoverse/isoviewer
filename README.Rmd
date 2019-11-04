@@ -18,11 +18,11 @@ version <- as.character(packageVersion("isoviewer"))
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
 [![Git_Hub_Version](https://img.shields.io/badge/GitHub-`r version`-orange.svg?style=flat-square)](/commits)
-[![Documentation](https://img.shields.io/badge/docs-online-green.svg)](https://kopflab.github.io/isoviewer/)
+[![Documentation](https://img.shields.io/badge/docs-online-green.svg)](https://isoviewer.isoverse.org)
 
 ## About
 
-The [isoviewer](https://kopflab.github.io/isoviewer/) graphical user interface (GUI) provided by this package is based on the functionlity implemented by the [isoreader](https://kopflab.github.io/isoreader/) package. The purpose of the GUI is two fold.
+The [isoviewer](https://isoviewer.isoverse.org) graphical user interface (GUI) provided by this package is based on the functionlity implemented by the [isoreader](https://isoreader.isoverse.org) and [isoprocessor](https://isoprocessor.isoverse.org) packages The purpose of the GUI is two fold.
 
 First and foremost, it is a learning tool to illustrate how to build literate RMarkdown data processing files for IRMS data using the underlying isoreader package as a unified interface for reading, converting and quickly visualizing various raw IRMS data file formats. 
 
@@ -30,12 +30,13 @@ The second purpose is to provide an example for a web-based IRMS data repository
 
 ## Installation
 
-Since [isoreader](http://www.github.com/KopfLab/isoreader) and [isoviewer](https://kopflab.github.io/isoviewer/) are still in development, they are not yet available on the Comprehensive R Archive Network (CRAN) but can be installed easily from GitHub using the `devtools` package:
+[isoviewer](https://kopflab.github.io/isoviewer/) is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed easily from GitHub using the `devtools` package:
 
 ```{r gh-installation, eval = FALSE}
 install.packages("devtools") # only needed if you don't have this installed yet
-devtools::install_github("KopfLab/isoreader")
-devtools::install_github("KopfLab/isoviewer")
+devtools::install_github("isoverse/isoreader")
+devtools::install_github("isoverse/isoprocessor")
+devtools::install_github("isoverse/isoviewer")
 ```
 
 ## Using the User Interface
@@ -47,9 +48,12 @@ library(isoviewer)
 run(data_dir = ".")
 ```
 
-## Online Demo
 
-An online demo of the isoviewer GUI is [available on our server](http://server.kopflab.com/shiny/apps/isoviewer/) but has limited computational resources (i.e. could be slow).
+```{r, echo=FALSE}
+# FIX ME FIRST
+## Online Demo
+# An online demo of the isoviewer GUI is [available on our server](http://server.kopflab.com/shiny/apps/isoviewer/) but has limited computational resources (i.e. could be slow).
+```
 
 
 ## Open Source

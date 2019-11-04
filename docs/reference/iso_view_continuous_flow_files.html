@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Data Upload Server — dataUploadServer • Isoviewer</title>
+<title>Run individual modules — iso_view_continuous_flow_files • Isoviewer</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Data Upload Server — dataUploadServer" />
+<meta property="og:title" content="Run individual modules — iso_view_continuous_flow_files" />
 
-<meta property="og:description" content="Data Upload Server" />
+<meta property="og:description" content="Run individual modules" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -110,44 +110,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Data Upload Server</h1>
-    <small class="dont-index">Source: <a href='https://github.com/isoverse/isoviewer/blob/master/R/module_data_upload.R'><code>R/module_data_upload.R</code></a></small>
-    <div class="hidden name"><code>dataUploadServer.Rd</code></div>
+    <h1>Run individual modules</h1>
+    <small class="dont-index">Source: <a href='https://github.com/isoverse/isoviewer/blob/master/R/module_run.R'><code>R/module_run.R</code></a></small>
+    <div class="hidden name"><code>iso_view_continuous_flow_files.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Data Upload Server</p>
+    <p>Run individual modules</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>dataUploadServer</span>(<span class='no'>input</span>, <span class='no'>output</span>, <span class='no'>session</span>, <span class='no'>folder</span>, <span class='kw'>show_folder</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>extract_zip</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pattern</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>iso_view_continuous_flow_files</span>(<span class='no'>iso_files</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>folder</th>
-      <td><p>should be a reactive function that returns the upload folder</p></td>
+      <th>...</th>
+      <td><p>passed on to the <code><a href='https://rdrr.io/pkg/shiny/man/runApp.html'>runApp</a></code> call (only if <code>launch = TRUE</code>), can include server-specific parameters such as host or port</p></td>
     </tr>
     <tr>
-      <th>show_folder</th>
-      <td><p>reactive function that shows the view folder</p></td>
-    </tr>
-    <tr>
-      <th>extract_zip</th>
-      <td><p>whether to extract zip files</p></td>
-    </tr>
-    <tr>
-      <th>pattern</th>
-      <td><p>pattern for file types to allow (only these type of files are kept from unpacked .zip and direct file upload)</p></td>
+      <th>launch</th>
+      <td><p>whether to launch the app (TRUE) or return a shiny app object (FALSE) that then can be launched via <code><a href='https://rdrr.io/pkg/shiny/man/runApp.html'>runApp</a></code></p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other data upload module functions: <code><a href='dataUploadUI.html'>dataUploadUI</a></code></p></div>
     
 
   </div>
@@ -155,9 +142,7 @@
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#see-also">See also</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>
