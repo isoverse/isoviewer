@@ -1,5 +1,5 @@
 title: Isoviewer
-url: http://kopflab.github.io/isoviewer/
+url: http://isoviewer.isoverse.org
 template:
   params:
     bootswatch: simplex
@@ -23,7 +23,7 @@ navbar:
     href: reference/index.html
   right:
   - icon: fa-github fa-lg
-    href: https://github.com/kopflab/isoviewer
+    href: https://github.com/isoverse/isoviewer
 
 reference:
 - title: Operation

@@ -128,7 +128,7 @@ generate_load_list_code <- function(read_paths, read_func, read_params, save_fil
     chunk(
       code_only = !rmarkdown,
       pre_chunk = "## Save Dataset",
-      code_block("export_rda", save_file = save_file),
+      code_block("export_rds", save_file = save_file),
       chunk_options = list("save")
     )
   )
@@ -316,10 +316,10 @@ show_problems =
 "# show problems
 isofiles %>% iso_get_problems()",
 
-# export rda ----
-export_rda =
+# export rds ----
+export_rds =
 "# save dataset
-isofiles %>% iso_export_to_rda(\"${save_file}\")",
+isofiles %>% iso_save(\"${save_file}\")",
 
 #### general purpose ####
 

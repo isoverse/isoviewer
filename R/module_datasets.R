@@ -10,7 +10,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   # namespace, and top level params
   ns <- session$ns
   datasets_dir <- get_datasets_path(data_dir)
-  rda_pattern <- str_c("\\.(", str_c(sprintf("(%s)", str_subset(extensions, "rda")), collapse = "|"), ")$")
+  rds_pattern <- str_c("\\.(", str_c(sprintf("(%s)", str_subset(extensions, "rds")), collapse = "|"), ")$")
 
   # reactive values
   values <- reactiveValues(
@@ -32,7 +32,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     invalidateLater(1000, session)
     datasets <- c(
         saved_datasets(),
-        list.files(datasets_dir, pattern = rda_pattern) %>%
+        list.files(datasets_dir, pattern = rds_pattern) %>%
         { setNames(file.path(datasets_dir, .), file.path(names(datasets_dir), .)) }) %>%
       { .[!duplicated(.)] }
 
@@ -234,7 +234,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
 
       # re-save collection
       setProgress(value = 1, detail = "", message = sprintf("Re-saving dataset %s", dataset_name))
-      iso_export_to_rda(values$loaded_isofiles, filepath = dataset, quiet = TRUE)
+      iso_save(values$loaded_isofiles, filepath = dataset, quiet = TRUE)
     })
 
     # done reading
@@ -265,7 +265,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     get_dataset_path = reactive({ values$loaded_dataset }),
     get_dataset_name = reactive({
       if (is.null(values$loaded_dataset)) return(NULL)
-      else basename(values$loaded_dataset) %>% str_replace("\\.(\\w+)\\.rda$", "")
+      else basename(values$loaded_dataset) %>% str_replace("\\.(\\w+)\\.rds$", "")
     }),
     get_isofiles = get_selected_isofiles,
     get_code_update = code_update
