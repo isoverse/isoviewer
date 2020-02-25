@@ -58,7 +58,7 @@ generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
 generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
-    pre_chunk = "## Show Vendor Data Table",
+    pre_chunk = "# Vendor Data Table",
     chunk_options = list("vendor data table"),
     code_block("iso_get_vendor_data_table", selection = selection)
   )
@@ -68,7 +68,7 @@ generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
 generate_method_info_code <- function(rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
-    pre_chunk = "## Show Method Information",
+    pre_chunk = "# Method Information",
     chunk_options = list("method info"),
     code_block("iso_get_standards_info"),
     code_block("iso_get_resistors_info")
@@ -79,7 +79,7 @@ generate_method_info_code <- function(rmarkdown = FALSE) {
 generate_file_info_code <- function(selection, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
-    pre_chunk = "## Show File Information",
+    pre_chunk = "# File Information",
     chunk_options = list("file info"),
     code_block("iso_get_file_info", selection = selection)
   )
