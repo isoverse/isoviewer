@@ -1,5 +1,5 @@
 #' Continuous flow files Server
-#' @param get_selected_variable reactive function returning the variable name
+#' @inheritParams module_data_server
 module_data_cf_server <- function(input, output, session, get_selected_variable) {
 
   # namespace
@@ -9,7 +9,8 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   code_update <-  reactive({
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
-        file_info$get_code_update()(rmarkdown = rmarkdown)
+        file_info$get_code_update()(rmarkdown = rmarkdown),
+        method_info$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -30,6 +31,14 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
   )
 
+  # method info ====
+  method_info <- callModule(
+    method_info_server, "method_info",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "method_info")
+  )
+
 }
 
 
@@ -44,16 +53,15 @@ module_data_cf_ui <- function(id) {
       tabPanel("Raw Data", value = "raw_data"
                #cfRawDataPlotUI(ns("raw_data"))
       ),
-      tabPanel("Method Info", value = "method_info"
-               #methodInfoTableUI(ns("method_info"))
-      ),
+      tabPanel("Method Info", value = "method_info", method_info_table_ui(ns("method_info"))),
       tabPanel("Vendor Data Table", value = "vendor_data_table"
                #vendorDataTableTableUI(ns("vendor_data_table"))
       )
     ),
     # OPTIONS ====
     option_boxes = list(
-      file_info_selector_ui(ns("file_info"), width = 4)
+      file_info_selector_ui(ns("file_info"), width = 4),
+      method_info_selector_ui(ns("method_info"), width = 4)
       # cfRawDataSelectorUI(ns("raw_data"), width = 4, selector_height = "200px"),
       # cfRawDataSettingsUI(ns("raw_data"), width = 4),
       # methodInfoSelectorUI(ns("method_info"), width = 4),

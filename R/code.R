@@ -1,5 +1,12 @@
 # specific code assembly functions ===
 
+# generate dataset variables
+generate_dataset_vars <- function(dataset) {
+  list(
+    subset = paste0(dataset, "_subset")
+  )
+}
+
 # generate processing code
 generate_cf_processing_code <- function(scale_signal, scale_time, ratios = c(), rmarkdown = FALSE) {
   chunk(
@@ -65,20 +72,19 @@ generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
 }
 
 # generate methods info code
-generate_method_info_code <- function(rmarkdown = FALSE) {
+generate_method_info_code <- function(dataset, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Method Information",
     chunk_options = list("method info"),
-    code_block("iso_get_standards_info"),
-    code_block("iso_get_resistors_info")
-  )
-}
-
-# generate dataset variables
-generate_dataset_vars <- function(dataset) {
-  list(
-    subset = paste0(dataset, "_subset")
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate standards method info"),
+      function_call("iso_get_standards")
+    ),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate resistors method info"),
+      function_call("iso_get_resistors")
+    )
   )
 }
 

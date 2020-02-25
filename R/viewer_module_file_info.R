@@ -1,5 +1,5 @@
 #' File Info Server
-#' @inheritParams isofilesLoadServer
+#' @param get_variable reactive function returning the selected variable
 #' @param get_iso_files reactive function returning the currently loaded isofiles
 #' @param is_visible reactive function determining visibility of the auxiliary boxes
 #' @family file info module functions
@@ -34,7 +34,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   # get selected file info =====
   get_selected_file_info <- reactive({
     # triger for both iso files and selected info columns
-    req(get_iso_files())
+    validate(need(length(get_iso_files()) > 0, "loading..."))
     selector$get_selected()
 
     isolate({
@@ -55,14 +55,15 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   })
 
   # file info table =====
-  output$table <- renderTable({
+  output$table <- DT::renderDataTable({
     req(get_selected_file_info())
     module_message(ns, "info", "FILE INFO rendering file info table")
-    table <- get_selected_file_info()
-    for (col in which(sapply(table, inherits, "POSIXct"))) # xtable does not deal well with datetime
-      table[[col]] <- format(table[[col]])
-    return(table)
-  }, striped = TRUE, spacing = 'xs', width = '100%', align = 'l')
+    DT::datatable(
+      get_selected_file_info(),
+      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
+      filter = "bottom"
+    )
+  })
 
   # code update ====
   code_update <- reactive({
@@ -86,19 +87,16 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
 
 
 #' File Info Table UI
-#' @inheritParams isofilesLoadUI
 #' @family file info module functions
-file_info_table_ui <- function(id) {
+file_info_table_ui <- function(id, min_height = "800px;") {
   ns <- NS(id)
-  div(style = 'overflow-x: scroll; height: 400px;',
-      tableOutput(ns("table")) %>% withSpinner(type = 5, proxy.height = "400px;"))
+  div(style = paste0('overflow-x: scroll; min-height: ', min_height),
+      DT::dataTableOutput(ns("table")) %>% withSpinner(type = 5, proxy.height = min_height))
 }
 
 
 #' File Info Selector UI
-#' @inheritParams isofilesLoadUI
 #' @param width box width
-#' @param selector_height file selector height
 #' @family file info module functions
 file_info_selector_ui <- function(id, width = 4) {
   ns <- NS(id)

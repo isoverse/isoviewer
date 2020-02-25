@@ -1,5 +1,5 @@
 #' Scan flow files Server
-#' @param get_selected_variable reactive function returning the variable name
+#' @inheritParams module_data_server
 module_data_scan_server <- function(input, output, session, get_selected_variable) {
 
   # namespace

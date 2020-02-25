@@ -1,5 +1,5 @@
 #' Dual inlet flow files Server
-#' @param get_selected_variable reactive function returning the variable name
+#' @inheritParams module_data_server
 module_data_di_server <- function(input, output, session, get_selected_variable) {
 
   # namespace
@@ -9,7 +9,8 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
   code_update <-  reactive({
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
-        file_info$get_code_update()(rmarkdown = rmarkdown)
+        file_info$get_code_update()(rmarkdown = rmarkdown),
+        method_info$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -30,6 +31,15 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
   )
 
+  # method info ====
+  method_info <- callModule(
+    method_info_server, "method_info",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "method_info")
+  )
+
+
 }
 
 
@@ -40,11 +50,13 @@ module_data_di_ui <- function(id) {
     ns("base_data"),
     # TABS =====
     tab_panels = list(
-      tabPanel("File Info", value = "file_info", file_info_table_ui(ns("file_info")))
+      tabPanel("File Info", value = "file_info", file_info_table_ui(ns("file_info"))),
+      tabPanel("Method Info", value = "method_info", method_info_table_ui(ns("method_info")))
     ),
     # OPTIONS ====
     option_boxes = list(
-      file_info_selector_ui(ns("file_info"), width = 4)
+      file_info_selector_ui(ns("file_info"), width = 4),
+      method_info_selector_ui(ns("method_info"), width = 4)
     )
   )
 }
