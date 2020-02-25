@@ -166,12 +166,17 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
     setequal(get_selected(), values$table[[id_column]])
   }, ignoreNULL = FALSE)
 
+  get_table_nrow <- eventReactive(values$table, {
+    nrow(values$table)
+  })
+
   # return functions
   list(
     set_table = set_table,
     set_selected = set_selected,
     get_selected = get_selected,
     get_selected_items = get_selected_items,
+    get_table_nrow = get_table_nrow,
     are_all_selected = are_all_selected
   )
 }

@@ -8,7 +8,6 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
   # reactive values =====
   values <- reactiveValues(
-    iso_files = NULL,
     show_errors = get_gui_setting(ns("errors"), TRUE),
     show_warnings = get_gui_setting(ns("warnings"), TRUE)
   )
