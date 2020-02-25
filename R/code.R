@@ -104,6 +104,22 @@ generate_file_info_code <- function(dataset, selection, rmarkdown = FALSE) {
   )
 }
 
+# generate standards info code
+generate_standards_info_code <- function(dataset, selection, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Standards",
+    chunk_options = list("standards"),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate standards info"),
+      function_call(
+        "iso_get_standards",
+        params = list(select = selection)
+      )
+    )
+  )
+}
+
 # generate code for dataset and data files selection
 generate_data_subset_code <- function(dataset, remove_errors, remove_warnings, select_files, rmarkdown = FALSE) {
   chunk(

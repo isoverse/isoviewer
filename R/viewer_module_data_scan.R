@@ -24,7 +24,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
 
   # file info ====
   file_info <- callModule(
-    file_info_server, "file_info",
+    data_table_file_info_server, "file_info",
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
@@ -41,11 +41,11 @@ module_data_scan_ui <- function(id) {
     ns("base_data"),
     # TABS =====
     tab_panels = list(
-      tabPanel("File Info", value = "file_info", file_info_table_ui(ns("file_info")))
+      tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info")))
     ),
     # OPTIONS ====
     option_boxes = list(
-      file_info_selector_ui(ns("file_info"), width = 4)
+      data_table_file_info_column_selector_ui(ns("file_info"), width = 4)
     )
   )
 }

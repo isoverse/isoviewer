@@ -10,7 +10,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
         file_info$get_code_update()(rmarkdown = rmarkdown),
-        method_info$get_code_update()(rmarkdown = rmarkdown)
+        standards_info$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -25,18 +25,18 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
 
   # file info ====
   file_info <- callModule(
-    file_info_server, "file_info",
+    data_table_file_info_server, "file_info",
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
   )
 
   # method info ====
-  method_info <- callModule(
-    method_info_server, "method_info",
+  standards_info <- callModule(
+    standards_info_server, "standards",
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
-    is_visible = reactive(base_data$get_tab_selection() == "method_info")
+    is_visible = reactive(base_data$get_tab_selection() == "standards")
   )
 
 }
@@ -49,19 +49,20 @@ module_data_cf_ui <- function(id) {
     ns("base_data"),
     # TABS =====
     tab_panels = list(
-      tabPanel("File Info", value = "file_info", file_info_table_ui(ns("file_info"))),
+      tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info"))),
       tabPanel("Raw Data", value = "raw_data"
                #cfRawDataPlotUI(ns("raw_data"))
       ),
-      tabPanel("Method Info", value = "method_info", method_info_table_ui(ns("method_info"))),
+      tabPanel("Standards", value = "standards", standards_info_table_ui(ns("standards"))),
       tabPanel("Vendor Data Table", value = "vendor_data_table"
                #vendorDataTableTableUI(ns("vendor_data_table"))
       )
     ),
     # OPTIONS ====
     option_boxes = list(
-      file_info_selector_ui(ns("file_info"), width = 4),
-      method_info_selector_ui(ns("method_info"), width = 4)
+      data_table_file_info_column_selector_ui(ns("file_info"), width = 4),
+      standards_info_selector_ui(ns("method_info"), width = 4)
+
       # cfRawDataSelectorUI(ns("raw_data"), width = 4, selector_height = "200px"),
       # cfRawDataSettingsUI(ns("raw_data"), width = 4),
       # methodInfoSelectorUI(ns("method_info"), width = 4),

@@ -1,9 +1,14 @@
-#' File Info Server
+#' Basic data table server with column selection option
+#'
+#' This is for the usual iso_get_... aggregation functions.
+#'
 #' @param get_variable reactive function returning the selected variable
 #' @param get_iso_files reactive function returning the currently loaded isofiles
+#' @param get_data_table a regular function taking iso_files and a list of column names to retrieve the data table
+#' @param get_data_table_columns a regular function taking iso_files and returning a vector of data table columns
 #' @param is_visible reactive function determining visibility of the auxiliary boxes
 #' @family file info module functions
-file_info_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible, get_data_table, get_data_table_columns) {
 
   # namespace
   ns <- session$ns
@@ -13,18 +18,17 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
     callModule(
       selectorTableServer,
       "selector",
-      id_column = "info",
+      id_column = "col",
       row_column = "rowid",
-      column_select = c(Info = info)
+      column_select = c(Column = col)
     )
 
   # generate selector list ====
   observeEvent(get_iso_files(), {
     req(length(get_iso_files()) > 0)
-    columns <- names(isoreader::iso_get_file_info(get_iso_files(), quiet = TRUE))
-    columns <- columns[!columns %in% c("file_id", "file_root")] # do not allow file_root while on server
+    columns <- get_data_table_columns(get_iso_files())
     selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
-    selector$set_table(tibble::tibble(info = columns, rowid = 1:length(columns)))
+    selector$set_table(tibble::tibble(col = columns, rowid = 1:length(columns)))
     selector$set_selected(selected)
   })
 
@@ -32,7 +36,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   observeEvent(is_visible(), { toggle("selector_box", condition = is_visible()) })
 
   # get selected file info =====
-  get_selected_file_info <- reactive({
+  get_selected_data_table <- reactive({
     # triger for both iso files and selected info columns
     validate(need(length(get_iso_files()) > 0, "loading..."))
     selector$get_selected()
@@ -41,7 +45,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
       # info message
       module_message(
         ns, "info", sprintf(
-          "FILE INFO user selected %d/%d file info columns for '%s'",
+          "DATA TABLE user selected %d/%d columns for '%s'",
           length(selector$get_selected()), selector$get_table_nrow(), get_variable())
       )
 
@@ -49,17 +53,16 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
       set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
 
       # get file info
-      isoreader::iso_get_file_info(get_iso_files(), select = c(!!!selector$get_selected()), quiet = TRUE) %>%
-        isoreader:::collapse_list_columns()
+      get_data_table(get_iso_files(), selector$get_selected())
     })
   })
 
   # file info table =====
   output$table <- DT::renderDataTable({
-    req(get_selected_file_info())
-    module_message(ns, "info", "FILE INFO rendering file info table")
+    req(get_selected_data_table())
+    module_message(ns, "info", "DATA TABLE rendering table")
     DT::datatable(
-      get_selected_file_info(),
+      get_selected_data_table(),
       options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
       filter = "bottom"
     )
@@ -81,28 +84,26 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
 
   # return functions
   list(
-    get_code_update = code_update
+    get_selected_columns = selector$get_selected,
+    are_all_columns_selected = selector$are_all_selected
   )
 }
 
 
-#' File Info Table UI
-#' @family file info module functions
-file_info_table_ui <- function(id, min_height = "800px;") {
+#' Data Table UI
+data_table_ui <- function(id, min_height = "800px;") {
   ns <- NS(id)
   div(style = paste0('overflow-x: scroll; min-height: ', min_height),
       DT::dataTableOutput(ns("table")) %>% withSpinner(type = 5, proxy.height = min_height))
 }
 
-
-#' File Info Selector UI
+#' Column Selector UI
 #' @param width box width
-#' @family file info module functions
-file_info_selector_ui <- function(id, width = 4) {
+data_table_column_selector_ui <- function(id, width = 4) {
   ns <- NS(id)
   div(id = ns("selector_box"),
       default_box(
-        title = "File Info Selector", width = width,
+        title = "Column Selector", width = width,
         selectorTableUI(ns("selector")),
         footer = div(selectorTableButtons(ns("selector")))
       )
