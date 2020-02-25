@@ -5,14 +5,15 @@
 #' @param selected_variable the default variable to select (if any)
 module_navbar_server <- function(input, output, session, selected_variable = NULL) {
 
-  # namespace, and top level params
+  # namespace
   ns <- session$ns
 
   # available variables in namespace
-  available_variables <- find_iso_objects() #list(di = c(), cf = c(), scan = c())
+  available_variables <- find_iso_objects()
 
   # non-variable menu items (make sure IDs are unique by tagging pi to them)
   welcome <- sprintf("welcome%.6f", pi)
+  close_id <- sprintf("close%.6f", pi)
   available_variables_NA <-
     setNames(
       sprintf("%s%.6f", names(available_variables), pi),
@@ -39,7 +40,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
 
     # info message
     module_message(
-      ns, "info", sprintf("creating navbar with the available variables: '%s', and selection '%s'",
+      ns, "info", sprintf("NAVBAR creating navbar with the available variables: '%s', and selection '%s'",
       available_variables %>% unlist() %>%  paste(collapse = "', '"), selected)
     )
 
@@ -80,6 +81,9 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
         list("Scan", menuName = "di", icon = icon("line-chart")),
         tab_panels$scan
       ))
+      # tabPanel("Close", value = close_id, icon = icon("sign-out-alt"),
+      #          box(h2("Saving settings and closing the application..."), width = 12)
+      # )
     )
   })
 
@@ -91,7 +95,15 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
 
   # select navbar item ----
   select_navbar_item <- function(id, update_navbar = TRUE) {
-    module_message(ns, "info", "loading menu item: ", id)
+
+    if (id == close_id) {
+      # FIXME: this doesn't quite work properly yet with the displaying of the logout message (others aren't hiddne)
+      # additional ideas for closing the window: https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R
+      module_message(ns, "info", "closing application")
+      stopApp()
+    } else {
+      module_message(ns, "info", "NAVBAR loading menu item: '", id, "'")
+    }
 
     # update navbar if not already the new value
     if (update_navbar) updateNavbarPage(session, ns("menu"), selected = id)

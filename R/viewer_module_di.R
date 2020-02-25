@@ -2,6 +2,9 @@
 #' @param get_selected_variable reactive function returning the variable name
 module_di_server <- function(input, output, session, get_selected_variable) {
 
+  # namespace
+  ns <- session$ns
+
   # file selector module
   files <- callModule(
     module_file_selector_server, "files",
