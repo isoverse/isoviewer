@@ -86,21 +86,15 @@ generate_file_info_code <- function(selection, rmarkdown = FALSE) {
 }
 
 # generate code for dataset and data files selection
-generate_data_selection_code <- function(dataset, read_func, omit_type, select_files, rmarkdown = FALSE) {
-  omit_params <- list(remove_files_with_warnings = FALSE, remove_files_with_errors = FALSE)
-  if ("warning" %in% omit_type)
-    omit_params$remove_files_with_warnings <- TRUE
-  if ("error" %in% omit_type)
-    omit_params$remove_files_with_errors <- TRUE
-
+generate_data_selection_code <- function(dataset, remove_errors, remove_warnings, select_files, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
-    pre_chunk = "## Load Dataset",
-    chunk_options = list("load"),
+    pre_chunk = "# Subset Dataset",
+    chunk_options = list("subset"),
     pipe(
-      code_block("load_dataset", func = read_func, dataset = dataset),
-      if (length(omit_type) >0)
-        code_block("omit_problems", params = omit_params),
+      code_block("subset_dataset", dataset = dataset),
+      if (remove_errors || remove_warnings)
+        code_block("omit_problems", params = list(remove_files_with_warnings = remove_warnings, remove_files_with_errors = remove_errors)),
       if (length(select_files) == 0 || !is.na(select_files[1]))
         code_block("select_files", files = select_files)
     )
@@ -144,9 +138,8 @@ generate_file_header_code <- function(title, rmarkdown = FALSE, front_matter = r
     if (rmarkdown && install) code_block("install_github", package = "KopfLab/isoreader"),
     if (setup) chunk(
       code_only = !rmarkdown,
-      pre_chunk = "## Setup",
-      post_chunk = "
-This document was generated with [isoviewer](http://isoviewer.kopflab.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.kopflab.org) version `r packageVersion(\"isoreader\")`.",
+      pre_chunk = "# Libraries",
+      post_chunk = "This document was generated with [isoviewer](http://isoviewer.isoverse.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.",
       chunk_options = list("setup", message=FALSE, warning=FALSE),
       code_block("load_library"),
       if (caching_on) code_block("caching_on")
@@ -251,14 +244,20 @@ theme(${theme})",
 
 #### data selection ####
 
-# load dataset ---
+# load dataset (deprecated) ----
 load_dataset =
 "# load dataset
-isofiles <- ${func}(${if (!is.null(dataset)) paste0('\"', dataset, '\"') else NA})",
+iso_files <- ${func}(${if (!is.null(dataset)) paste0('\"', dataset, '\"') else NA})",
+
+# subset dataset ----
+subset_dataset =
+"# subset dataset
+${dataset}_subset <- ${dataset}",
+
 
 omit_problems =
-"# omit problems
-iso_omit_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
+"# remove problematic files
+iso_filter_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
 
 select_files =
 "# select specific files
@@ -325,8 +324,9 @@ isofiles %>% iso_save(\"${save_file}\")",
 
 # load library ----
 load_library =
-  "# load library
-library(isoreader)",
+  "# load libraries
+library(isoreader)
+library(isoprocessor)",
 
 # caching on ----
 caching_on =
