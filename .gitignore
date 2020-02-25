@@ -6,6 +6,9 @@
 .RData
 .Rproj.user
 
+# Data files
+*.rds
+
 # Example code in package build process
 *-Ex.R
 
