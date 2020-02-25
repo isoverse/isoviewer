@@ -13,19 +13,19 @@ viewer_server <- function(selected_variable = NULL) {
 
     # continuous flow data
     cf <- callModule(
-      module_cf_server, "cf",
+      module_data_cf_server, "cf",
       get_selected_variable = navbar$get_selected_cf_variable
     )
 
     # dual inlet data
     di <- callModule(
-      module_di_server, "di",
+      module_data_di_server, "di",
       get_selected_variable = navbar$get_selected_di_variable
     )
 
     # scan data
     scan <- callModule(
-      module_scan_server, "scan",
+      module_data_scan_server, "scan",
       get_selected_variable = navbar$get_selected_scan_variable
     )
 

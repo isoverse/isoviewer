@@ -47,9 +47,9 @@ viewer_ui <- function(sidebar_width = 170, start_menu = "welcome", theme = "unit
     fluidPage(
       title = NULL,
       fluidRow(
-        module_cf_ui("cf"),
-        module_di_ui("di"),
-        module_scan_ui("scan")
+        module_data_cf_ui("cf"),
+        module_data_di_ui("di"),
+        module_data_scan_ui("scan")
       )
     )
   )
