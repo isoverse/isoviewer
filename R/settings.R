@@ -23,27 +23,58 @@ turn_debug_off <- function(data) {
 }
 
 # gui settings
+turn_gui_settings_on <- function() {
+  set_setting("gui_settings", TRUE)
+}
+
+turn_gui_settings_off <- function() {
+  set_setting("gui_settings", FALSE)
+}
+
+are_gui_settings_on <- function() {
+  setting("gui_settings")
+}
+
+# set gui settings (stored in workspace instead of options to make it easy to
+# back them up or save them in a file)
 set_gui_setting <- function(name, value) {
-  if (are_gui_settings_on()) set_setting(paste0("gui.", name), value)
+  if (are_gui_settings_on()) {
+    .isoviewer_gui_settings[[name]] <<- value
+
+    # back up gui settings continuously if in debug mode
+    if (setting("debug")) {
+      save_gui_settings("gui_settings.rds")
+    }
+  }
+  return(invisible(.isoviewer_gui_settings[[name]]))
 }
 
 # returns gui setting if gui settings are on and the setting is available
 # otherwise returns the default
 get_gui_setting <- function(name, default = NULL) {
-  if (!are_gui_settings_on()) return(default)
-  value <- getOption(paste0("isoviewer.gui.", name))
-  if (is.null(value)) return(default)
-  return(value)
+  if (
+    !are_gui_settings_on() ||
+    is.null(.isoviewer_gui_settings[[name]])
+  ) {
+    return(default)
+  } else {
+    return(.isoviewer_gui_settings[[name]])
+  }
 }
 
-turn_gui_settings_on <- function() {
-  set_setting("gui.settings", TRUE)
+# save gui settings
+# @param file_path path to rds file
+save_gui_settings <- function(file_path) {
+  readr::write_rds(.isoviewer_gui_settings, file_path)
 }
 
-turn_gui_settings_off <- function() {
-  set_setting("gui.settings", FALSE)
+# load gui settings
+load_gui_settings <- function(file_path) {
+  stopifnot(file.exists(file_path))
+  .isoviewer_gui_settings <<- readr::read_rds(file_path)
 }
 
-are_gui_settings_on <- function() {
-  setting("gui.settings")
+# reset gui settings
+reset_gui_settings <- function() {
+  .isoviewer_gui_settings <<- list()
 }
