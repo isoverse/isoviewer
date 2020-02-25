@@ -12,7 +12,7 @@ set_setting <- function(name, value, overwrite = TRUE) {
   return(invisible(value))
 }
 
-# turn debug messages on/off
+# turn debug mode on/off
 # not exported, used for internal debugging
 turn_debug_on <- function() {
   set_setting("debug", TRUE)
@@ -20,6 +20,15 @@ turn_debug_on <- function() {
 
 turn_debug_off <- function(data) {
   set_setting("debug", FALSE)
+}
+
+# turn logs on/off
+turn_log_on <- function() {
+  set_setting("log", TRUE)
+}
+
+turn_log_off <- function() {
+  set_setting("log", FALSE)
 }
 
 # gui settings

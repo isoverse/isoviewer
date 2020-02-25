@@ -1,6 +1,7 @@
 .onLoad <- function(libname, pkgname) {
   # set default package options
   default_options <- list(
+    isoviewer.log = TRUE,
     isoviewer.debug = FALSE,
     isoviewer.gui_settings = TRUE
   )

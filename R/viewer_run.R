@@ -5,10 +5,11 @@
 #' @param iso_files variable name - if provided, will start the viewer on this collection of iso files
 #' @param restore whether to restore the GUI to the previous state (if available). If \code{TRUE}, will store the GUI settings for future restore.
 #' @param reset whether to reset the GUI state upon viewer start
+#' @param log whether to show log info messages or not
 #' @param launch whether to launch the shiny app or return it as an object
 #' @param ... passed on to the \code{\link[shiny]{runApp}} call (only if \code{launch = TRUE}), can include server-specific parameters such as host or port
 #' @export
-iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALSE, launch = TRUE) {
+iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALSE, log = FALSE, launch = TRUE) {
 
   # check for knitting
   if (isTRUE(getOption('knitr.in.progress'))) {
@@ -34,8 +35,11 @@ iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALS
     sprintf("iso files variable '%s' is not an iso object", iso_files_name) %>%
     stop(call. = FALSE)
 
-  # GUI settings
+  # log messages
+  if (log) turn_log_on()
+  else turn_log_off()
 
+  # GUI settings
   if (restore) turn_gui_settings_on()
   else turn_gui_settings_off()
 
