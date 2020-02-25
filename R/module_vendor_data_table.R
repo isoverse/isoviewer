@@ -16,7 +16,7 @@ vendorDataTableServer <- function(input, output, session, isofiles, visible = NU
     columns <- names(iso_get_vendor_data_table(isofiles(), quiet = TRUE)) %>%
     { .[!. %in% c("file_id")] }
     # set table
-    vdt_selector$set_table(data_frame(column = columns))
+    vdt_selector$set_table(tibble::tibble(column = columns))
   })
 
   # show selector list box
@@ -34,7 +34,7 @@ vendorDataTableServer <- function(input, output, session, isofiles, visible = NU
         need(length(vdt_selector$get_selected()) > 0, "Please select at least one vendor data table column.")
     )
     module_message(ns, "debug", "rendering vendor data table")
-    iso_get_vendor_data_table(isofiles(), select = c("file_id", !!vdt_selector$get_selected()), quiet = TRUE)
+    isoreader::iso_get_vendor_data_table(isofiles(), select = c("file_id", !!vdt_selector$get_selected()), quiet = TRUE)
   }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
 
 

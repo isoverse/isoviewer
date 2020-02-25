@@ -17,7 +17,7 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
     get_iso_files = reactive({
       req(get_selected_variable())
       obj <- get(get_selected_variable(), envir = .GlobalEnv)
-      stopifnot(iso_is_continuous_flow(obj))
+      stopifnot(isoreader::iso_is_continuous_flow(obj))
       return(obj)
     })
   )
@@ -72,7 +72,7 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
 
       code(
         generate_file_header_code(
-          title = str_c("Viewing ", get_selected_variable()),
+          title = stringr::str_c("Viewing ", get_selected_variable()),
           setup = TRUE, caching_on = FALSE,
           rmarkdown = rmarkdown, front_matter = front_matter),
         files$get_code_update()(rmarkdown = rmarkdown),

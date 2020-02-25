@@ -47,7 +47,7 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
 
   # download excel ====
   output$export_excel <- downloadHandler(
-    filename = function() { str_c(dataset_name(), ".xlsx") },
+    filename = function() { stringr::str_c(dataset_name(), ".xlsx") },
     contentType = "application/octet-stream",
     content = function(filename) {
       if (length(isofiles()) > 0) {
@@ -65,7 +65,7 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
 
   # download feather ====
   output$export_feather <- downloadHandler(
-    filename = function() { str_c(dataset_name(), ".zip") },
+    filename = function() { stringr::str_c(dataset_name(), ".zip") },
     content = function(filename) {
       if (length(isofiles()) > 0) {
         temp_files <- isoreader:::get_feather_export_filepaths(isofiles(), file.path(tempdir(), dataset_name()))
@@ -75,10 +75,10 @@ exportServer <- function(input, output, session, isofiles, dataset_name, visible
           do.call(iso_export_to_feather, args = c(list(isofiles(), temp_files[['base']]), params, list(quiet = TRUE)))
 
           # zip up the files
-          feather_files <- temp_files %>% str_subset("\\.feather$") %>% { .[file.exists(.)] }
+          feather_files <- temp_files %>% stringr::str_subset("\\.feather$") %>% { .[file.exists(.)] }
           ws_feather_files <- basename(feather_files)
           file.copy(from = feather_files, to = ws_feather_files)
-          zip_file <- str_c(basename(tempfile()), ".zip")
+          zip_file <- stringr::str_c(basename(tempfile()), ".zip")
           zip(zip_file, files = basename(ws_feather_files))
           file.copy(from = zip_file, to = filename)
 

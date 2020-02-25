@@ -21,10 +21,10 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   # generate selector list ====
   observeEvent(get_iso_files(), {
     req(length(get_iso_files()) > 0)
-    columns <- names(iso_get_file_info(get_iso_files(), quiet = TRUE))
+    columns <- names(isoreader::iso_get_file_info(get_iso_files(), quiet = TRUE))
     columns <- columns[!columns %in% c("file_id", "file_root")] # do not allow file_root while on server
     selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = "file_datetime")
-    selector$set_table(tibble(info = columns, rowid = 1:length(columns)))
+    selector$set_table(tibble::tibble(info = columns, rowid = 1:length(columns)))
     selector$set_selected(selected)
   })
 
@@ -49,7 +49,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
       set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
 
       # get file info
-      iso_get_file_info(get_iso_files(), select = c(!!!selector$get_selected()), quiet = TRUE) %>%
+      isoreader::iso_get_file_info(get_iso_files(), select = c(!!!selector$get_selected()), quiet = TRUE) %>%
         isoreader:::collapse_list_columns()
     })
   })

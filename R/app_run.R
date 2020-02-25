@@ -74,14 +74,14 @@ install <- function(install_dir, data_dir = ".", ...) {
   dots <- c(list(data_dir = data_dir), list(...))
   parameters <-
     lapply(dots, function(i)
-      if(is.numeric(i) || is.logical(i)) str_c("=", i)
-      else if (is.character(i)) str_c(" = \"", i, "\"")
+      if(is.numeric(i) || is.logical(i)) stringr::str_c("=", i)
+      else if (is.character(i)) stringr::str_c(" = \"", i, "\"")
       else stop("don't know how to process ", class(i))
     ) %>%
-    { str_c(names(.), unlist(.)) } %>%
-    str_c(collapse = ", ") %>%
-    { if(length(.) > 0) str_c(., ", ") else "" } %>%
-    str_c("launch = FALSE")
+    { stringr::str_c(names(.), unlist(.)) } %>%
+    stringr::str_c(collapse = ", ") %>%
+    { if(length(.) > 0) stringr::str_c(., ", ") else "" } %>%
+    stringr::str_c("launch = FALSE")
 
   # call
   sprintf("library(isoviewer)\nrun(%s)", parameters) %>%

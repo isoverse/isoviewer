@@ -12,7 +12,7 @@ module_scan_server <- function(input, output, session, get_selected_variable) {
     get_iso_files = reactive({
       req(get_selected_variable())
       obj <- get(get_selected_variable(), envir = .GlobalEnv)
-      stopifnot(iso_is_scan(obj))
+      stopifnot(isoreader::iso_is_scan(obj))
       return(obj)
     })
   )

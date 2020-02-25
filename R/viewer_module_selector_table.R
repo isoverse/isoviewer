@@ -47,7 +47,7 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
       row_names <- values$table[[row_column]]
       if (!rlang::quo_is_null(column_select_quo)) {
         # take specified selection
-        df <- select(values$table, !!column_select_quo) %>% as.data.frame()
+        df <- dplyr::select(values$table, !!column_select_quo) %>% as.data.frame()
       } else {
         # remove id and row columns, rest stays the same
         df <- as.data.frame(values$table)

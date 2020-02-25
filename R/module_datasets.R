@@ -10,7 +10,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   # namespace, and top level params
   ns <- session$ns
   datasets_dir <- get_datasets_path(data_dir)
-  rds_pattern <- str_c("\\.(", str_c(sprintf("(%s)", str_subset(extensions, "rds")), collapse = "|"), ")$")
+  rds_pattern <- stringr::str_c("\\.(", stringr::str_c(sprintf("(%s)", stringr::str_subset(extensions, "rds")), collapse = "|"), ")$")
 
   # reactive values
   values <- reactiveValues(
@@ -41,10 +41,10 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
 
       # datasets
       if (length(datasets) == 0) {
-        datasets_df <- data_frame()
+        datasets_df <- tibble::tibble()
       } else {
         datasets_df <-
-          data_frame(
+          tibble::tibble(
             filepath = as.character(datasets),
             filepath_rel = names(datasets),
             mtime = file.mtime(filepath)
@@ -74,15 +74,15 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       # format datasets for display in groups
       datasets <-
         values$datasets %>%
-        mutate(
+        dplyr::mutate(
           sorting = format(mtime, "%Y%m"),
           grouping = format(mtime, "%b %Y"),
           label = sprintf("%s (%s)", basename(filepath_rel), dirname(filepath_rel))
         ) %>%
         arrange(desc(sorting), label) %>% # sort by names
-        group_by(sorting, grouping) %>%
+        dplyr::group_by(sorting, grouping) %>%
         do({
-          data_frame(items = list(setNames(.$filepath, .$label)))
+          tibble::tibble(items = list(setNames(.$filepath, .$label)))
         }) %>%
         arrange(desc(sorting)) %>% # resort after group_by messes up this part of sorting
         { setNames(as.list(.$items), .$grouping) }
@@ -109,7 +109,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       module_message(ns, "info", "(re)loading dataset '", basename(dataset), "'")
 
       # read dataset
-      withProgress(message = str_c('Loading dataset ', basename(dataset)), value = 0.5, {
+      withProgress(message = stringr::str_c('Loading dataset ', basename(dataset)), value = 0.5, {
         values$loaded_dataset <- dataset
         values$loaded_dataset_hash <- loaded_dataset_hash
         if (dataset != input$datasets)
@@ -164,12 +164,12 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
       isofiles_selector$set_table(NULL)
     } else {
       selector_table <-
-        iso_get_problems_summary(values$omit_isofiles, problem_files_only = FALSE) %>%
-        mutate(
+        isoreader::iso_get_problems_summary(values$omit_isofiles, problem_files_only = FALSE) %>%
+        dplyr::mutate(
           warning = as.character(warning),
           error = as.character(error)
         ) %>%
-        select(file_id, error, warning)
+        dplyr::select(file_id, error, warning)
       # set table
       isofiles_selector$set_table(selector_table)
       # FIXME/DEBUG mode: auto select
@@ -265,7 +265,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
     get_dataset_path = reactive({ values$loaded_dataset }),
     get_dataset_name = reactive({
       if (is.null(values$loaded_dataset)) return(NULL)
-      else basename(values$loaded_dataset) %>% str_replace("\\.(\\w+)\\.rds$", "")
+      else basename(values$loaded_dataset) %>% stringr::str_replace("\\.(\\w+)\\.rds$", "")
     }),
     get_isofiles = get_selected_isofiles,
     get_code_update = code_update
@@ -331,7 +331,7 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
       p("The following problems were encountered during the loading of dataset ", strong(name)),
       p("If any problems are unexpected (i.e. the files should have valid data), please ",
       strong(a(href = sprintf("mailto:%s?subject=%s&body=%s",
-                              mail_address, str_replace_all(mail_subject, " ", "%20"), str_replace_all(mail_body, " ", "%20")),
+                              mail_address, stringr::str_replace_all(mail_subject, " ", "%20"), stringr::str_replace_all(mail_body, " ", "%20")),
                "send us an email")),
       " and attach at least one of the problematic file(s). Your help is much appreciated."),
       tableOutput(ns('problems')) %>% withSpinner(type = 7, proxy.height = "50px;"),
@@ -344,10 +344,10 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
     req(dataset())
     probs <-iso_get_problems(dataset())
     if (nrow(probs) == 0) {
-      data_frame(Problem = "no problems")
+      tibble::tibble(Problem = "no problems")
     } else {
-      select(probs, File = file_id, Type = type, Function = func, Problem = details) %>%
-        mutate(Function = wrap_function_name(Function, max_length = 15))
+      dplyr::select(probs, File = file_id, Type = type, Function = func, Problem = details) %>%
+        dplyr::mutate(Function = wrap_function_name(Function, max_length = 15))
     }
   }, striped = TRUE, spacing = 'xs', width = 'auto', align = 'l')
 
@@ -366,10 +366,10 @@ problemsServer <- function(input, output, session, dataset, dataset_path) {
   })
 
   # button label
-  observeEvent(iso_get_problems(dataset()), {
+  observeEvent(isoreader::iso_get_problems(dataset()), {
     req(dataset())
     updateActionButton(session, "show_problems",
-                       label = sprintf("Problems (%.0f)", nrow(iso_get_problems(dataset()))))
+                       label = sprintf("Problems (%.0f)", nrow(isoreader::iso_get_problems(dataset()))))
   })
 
   # return functions (note: toggling the button visibility somehow does not work)

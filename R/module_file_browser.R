@@ -126,8 +126,8 @@ fileSelectorServer <- function(
       if (values$recent_active) {
         # find recent files (recursive from root)
         recent_files <- find_recent_files(root, pattern, exclude_recent) %>%
-          filter(row_number() <= values$n_recent) %>%  # get the right number of recent
-          mutate(rel_dir = sub("^[\\/]?", "", sub(root, "", folder, fixed = TRUE)), # replace root in folder
+          dplyr::filter(row_number() <= values$n_recent) %>%  # get the right number of recent
+          dplyr::mutate(rel_dir = sub("^[\\/]?", "", sub(root, "", folder, fixed = TRUE)), # replace root in folder
                  label = ifelse(nchar(rel_dir) > 0, sprintf("%s (%s)", time_file_label, rel_dir), time_file_label)) %>%
           { if (values$sort_desc) arrange(., desc(mtime)) else arrange(., mtime) } # sort
         content_hash <- generate_content_hash(recent_files$mtime)
@@ -226,7 +226,7 @@ fileSelectorUI <- function(id, size = 12) {
                      tooltip = "Sort in desending order")
     ),
     uiOutput(ns("tab_path")),
-    uiOutput(ns("content_list")) %>% withSpinner(type = 5, proxy.height = str_c(size * 20.2, "px")),
+    uiOutput(ns("content_list")) %>% withSpinner(type = 5, proxy.height = stringr::str_c(size * 20.2, "px")),
     hidden(numericInput(ns("size"), NULL, value = size)) # size information for server
   )
 }
@@ -266,12 +266,12 @@ find_recent_files <- function(folder, pattern, exclude = NULL) {
     list.files(pattern = pattern, full.names = T, recursive = TRUE, ignore.case = TRUE) %>%
     lapply(function(file) list(filepath = file, mtime = file.mtime(file))) %>%
     bind_rows() %>%
-    { if (!is.null(exclude)) filter(., !grepl(exclude, filepath)) else . } %>%
+    { if (!is.null(exclude)) dplyr::filter(., !grepl(exclude, filepath)) else . } %>%
     arrange(desc(mtime), filepath) %>%
-    mutate(
+    dplyr::mutate(
       file = basename(filepath),
       folder = dirname(filepath),
-      time_file_label = str_c(format(mtime, format = "%b %d, %Hh %Mm: "), basename(file)))
+      time_file_label = stringr::str_c(format(mtime, format = "%b %d, %Hh %Mm: "), basename(file)))
 }
 
 

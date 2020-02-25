@@ -1,14 +1,14 @@
 # retrieve package settings, internal function, not exported
 setting <- function(name) {
-  value <- getOption(str_c("isoviewer.", name))
+  value <- getOption(stringr::str_c("isoviewer.", name))
   if (is.null(value)) stop("isoviewer setting '", name, "' does not exist", call. = FALSE)
   return(value)
 }
 
 # set package setting, internal function, not exported
 set_setting <- function(name, value, overwrite = TRUE) {
-  if (overwrite || !str_c("isoviewer.", name) %in% names(options()))
-    options(list(value) %>% setNames(str_c("isoviewer.", name)))
+  if (overwrite || !stringr::str_c("isoviewer.", name) %in% names(options()))
+    options(list(value) %>% setNames(stringr::str_c("isoviewer.", name)))
   return(invisible(value))
 }
 

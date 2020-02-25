@@ -28,7 +28,7 @@ isofilesLoadServer <- function(
 
   # reactive values
   values <- reactiveValues(
-    load_list = data_frame(path = character(), path_rel = character(), label = character()),
+    load_list = tibble::tibble(path = character(), path_rel = character(), label = character()),
     load_list_selected = c(),
     loaded_isofiles = NULL,
     loaded_dataset = NULL,
@@ -61,13 +61,13 @@ isofilesLoadServer <- function(
       } else {
         "Add data files from your local hard drive to the load list. Uploaded files will only be stored temporarily and are not available to anybody else."
       }
-    store_data_msg <- str_c(store_data_msg,
+    store_data_msg <- stringr::str_c(store_data_msg,
                             " Uploaded zip archives (.zip) are automatically extracted.",
-                            " Only appropriate file types (", str_c(extensions, collapse = ", "), ") are used. All files are added to the load list.")
+                            " Only appropriate file types (", stringr::str_c(extensions, collapse = ", "), ") are used. All files are added to the load list.")
     if (allow_data_upload) {
       dataUploadUI(ns("upload"),
                    dialog_text = store_data_msg,
-                   accept = c("application/octet-stream", str_c(".", extensions), "application/zip", ".zip"))
+                   accept = c("application/octet-stream", stringr::str_c(".", extensions), "application/zip", ".zip"))
     } else NULL
   })
 
@@ -97,7 +97,7 @@ isofilesLoadServer <- function(
   observeEvent(input$create_folder_dialog, showModal(folder_modal()))
   observeEvent(input$create_folder, {
     if (!is.null(input$folder_name) && input$folder_name != "") {
-      new_folder <- str_replace_all(input$folder_name, "[^0-9A-Za-z_-]", "")
+      new_folder <- stringr::str_replace_all(input$folder_name, "[^0-9A-Za-z_-]", "")
       new_folder <- file.path(files_select$path(), new_folder)
       if (!file.exists(new_folder)) {
         module_message(ns, "info", "Creating new sub folder: ", basename(new_folder))
@@ -114,14 +114,14 @@ isofilesLoadServer <- function(
   add_to_load_list <- function(path, path_relative) {
     already_listed <- path %in% values$load_list$path
     if (length(path[!already_listed]) > 0) {
-      module_message(ns, "debug", "adding files to load list: ", str_c(path_relative[!already_listed], collapse = ", "))
-      new <- data_frame(
+      module_message(ns, "debug", "adding files to load list: ", stringr::str_c(path_relative[!already_listed], collapse = ", "))
+      new <- tibble::tibble(
         path = path[!already_listed],
         path_rel = path_relative[!already_listed])
       values$load_list <- bind_rows(values$load_list, new)
     }
     # update directory information
-    values$load_list <- mutate(
+    values$load_list <- dplyr::mutate(
       values$load_list,
       isdir = dir.exists(path),
       n_files = ifelse(
@@ -154,7 +154,7 @@ isofilesLoadServer <- function(
 
   # remove from load list
   remove_from_load_list <- function(remove_path) {
-    values$load_list <- filter(values$load_list, !path %in% remove_path)
+    values$load_list <- dplyr::filter(values$load_list, !path %in% remove_path)
   }
   observe({
     req(input$remove_files)
@@ -165,7 +165,7 @@ isofilesLoadServer <- function(
   observe({
     values$load_list # trigger whenever there is a change to the load list values
     isolate({
-      options <- select(values$load_list, label, path) %>% arrange(label) %>% deframe()
+      options <- dplyr::select(values$load_list, label, path) %>% arrange(label) %>% deframe()
       values$load_list_selected <- options[options %in% values$load_list_selected]
       updateSelectInput(session, "load_files_list", choices = options, selected = values$load_list_selected)
     })
@@ -179,7 +179,7 @@ isofilesLoadServer <- function(
 
   # Load list ====
   datasets_dir <- if (store_data) get_datasets_path(data_dir) else setNames(temp_dir, "temp")
-  datasets_ext <- str_subset(extensions, "rds")
+  datasets_ext <- stringr::str_subset(extensions, "rds")
 
   # observe load files button push
   observeEvent(input$load_files, {
@@ -194,7 +194,7 @@ isofilesLoadServer <- function(
     }
 
     # ask user about overwrite
-    dataset_name <- str_c(dataset_name, ".", datasets_ext)
+    dataset_name <- stringr::str_c(dataset_name, ".", datasets_ext)
     if (file.exists(file.path(datasets_dir, dataset_name))) {
       module_message(ns, "info", "asking whether to overwrite dataset file '", dataset_name, "'")
       # modal dialog to ask
@@ -222,7 +222,7 @@ isofilesLoadServer <- function(
   create_dataset <- function() {
 
     # dataset
-    dataset_name <- str_c(input$dataset_name, ".", datasets_ext)
+    dataset_name <- stringr::str_c(input$dataset_name, ".", datasets_ext)
     dataset_path <- file.path(datasets_dir, dataset_name)
     dataset_path_rel <- file.path(names(datasets_dir), dataset_name)
     module_message(ns, "info", "loading file list and storing in dataset file '", dataset_path_rel, "'")
@@ -234,11 +234,11 @@ isofilesLoadServer <- function(
     }, error = function(e) {
       error_msg <- e$message %>%
         # make sure root directory replaced
-        str_replace_all(fixed(root), root_name) %>%
+        stringr::str_replace_all(fixed(root), root_name) %>%
         # list files in an HTML list
-        str_replace("\n", "<ul><li>") %>% str_replace_all("\n", "</li><li>") %>% str_c("</li></ul>")
+        stringr::str_replace("\n", "<ul><li>") %>% stringr::str_replace_all("\n", "</li><li>") %>% stringr::str_c("</li></ul>")
       showModal(modalDialog(title = "Error",
-                            HTML(str_c("This list of files/folders cannot be loaded because ", error_msg)),
+                            HTML(stringr::str_c("This list of files/folders cannot be loaded because ", error_msg)),
                             footer = modalButton("Close"), fade = FALSE, easyClose = TRUE))
     })
     n_files <- length(files)
@@ -283,7 +283,7 @@ isofilesLoadServer <- function(
     removeModal()
 
     # problems
-    if (nrow(iso_get_problems(values$loaded_isofiles)) > 0) {
+    if (nrow(isoreader::iso_get_problems(values$loaded_isofiles)) > 0) {
       load_problems$show_problems()
     }
 
@@ -324,7 +324,7 @@ isofilesLoadServer <- function(
       module_message(ns, "debug", "generating updated code for isofiles load")
       code(
         generate_file_header_code(
-          title = str_c("Loading ", input$dataset_name),
+          title = stringr::str_c("Loading ", input$dataset_name),
           setup = TRUE, caching_on = TRUE,
           rmarkdown = rmarkdown, front_matter = front_matter),
         generate_load_list_code(
@@ -340,7 +340,7 @@ isofilesLoadServer <- function(
   })
   code_preview <- callModule(
     codePreviewServer, "code_preview", code_func_reac = code_update,
-    download_file = reactive({ str_c("LOAD ", input$dataset_name) }))
+    download_file = reactive({ stringr::str_c("LOAD ", input$dataset_name) }))
 
 
   # Return reactive functions ====
@@ -359,11 +359,11 @@ isofilesLoadServer <- function(
 #' @family isofiles load module functions
 isofilesLoadUI <- function(id, label = NULL) {
   ns <- NS(id)
-  label <- if(!is.null(label)) str_c(label, " ")
+  label <- if(!is.null(label)) stringr::str_c(label, " ")
 
   tagList(
     # file/folder selection
-    default_box(title = str_c(label, "File and Folder Selection"), width = 12,
+    default_box(title = stringr::str_c(label, "File and Folder Selection"), width = 12,
                 fileSelectorUI(ns("files"), size = 9),
                 footer = div(
                   tooltipInput(actionButton, ns("add_files"), "Add to load list", icon = icon("plus"),
@@ -376,7 +376,7 @@ isofilesLoadUI <- function(id, label = NULL) {
     ),
 
     # load list
-    default_box(title = str_c(label, "Load List"), width = 6,
+    default_box(title = stringr::str_c(label, "Load List"), width = 6,
                 inlineInput(textInput, ns("dataset_name"), label = "Name:", placeholder = "Please enter a name for the dataset",
                             value = "", width = "250px"), # or default date/time: format(Sys.time(), format = "%Y-%m-%d dataset")
                 selectInput(ns("load_files_list"), label = NULL, multiple = TRUE, size = 8, selectize = FALSE,

@@ -152,12 +152,12 @@ generate_file_header_code <- function(title, rmarkdown = FALSE, front_matter = r
 # function to assemble code chunk
 # @param code_only to turn rmarkdown on/off easily
 chunk <- function(..., pre_chunk = NULL, post_chunk = NULL, chunk_options = list(), code_only = FALSE) {
-  content <- str_c(..., sep = "\n\n")
+  content <- stringr::str_c(..., sep = "\n\n")
   if (code_only) return(content)
-  str_c(
+  stringr::str_c(
     c(
       if(!is.null(pre_chunk)) sprintf("%s\n", pre_chunk),
-      code_block("chunk", chunk_options = chunk_options, content = str_c(..., sep = "\n")),
+      code_block("chunk", chunk_options = chunk_options, content = stringr::str_c(..., sep = "\n")),
       if(!is.null(post_chunk)) sprintf("\n%s\n", post_chunk)
     ), collapse = "\n")
 }
@@ -170,7 +170,7 @@ pipe <- function(...) {
     { .[!sapply(., is.null)] } %>%
     # add indentation to all but first item
     { c(.[1], sapply(.[-1], indent)) }
-  str_c(unlist(blocks), collapse = " %>%\n")
+  stringr::str_c(unlist(blocks), collapse = " %>%\n")
 }
 
 # function to assemple plusses
@@ -181,13 +181,13 @@ plus <- function(...) {
     { .[!sapply(., is.null)] } %>%
     # add indentation to all but first item
     { c(.[1], sapply(.[-1], indent)) }
-  str_c(unlist(blocks), collapse = " +\n")
+  stringr::str_c(unlist(blocks), collapse = " +\n")
 }
 
 # function to indent a code block (with each newline)
 indent <- function(block, spaces = "  ") {
   if (length(block) == 0) return(NULL)
-  str_replace_all(str_c(spaces, block), "\n", str_c("\n", spaces))
+  stringr::str_replace_all(stringr::str_c(spaces, block), "\n", stringr::str_c("\n", spaces))
 }
 
 # function to assemble character vector
@@ -198,12 +198,12 @@ char_vector <- function(values, spacer = "\n    ") {
 
 # combine multiple chunks
 code <- function(...) {
-  str_c(..., sep = "\n\n")
+  stringr::str_c(..., sep = "\n\n")
 }
 
 # function for filling code block templates
 # @param id of the template
-# @param ... paramters for str_interp
+# @param ... paramters for stringr::str_interp
 code_block <- function(id, ...) {
 
   templates <- c(
@@ -266,7 +266,7 @@ iso_filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\
 #### file info
 iso_get_file_info =
 "# aggregate file info
-isofiles %>% iso_get_file_info(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+isofiles %>% isoreader::iso_get_file_info(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
 #### method info
 iso_get_standards_info =
@@ -313,7 +313,7 @@ isofiles <- ${func}(
 # look at problems ----
 show_problems =
 "# show problems
-isofiles %>% iso_get_problems()",
+isofiles %>% isoreader::iso_get_problems()",
 
 # export rds ----
 export_rds =
@@ -364,7 +364,7 @@ install_github =
 
   # fill template
   if(!id %in% names(templates)) stop("missing template: ", id, call. = FALSE)
-  str_interp(templates[id], list(...))
+  stringr::str_interp(templates[id], list(...))
 }
 
 # function to assemble chunk options

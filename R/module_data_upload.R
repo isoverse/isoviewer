@@ -39,11 +39,11 @@ dataUploadServer <- function(input, output, session, folder, show_folder = NULL,
           # info and uplaod counter
           values$upload_counter <- values$upload_counter + 1L
           module_message(ns, "info", sprintf("Processing upload #%d: %s", values$upload_counter, name))
-          ext <- str_match(basename(name), "\\.(\\w+$)")[1,2]
+          ext <- stringr::str_match(basename(name), "\\.(\\w+$)")[1,2]
           if (!is.na(ext) && ext == "zip") {
             if (extract_zip) {
               unzip_files <- unzip(datapath, list = TRUE)$Name
-              if (!is.null(pattern)) unzip_files <- str_subset(unzip_files, pattern)
+              if (!is.null(pattern)) unzip_files <- stringr::str_subset(unzip_files, pattern)
               module_message(ns, "debug", sprintf("unpacking .zip with %d suitable files", length(unzip_files)))
               if (length(unzip_files) > 0) {
                 unzip(datapath, exdir = target, files = unzip_files)

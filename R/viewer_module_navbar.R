@@ -50,7 +50,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
         available_variables, available_variables_NA,
         ~ {
           if (length(.x) > 0)
-            map(.x, tabPanel)
+            purrr::map(.x, tabPanel)
           else
             list(tabPanel(shiny::em("No data available"), value = .y))
         })

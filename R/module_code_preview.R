@@ -56,7 +56,7 @@ focusCodePreview =
 }")
 
   tagList(
-    extendShinyjs(text = str_c(js_code, collapse = "\n"), functions = names(js_code))
+    extendShinyjs(text = stringr::str_c(js_code, collapse = "\n"), functions = names(js_code))
   )
 }
 
@@ -109,7 +109,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
 
   # save/download RMarkdown
   output$code_download <- downloadHandler(
-    filename = function() { download_file() %>% str_replace("\\.Rmd$", "") %>% str_c(".Rmd") },
+    filename = function() { download_file() %>% stringr::str_replace("\\.Rmd$", "") %>% stringr::str_c(".Rmd") },
     content = function(filename) {
       module_message(ns, "info", "preparing RMarkdown file for download")
       con <- file(filename)

@@ -40,7 +40,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
 
       code(
         generate_file_header_code(
-          title = str_c("Viewing ", di_dataset$get_dataset_name()),
+          title = stringr::str_c("Viewing ", di_dataset$get_dataset_name()),
           setup = TRUE, caching_on = FALSE,
           rmarkdown = rmarkdown, front_matter = front_matter),
         di_dataset$get_code_update()(rmarkdown = rmarkdown),
@@ -51,7 +51,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
   })
   code_preview <- callModule(
     codePreviewServer, "di_code", code_func_reac = code_update,
-    download_file = reactive({ str_c("VIEW ", di_dataset$get_dataset_name()) }))
+    download_file = reactive({ stringr::str_c("VIEW ", di_dataset$get_dataset_name()) }))
 
 
   # code jumping

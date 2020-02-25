@@ -33,7 +33,7 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
       table <- values$table
       table$include <- table[[id_column]] %in% values$selected
       hot <- table %>%
-        select(include, everything()) %>%
+        dplyr::select(include, everything()) %>%
         rhandsontable(colHeaders = c(" ", col_headers)) %>%
         hot_table(readOnly = TRUE, highlightRow = TRUE, columnSorting = FALSE, contextMenu = FALSE) %>%
         hot_col(col = " ", halign = "htCenter", readOnly = FALSE)
@@ -48,7 +48,7 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
     if (!identical(values$selected, input$selection_table) && !is.null(input$selection_table) && !is.null(values$table) && nrow(values$table) > 0) {
       selections <- input$selection_table %>% hot_to_r()
       if (nrow(selections) > 0) {
-        values$selected <- selections %>% filter(include) %>% { .[[id_column]] }
+        values$selected <- selections %>% dplyr::filter(include) %>% { .[[id_column]] }
       }
     }
   })

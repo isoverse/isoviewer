@@ -43,7 +43,7 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "welcome
       tags$head(
         tags$style(
           type="text/css",
-          HTML(str_c(
+          HTML(stringr::str_c(
             # error validation output
             #".shiny-output-error-validation { color: red; font-size: 16px; }", # do we want this read?
             ".shiny-output-error-info { color: black; font-size: 20px; padding: 20px; }",
@@ -54,8 +54,8 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "welcome
             # pads on shiny items
             ".form-group, .selectize-control {margin-bottom: 0px;}",
             # custom background box
-            str_interp(".box.box-solid.box-info>.box-header{color:#fff; background: ${col}; background-color: ${col};}", list(col = box_default)),
-            str_interp(".box.box-solid.box-info{border:1px solid ${col};}", list(col = box_default)),
+            stringr::str_interp(".box.box-solid.box-info>.box-header{color:#fff; background: ${col}; background-color: ${col};}", list(col = box_default)),
+            stringr::str_interp(".box.box-solid.box-info{border:1px solid ${col};}", list(col = box_default)),
             sep="\n"))
         )
       ),

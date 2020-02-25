@@ -18,11 +18,11 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     if (values$show_errors && values$show_warnings)
       return(get_iso_files())
     else if (!values$show_errors && values$show_warnings)
-      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = FALSE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = FALSE))
     else if (values$show_errors && !values$show_warnings)
-      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = FALSE, remove_files_with_warnings = TRUE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = FALSE, remove_files_with_warnings = TRUE))
     else
-      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = TRUE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = TRUE))
   })
 
   # data set name output ====
@@ -52,7 +52,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     # return selected iso_files
     iso_files <- get_filtered_iso_files()
 
-    # quick filter based on id is much faster than iso_filter_files
+    # quick filter based on id is much faster than isoreader::iso_filter_files
     iso_files[names(iso_files) %in% selector$get_selected()]
   }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
@@ -71,8 +71,8 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
       # generate selector table
       df <- get_filtered_iso_files() %>%
-        iso_get_problems_summary(problem_files_only = FALSE) %>%
-        mutate(
+        isoreader::iso_get_problems_summary(problem_files_only = FALSE) %>%
+        dplyr::mutate(
           row_id = dplyr::row_number(),
           warning = as.character(warning),
           error = as.character(error)
@@ -201,7 +201,7 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
       title = h3(sprintf("Problems in '%s'", get_variable())),
       p("The following read problems were reported in this dataset. If any problems are unexpected (i.e. the files should have valid data), please ",
       strong(a(href = sprintf("mailto:%s?subject=%s&body=%s",
-                              mail_address, str_replace_all(mail_subject, " ", "%20"), str_replace_all(mail_body, " ", "%20")),
+                              mail_address, stringr::str_replace_all(mail_subject, " ", "%20"), stringr::str_replace_all(mail_body, " ", "%20")),
                "send us an email")),
       " and attach at least one of the problematic file(s). Your help is much appreciated."),
       tableOutput(ns('problems')),
@@ -214,10 +214,10 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
     req(get_iso_files())
     probs <-iso_get_problems(get_iso_files())
     if (nrow(probs) == 0) {
-      tibble(Problem = "no problems")
+      tibble::tibble(Problem = "no problems")
     } else {
-      select(probs, File = file_id, Type = type, Function = func, Problem = details) %>%
-        mutate(Function = wrap_function_name(Function, max_length = 15))
+      dplyr::select(probs, File = file_id, Type = type, Function = func, Problem = details) %>%
+        dplyr::mutate(Function = wrap_function_name(Function, max_length = 15))
     }
   }, striped = TRUE, spacing = 'xs', width = 'auto', align = 'l')
 
@@ -237,7 +237,7 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
   observeEvent(get_iso_files(), {
     req(get_iso_files())
     updateActionButton(session, "show_problems",
-                       label = sprintf("Problems (%.0f)", nrow(iso_get_problems(get_iso_files()))))
+                       label = sprintf("Problems (%.0f)", nrow(isoreader::iso_get_problems(get_iso_files()))))
   })
 
   # return functions (note: toggling the button visibility somehow does not work)

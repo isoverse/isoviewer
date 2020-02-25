@@ -92,10 +92,10 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
 
   #FIXME: determine these dynamically
   ratios <-
-    data_frame(
+    tibble::tibble(
       ratio = c("29/28", "30/28", "45/44", "46/44", "32/30", "33/32", "34/32", "36/32", "3/2")
     ) %>%
-    mutate(
+    dplyr::mutate(
       top = sub("(\\d+)/(\\d+)", "\\1", ratio),
       bot = sub("(\\d+)/(\\d+)", "\\2", ratio)
     )
@@ -108,12 +108,12 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   # generate selector list
   observe({
     req(length(isofiles()) > 0)
-    masses <- iso_get_raw_data(isofiles(), gather = TRUE, quiet = TRUE)$data %>% unique()
-    ratios <- filter(ratios, top %in% masses, bot %in% masses)$ratio
+    masses <- isoreader::iso_get_raw_data(isofiles(), gather = TRUE, quiet = TRUE)$data %>% unique()
+    ratios <- dplyr::filter(ratios, top %in% masses, bot %in% masses)$ratio
     mass_ratio_selector$set_table(
       bind_rows(
-        data_frame(column = masses, type = "mass"),
-        data_frame(column = ratios, type = "ratio")
+        tibble::tibble(column = masses, type = "mass"),
+        tibble::tibble(column = ratios, type = "ratio")
       ))
   })
 
@@ -229,7 +229,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
   download_handler <- callModule(
     plotDownloadServer, "plot_download",
     plot_func = generate_plot,
-    filename_func = reactive({ str_c(dataset_name(), ".pdf") }))
+    filename_func = reactive({ stringr::str_c(dataset_name(), ".pdf") }))
 
   # code update ====
   code_update <- reactive({

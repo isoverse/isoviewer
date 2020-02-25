@@ -93,7 +93,7 @@ init_storage <- function(storage, save_credentials = TRUE) {
     if (nrow(root) == 0) {
       stop("could not find path in google drive: ", storage$root, call. = FALSE)
     } else if (nrow(root) > 1) {
-      stop("multiple paths found in google drive: ", str_c(root$path, collapse = ", "), call. = FALSE)
+      stop("multiple paths found in google drive: ", stringr::str_c(root$path, collapse = ", "), call. = FALSE)
     }
     storage$root_obj <- root
 
@@ -227,12 +227,12 @@ select_current_folder <- function(storage, folder) {
 # Fetch local directory tree
 fetch_local_directory_tree <- function(storage) {
   stopifnot(is_local_storage(storage))
-  data_frame(
+  tibble::tibble(
     path = list.dirs(storage$root),
     name = basename(path),
-    parent = dirname(path) %>% str_replace(fixed(storage$root), "") %>% str_replace("^[\\/]?", "")) %>%
-    filter(path != storage$root) %>%
-    select(parent, name) %>%
+    parent = dirname(path) %>% stringr::str_replace(fixed(storage$root), "") %>% stringr::str_replace("^[\\/]?", "")) %>%
+    dplyr::filter(path != storage$root) %>%
+    dplyr::select(parent, name) %>%
     arrange(parent)
 }
 
@@ -249,11 +249,11 @@ fetch_local_recent_files <- function(storage, file_pattern = NULL, n_max = 20, v
     lapply(function(file) list(filepath = file, mtime = file.mtime(file))) %>%
     bind_rows() %>%
     arrange(desc(mtime), filepath) %>%
-    mutate(
+    dplyr::mutate(
       name = basename(filepath),
-      parent = dirname(filepath) %>% str_replace(fixed(storage$root), "") %>% str_replace("^[\\/]?", "")) %>%
-    filter(row_number() <= n_max) %>%
-    select(parent, name, mtime)
+      parent = dirname(filepath) %>% stringr::str_replace(fixed(storage$root), "") %>% stringr::str_replace("^[\\/]?", "")) %>%
+    dplyr::filter(row_number() <= n_max) %>%
+    dplyr::select(parent, name, mtime)
 }
 
 
@@ -266,19 +266,19 @@ fetch_local_recent_files <- function(storage, file_pattern = NULL, n_max = 20, v
 fetch_gdrive_folder_files <- function(directories, folder_id, file_pattern = NULL, verbose = TRUE) {
 
   # get directory information
-  directory <- filter(directories, id == folder_id)
+  directory <- dplyr::filter(directories, id == folder_id)
   if (nrow(directory) == 0) stop("could not find folder with id ", folder_id, call. = FALSE)
   if (nrow(directory) > 1) stop("more than one directory seems to have this id ", folder_id, call. = FALSE)
   if(verbose) message("Info: retrieving files for gdrive folder ", directory$name, " (", directory$folder, ")")
 
   # find files
   drive_ls(as_id(folder_id), pattern = file_pattern, verbose = verbose) %>%
-    mutate(
-      folder = if(directory$root) "" else str_c(directory$folder, "/", directory$name),
+    dplyr::mutate(
+      folder = if(directory$root) "" else stringr::str_c(directory$folder, "/", directory$name),
       parent_id = folder_id,
-      mtime = as.POSIXct(map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")
+      mtime = as.POSIXct(purrr::map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")
     ) %>%
-    mutate(folder = str_replace(folder, "^/", "")) # remove //
+    dplyr::mutate(folder = stringr::str_replace(folder, "^/", "")) # remove //
 }
 
 # Fetch folders inside a gdrive folder
@@ -287,29 +287,29 @@ fetch_gdrive_folder_files <- function(directories, folder_id, file_pattern = NUL
 fetch_gdrive_folder_folders <- function(directories, folder_id, verbose = TRUE) {
 
   # get directory information
-  directory <- filter(directories, id == folder_id)
+  directory <- dplyr::filter(directories, id == folder_id)
   if (nrow(directory) == 0) stop("could not find folder with id ", folder_id, call. = FALSE)
   if (nrow(directory) > 1) stop("more than one directory seems to have this id ", folder_id, call. = FALSE)
   if(verbose) message("Info: retrieving folders for gdrive folder ", directory$name, " (", directory$folder, ")")
 
   # find files
   drive_ls(as_id(folder_id), type = "folder", verbose = verbose) %>%
-    mutate(
-      folder = if(directory$root) "" else str_c(directory$folder, "/", directory$name),
+    dplyr::mutate(
+      folder = if(directory$root) "" else stringr::str_c(directory$folder, "/", directory$name),
       parent_id = folder_id,
-      mtime = as.POSIXct(map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")
+      mtime = as.POSIXct(purrr::map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")
     ) %>%
-    mutate(folder = str_replace(folder, "^/", "")) # remove //
+    dplyr::mutate(folder = stringr::str_replace(folder, "^/", "")) # remove //
 }
 
 # Get directory tree
 fetch_gdrive_directory_tree <- function(storage, verbose = TRUE) {
   stopifnot(is_gdrive_storage(storage))
   storage$root_obj %>%
-    mutate(root = TRUE, level = 0, name = storage$root_name, parent = "") %>%
-    select(-path) %>%
+    dplyr::mutate(root = TRUE, level = 0, name = storage$root_name, parent = "") %>%
+    dplyr::select(-path) %>%
     fetch_gdrive_subfolders(verbose = verbose) %>%
-    select(parent, everything())
+    dplyr::select(parent, everything())
 }
 
 # Fetch subfolders inside gdrive parent folders
@@ -331,22 +331,22 @@ fetch_gdrive_subfolders <- function(parents, level = 1, chain_limit = 50, verbos
 
   # find subfolders
   subdirs <- parents %>%
-    mutate(n = 1:n(), group = floor(n / chain_limit)) %>%
-    group_by(group) %>%
+    dplyr::mutate(n = 1:n(), group = floor(n / chain_limit)) %>%
+    dplyr::group_by(group) %>%
     do({
       query <-
-        sprintf("'%s' in parents", .$id) %>% str_c(collapse = " or ") %>%
+        sprintf("'%s' in parents", .$id) %>% stringr::str_c(collapse = " or ") %>%
         { sprintf("(%s) and mimeType='%s'", ., "application/vnd.google-apps.folder") }
       drive_find(q = query, verbose = verbose)
     }) %>% ungroup() %>%
-    mutate(
+    dplyr::mutate(
       level = level,
-      parent_id = map_chr(drive_resource, find_parent_id)
+      parent_id = purrr::map_chr(drive_resource, find_parent_id)
     ) %>%
-    left_join(select(parents, parent_id = id, parent_name = name, parent_folder = parent, parent_root = root), by = "parent_id") %>%
-    mutate(parent = ifelse(parent_root, "", str_c(parent_folder, "/", parent_name))) %>%
-    select(-group, -parent_name, -parent_folder, -parent_root) %>%
-    mutate(root = FALSE, parent = str_replace(parent, "^/", ""))
+    dplyr::left_join(dplyr::select(parents, parent_id = id, parent_name = name, parent_folder = parent, parent_root = root), by = "parent_id") %>%
+    dplyr::mutate(parent = ifelse(parent_root, "", stringr::str_c(parent_folder, "/", parent_name))) %>%
+    dplyr::select(-group, -parent_name, -parent_folder, -parent_root) %>%
+    dplyr::mutate(root = FALSE, parent = stringr::str_replace(parent, "^/", ""))
 
   # recursive call
   if (nrow(subdirs) > 0 && recursive)
@@ -378,25 +378,25 @@ fetch_gdrive_recent_files <- function(storage, file_pattern = NULL, n_max = 20, 
 
   # find files
   directories %>%
-    mutate(n = 1:n(), group = floor(n / chain_limit)) %>%
-    group_by(group) %>%
+    dplyr::mutate(n = 1:n(), group = floor(n / chain_limit)) %>%
+    dplyr::group_by(group) %>%
     do({
       query <-
-        sprintf("'%s' in parents", .$id) %>% str_c(collapse = " or ") %>% { sprintf("(%s)", .) }
+        sprintf("'%s' in parents", .$id) %>% stringr::str_c(collapse = " or ") %>% { sprintf("(%s)", .) }
       drive_find(q = query, verbose = verbose, pattern = file_pattern, n_max = n_max)
     }) %>% ungroup() %>%
-    mutate(
-      parent_id = map_chr(drive_resource, find_parent_id)
+    dplyr::mutate(
+      parent_id = purrr::map_chr(drive_resource, find_parent_id)
     ) %>%
 
-    left_join(select(directories, parent_id = id, parent_name = name, parent_folder = parent, parent_root = root), by = "parent_id") %>%
-    mutate(parent = ifelse(parent_root, "", str_c(parent_folder, "/", parent_name))) %>%
-    select(-group, -parent_name, -parent_folder, -parent_root) %>%
-    mutate(parent = str_replace(parent, "^/", ""),
-           mtime = as.POSIXct(map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")) %>%
+    dplyr::left_join(dplyr::select(directories, parent_id = id, parent_name = name, parent_folder = parent, parent_root = root), by = "parent_id") %>%
+    dplyr::mutate(parent = ifelse(parent_root, "", stringr::str_c(parent_folder, "/", parent_name))) %>%
+    dplyr::select(-group, -parent_name, -parent_folder, -parent_root) %>%
+    dplyr::mutate(parent = stringr::str_replace(parent, "^/", ""),
+           mtime = as.POSIXct(purrr::map_chr(drive_resource, "modifiedTime"), format = "%Y-%m-%dT%H:%M:%OS")) %>%
     arrange(desc(mtime), name) %>%
-    filter(row_number() <= n_max) %>%
-    select(parent, everything())
+    dplyr::filter(row_number() <= n_max) %>%
+    dplyr::select(parent, everything())
 }
 
 

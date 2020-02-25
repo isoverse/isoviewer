@@ -1,14 +1,9 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom rlang sym
-#' @import isoreader
-#' @import dplyr
-#' @import googledrive
+#' @importFrom rlang sym !!!
 #' @importFrom tibble enframe deframe
 #' @importFrom tidyr spread
-#' @importFrom purrr map map2_chr
-#' @import stringr
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
