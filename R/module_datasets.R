@@ -246,7 +246,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
   code_update <- reactive({
     # trigger code update for any of the below variables changing
     function(rmarkdown = TRUE) {
-      generate_data_selection_code(
+      generate_data_subset_code(
         dataset = values$loaded_dataset %>% { if(is.null(.)) NULL else basename(.) },
         read_func = load_func,
         omit_type = values$omit_problematic,

@@ -23,7 +23,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
     req(length(get_iso_files()) > 0)
     columns <- names(isoreader::iso_get_file_info(get_iso_files(), quiet = TRUE))
     columns <- columns[!columns %in% c("file_id", "file_root")] # do not allow file_root while on server
-    selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = "file_datetime")
+    selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
     selector$set_table(tibble::tibble(info = columns, rowid = 1:length(columns)))
     selector$set_selected(selected)
   })
@@ -35,12 +35,12 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   get_selected_file_info <- reactive({
     # triger for both iso files and selected info columns
     req(get_iso_files())
-    req(selector$get_selected())
+    selector$get_selected()
 
     isolate({
       # info message
       module_message(
-        ns, "debug", sprintf(
+        ns, "info", sprintf(
           "FILE INFO user selected %d/%d file info columns for '%s'",
           length(selector$get_selected()), selector$get_table_nrow(), get_variable())
       )
@@ -57,7 +57,7 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   # file info table =====
   output$table <- renderTable({
     req(get_selected_file_info())
-    module_message(ns, "debug", "FILE INFO rendering file info table")
+    module_message(ns, "info", "FILE INFO rendering file info table")
     table <- get_selected_file_info()
     for (col in which(sapply(table, inherits, "POSIXct"))) # xtable does not deal well with datetime
       table[[col]] <- format(table[[col]])
@@ -68,7 +68,11 @@ file_info_server <- function(input, output, session, get_variable, get_iso_files
   code_update <- reactive({
     function(rmarkdown = TRUE) {
       generate_file_info_code(
-        selection = selector$get_selected(),
+        dataset = get_variable(),
+        selection =
+          if (is.null(selector$get_selected())) list(rlang::expr(c()))
+          else if (selector$are_all_selected()) list(rlang::expr(everything()))
+          else purrr::map(selector$get_selected(), rlang::sym),
         rmarkdown = rmarkdown
       )
     }

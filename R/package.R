@@ -30,7 +30,3 @@ release_questions <- function() {
     "Is it passing win-builder?"
   )
 }
-
-# TODO:
-# - allow logging to file in addition to console
-# - include DT? # @importFrom DT dataTableOutput datatable dataTableAjax reloadData formatSignif dataTableProxy

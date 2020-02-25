@@ -41,7 +41,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
     # info message
     module_message(
-      ns, "debug", sprintf(
+      ns, "info", sprintf(
         "FILES user selected %d/%d files from '%s'",
         length(selector$get_selected()), length(get_filtered_iso_files()), get_variable())
     )
@@ -64,7 +64,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
       # info message
       module_message(
-        ns, "debug", sprintf(
+        ns, "info", sprintf(
           "FILES creating iso files selection table for '%s' with %d/%d selected",
           get_variable(), length(selected), length(get_filtered_iso_files()))
       )
@@ -125,7 +125,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   code_update <- reactive({
     # trigger code update for any of the below variables changing
     function(rmarkdown = TRUE) {
-      generate_data_selection_code(
+      generate_data_subset_code(
         dataset = get_variable(),
         remove_errors = !values$show_errors,
         remove_warnings = !values$show_warnings,
@@ -196,7 +196,7 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
   # the modal dialog
   problem_modal <- reactive({
     req(get_iso_files())
-    module_message(ns, "debug", sprintf("FILES showing problems modal dialog for '%s'", get_variable()))
+    module_message(ns, "info", sprintf("FILES showing problems modal dialog for '%s'", get_variable()))
     modalDialog(
       title = h3(sprintf("Problems in '%s'", get_variable())),
       p("The following read problems were reported in this dataset. If any problems are unexpected (i.e. the files should have valid data), please ",

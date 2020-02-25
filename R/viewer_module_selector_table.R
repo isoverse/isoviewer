@@ -41,7 +41,7 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
     values$table # trigger with update of the data table (whole re-render required for client-side)
     isolate({
       validate(need(values$table, "None available."))
-      module_message(ns, "debug", "TABLE (re-) rendering with ",
+      module_message(ns, "info", "TABLE (re-) rendering with ",
                      nrow(values$table), " rows")
       # prepare data
       row_names <- values$table[[row_column]]
@@ -84,7 +84,7 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
   update_selected <- function() values$update_selected <- values$update_selected + 1
   observeEvent(values$update_selected, {
     selections <- which(values$table[[id_column]] %in% values$selected)
-    module_message(ns, "debug", "TABLE selecting ", length(selections), " row(s)")
+    module_message(ns, "info", "TABLE selecting ", length(selections), " row(s)")
     proxy <- DT::dataTableProxy("selection_table")
     DT::selectRows(proxy, selections)
   }, ignoreInit = TRUE)
@@ -92,7 +92,7 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
   # save state
   observeEvent(input$selection_table_state, {
     isolate({
-      module_message(ns, "debug", "TABLE saving state")
+      module_message(ns, "info", "TABLE saving state")
       values$page_length <- input$selection_table_state$length
       values$display_start <- input$selection_table_state$start
       values$search <- input$selection_table_state$search$search

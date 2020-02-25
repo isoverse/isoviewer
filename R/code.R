@@ -75,28 +75,49 @@ generate_method_info_code <- function(rmarkdown = FALSE) {
   )
 }
 
+# generate dataset variables
+generate_dataset_vars <- function(dataset) {
+  list(
+    subset = paste0(dataset, "_subset")
+  )
+}
+
 # generate file info code
-generate_file_info_code <- function(selection, rmarkdown = FALSE) {
+generate_file_info_code <- function(dataset, selection, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# File Information",
     chunk_options = list("file info"),
-    code_block("iso_get_file_info", selection = selection)
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate file info"),
+      function_call(
+        "iso_get_file_info",
+        params = list(select = selection)
+      )
+    )
   )
 }
 
 # generate code for dataset and data files selection
-generate_data_selection_code <- function(dataset, remove_errors, remove_warnings, select_files, rmarkdown = FALSE) {
+generate_data_subset_code <- function(dataset, remove_errors, remove_warnings, select_files, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Subset Dataset",
     chunk_options = list("subset"),
     pipe(
-      code_block("subset_dataset", dataset = dataset),
+      assign_call(generate_dataset_vars(dataset)$subset, dataset, comment = "subset dataset"),
       if (remove_errors || remove_warnings)
-        code_block("omit_problems", params = list(remove_files_with_warnings = remove_warnings, remove_files_with_errors = remove_errors)),
+        function_call(
+          "iso_filter_files_with_problems",
+          params = list(remove_files_with_warnings = remove_warnings, remove_files_with_errors = remove_errors),
+          comment = "remove problematic files"
+        ),
       if (length(select_files) == 0 || !is.na(select_files[1]))
-        code_block("select_files", files = select_files)
+        function_call(
+          "iso_filter_files",
+          params = list(file_id = select_files),
+          comment = "select specific files"
+        )
     )
   )
 }
@@ -135,13 +156,18 @@ generate_file_header_code <- function(title, rmarkdown = FALSE, front_matter = r
   # generate header
   code(
     if (rmarkdown && front_matter) code_block("header", title = title),
-    if (rmarkdown && install) code_block("install_github", package = "KopfLab/isoreader"),
+    if (rmarkdown && install)
+      code(
+        code_block("install_github", package = "isoverse/isoreader"),
+        code_block("install_github", package = "isoverse/isoprocessor")
+      ),
     if (setup) chunk(
       code_only = !rmarkdown,
       pre_chunk = "# Libraries",
       post_chunk = "This document was generated with [isoviewer](http://isoviewer.isoverse.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.",
       chunk_options = list("setup", message=FALSE, warning=FALSE),
-      code_block("load_library"),
+      # load libraries
+      add_comment("library(isoreader)\nlibrary(isoprocessor)", "load libraries"),
       if (caching_on) code_block("caching_on")
     )
   )
@@ -167,10 +193,10 @@ pipe <- function(...) {
   blocks <-
     list(...) %>%
     # remove NULL items
-    { .[!sapply(., is.null)] } %>%
+    { .[!purrr::map_lgl(., is.null)] } %>%
     # add indentation to all but first item
-    { c(.[1], sapply(.[-1], indent)) }
-  stringr::str_c(unlist(blocks), collapse = " %>%\n")
+    { c(.[1], purrr::map_chr(.[-1], indent_by, 1)) }
+  paste(unlist(blocks), collapse = " %>%\n")
 }
 
 # function to assemple plusses
@@ -185,20 +211,101 @@ plus <- function(...) {
 }
 
 # function to indent a code block (with each newline)
+# @deprecated
 indent <- function(block, spaces = "  ") {
   if (length(block) == 0) return(NULL)
   stringr::str_replace_all(stringr::str_c(spaces, block), "\n", stringr::str_c("\n", spaces))
 }
 
+
 # function to assemble character vector
+# @deprecated
 char_vector <- function(values, spacer = "\n    ") {
   if (length(values) == 0) return("c()")
-  else paste0("c(\"", paste0(values, collapse = paste0("\",", spacer, "\"")), "\")")
+  spacer <- paste0("\",", spacer, "\"")
+  paste0("c(\"", paste0(values, collapse = spacer), "\")")
 }
+
+# function to indent by 1 level
+indent_by <- function(block, n) {
+  if (length(block) == 0) return(NULL)
+  spaces <- paste(rep("  ", n), collapse = "")
+  stringr::str_replace_all(paste0(spaces, block), "\n", paste0("\n", spaces))
+}
+
+# function to add comment
+add_comment <- function(code, comment = NULL) {
+  if (!is.null(comment)) return(sprintf("# %s\n%s", comment, code))
+  else return(code)
+}
+
+# function to generate a function call
+function_call <- function(func, params = list(), comment = NULL) {
+  if (length(params) == 0) {
+    # no parameters
+    code <- sprintf("%s()", func)
+  } else if (length(params) == 1) {
+    # 1 parameter
+    param <- function_parameter(names(params)[1], params[[1]])
+    if (!stringr::str_detect(param, "\\n"))
+      code <- sprintf("%s(%s)", func, param)
+    else
+      code <- sprintf("%s(\n%s\n)", func, indent_by(param, 1))
+  } else {
+    # with multiple parameters
+    params <- purrr::map2_chr(names(params), params, function_parameter) %>% indent_by(1)
+    code <- sprintf("%s(\n%s\n)", func, paste(params, collapse = ",\n"))
+  }
+
+  return(add_comment(code, comment))
+}
+
+# generate parameter
+function_parameter <- function(param, value, nchar_cutoff = 60L) {
+  # value code
+  is_symbol <- FALSE
+  if (is.list(value) && rlang::is_expression(value[[1]])) {
+    is_symbol <- TRUE
+    value_code <- purrr::map_chr(value, rlang::expr_text)
+  } else if (is.character(value)) {
+    value_code <- sprintf("\"%s\"", value)
+  } else if (is.logical(value)) {
+    value_code <- ifelse(value, "TRUE", "FALSE")
+  } else if (is.numeric(value)) {
+    value_code <- as.character(value)
+  } else if (is.null(value)) {
+    value_code <- "NULL"
+  } else {
+    # don't know what to do
+    stop("unknown value type: ", class(value[[1]])[1], call. = FALSE)
+  }
+
+  # parameter code
+  if (length(value_code) == 1L) {
+    # single value
+    return(sprintf("%s = %s", param, value_code))
+  } else {
+    # multi value
+    param_code <- sprintf("%s %s c(%s)", param, if(is_symbol) "=" else "%in%", paste(value_code, collapse = ", "))
+    if (nchar(param_code) > nchar_cutoff) {
+      value_code <- sprintf("c(%s)", paste(value_code, collapse = ",\n  "))
+      param_code <- sprintf("%s %s \n%s", param, if(is_symbol) "=" else "%in%", indent_by(value_code, 1))
+    }
+    return(param_code)
+  }
+}
+
+# assign call
+assign_call <- function(left, right, comment = NULL) {
+  return(add_comment(sprintf("%s <- %s", left, right), comment))
+}
+
 
 # combine multiple chunks
 code <- function(...) {
-  stringr::str_c(..., sep = "\n\n")
+  codes <- list(...)
+  codes <- codes[!purrr::map_lgl(codes, is.null)]
+  do.call(paste, args = c(codes, list(sep = "\n\n")))
 }
 
 # function for filling code block templates
@@ -257,18 +364,19 @@ ${dataset}_subset <- ${dataset}",
 
 omit_problems =
 "# remove problematic files
-iso_filter_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')})",
+iso_filter_files_with_problems(\n  ${paste0(paste0(names(params), ' = ', params), collapse = ',\n  ')}\n  )",
 
+# filter files ----
 select_files =
 "# select specific files
-iso_filter_files(file_id %in%\n    ${ isoviewer:::char_vector(files, spacer = '\n      ') })",
+iso_filter_files(\n  file_id %in% ${ isoviewer:::char_vector(files, spacer = '\n                  ') }\n  )",
 
-#### file info
+#### file info ----
 iso_get_file_info =
 "# aggregate file info
-isofiles %>% isoreader::iso_get_file_info(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
+isofiles %>% iso_get_file_info(\n  select = ${ isoviewer:::char_vector(selection, spacer = ' ')})",
 
-#### method info
+#### method info ----
 iso_get_standards_info =
 "# aggregate standards method info
 isofiles %>% iso_get_standards_info()",
@@ -277,7 +385,7 @@ iso_get_resistors_info =
 "# aggregate resistors method info
 isofiles %>% iso_get_resistors_info()",
 
-#### vendor data table
+#### vendor data table -----
 iso_get_vendor_data_table =
 "# aggregate vendor data table
 isofiles %>% iso_get_vendor_data_table(\n  select=${ isoviewer:::char_vector(selection, spacer = ' ')})",
@@ -313,7 +421,7 @@ isofiles <- ${func}(
 # look at problems ----
 show_problems =
 "# show problems
-isofiles %>% isoreader::iso_get_problems()",
+isofiles %>% iso_get_problems()",
 
 # export rds ----
 export_rds =

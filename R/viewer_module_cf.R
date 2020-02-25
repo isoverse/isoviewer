@@ -40,10 +40,10 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
   # data GUI visibility ====
   observeEvent(files$get_selected_iso_files(), {
     if (values$data_tabs_visible) {
-      module_message(ns, "debug", "DATA TABS making data tabs visible")
+      module_message(ns, "info", "DATA TABS making data tabs visible")
       shinyjs::show("data_div")
     } else {
-      module_message(ns, "debug", "DATA TABS hiding data tabs")
+      module_message(ns, "info", "DATA TABS hiding data tabs")
       shinyjs::hide("data_div")
     }
   }, ignoreNULL = TRUE)
@@ -53,7 +53,7 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
 
   # data GUI tabs ====
   observeEvent(input$tabs, {
-    module_message(ns, "debug", "DATA TABs user selected tab ", input$tabs)
+    module_message(ns, "info", "DATA TABs user selected tab ", input$tabs)
     set_gui_setting(ns(paste0("tabs-", get_selected_variable())), input$tabs)
   }, ignoreInit = TRUE)
 
@@ -68,7 +68,7 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
   # code preview ====
   code_update <-  reactive({
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
-      module_message(ns, "debug", "CODE generating updated code for continuous flow data viewer")
+      module_message(ns, "info", "CODE generating updated code for continuous flow data viewer")
 
       code(
         generate_file_header_code(
@@ -87,12 +87,6 @@ module_cf_server <- function(input, output, session, get_selected_variable) {
     codePreviewServer, "code", code_func_reac = code_update,
     download_file = reactive({ paste("VIEW", get_selected_variable()) })
   )
-
-  observeEvent(input$test, {
-    print("HERE")
-    updateTabsetPanel(session, "tabs", selected = "method_info")
-    updateTabsetPanel(session, "inTabset", selected = "panel2")
-  })
 
 }
 
