@@ -40,8 +40,9 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
   output$selection_table <- DT::renderDataTable({
     values$table # trigger with update of the data table (whole re-render required for client-side)
     isolate({
-      validate(need(values$table, "None available.")) # trigger if the table changes
-      module_message(ns, "debug", "(re-) rendering selection table")
+      validate(need(values$table, "None available."))
+      module_message(ns, "debug", "TABLE (re-) rendering with ",
+                     nrow(values$table), " rows")
       # prepare data
       row_names <- values$table[[row_column]]
       if (!rlang::quo_is_null(column_select_quo)) {
@@ -82,31 +83,30 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
   # trigger selection updates
   update_selected <- function() values$update_selected <- values$update_selected + 1
   observeEvent(values$update_selected, {
-    module_message(ns, "debug", "updating selections in selection table")
+    selections <- which(values$table[[id_column]] %in% values$selected)
+    module_message(ns, "debug", "TABLE selecting ", length(selections), " row(s)")
     proxy <- DT::dataTableProxy("selection_table")
-    DT::selectRows(proxy, which(values$table[[id_column]] %in% values$selected))
-  })
+    DT::selectRows(proxy, selections)
+  }, ignoreInit = TRUE)
 
   # save state
   observeEvent(input$selection_table_state, {
     isolate({
-      module_message(ns, "debug", "updating state of selection table")
+      module_message(ns, "debug", "TABLE saving state")
       values$page_length <- input$selection_table_state$length
       values$display_start <- input$selection_table_state$start
       values$search <- input$selection_table_state$search$search
       values$order <- input$selection_table_state$order
     })
-  })
+  }, ignoreInit = TRUE)
 
   # save selection
-  observe({
+  observeEvent(input$selection_table_rows_selected, {
     selections <- input$selection_table_rows_selected
-    isolate({
-      if (!identical(values$selected, selections) && !is.null(values$table) && nrow(values$table) > 0) {
-        values$selected <- if (is.null(selections)) c() else values$table[[id_column]][selections]
-      }
-    })
-  })
+    if (!identical(values$selected, selections) && !is.null(values$table) && nrow(values$table) > 0) {
+      values$selected <- if (is.null(selections)) c() else values$table[[id_column]][selections]
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
   # selector buttons
   if (selector_buttons) {
@@ -130,6 +130,7 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
   }
 
   # functions
+  # WARNING: only use inital_selection when first setting the table, not when re-setting it!
   set_table <- function(table, initial_selection = c()) {
     isolate({
       if (is.null(table) || is.null(values$table) || !identical(table, values$table)) {
@@ -150,23 +151,28 @@ selectorTableServer <- function(input, output, session, id_column, row_column = 
     })
   }
 
-  get_selected <- reactive({
+  get_selected <- eventReactive(values$selected, {
     # make sure all returned selected are valid
     if (length(values$selected) == 0) return(c())
     else return(values$selected[values$selected %in% values$table[[id_column]]])
-  })
+  }, ignoreNULL = FALSE)
 
-  get_selected_items <- reactive({
+  get_selected_items <- eventReactive(values$selected, {
     # get the actual table items that are selected
     values$table[values$table[[id_column]] %in% values$selected, ]
-  })
+  }, ignoreNULL = FALSE)
+
+  are_all_selected <- eventReactive(values$selected, {
+    setequal(get_selected(), values$table[[id_column]])
+  }, ignoreNULL = FALSE)
 
   # return functions
   list(
     set_table = set_table,
     set_selected = set_selected,
     get_selected = get_selected,
-    get_selected_items = get_selected_items
+    get_selected_items = get_selected_items,
+    are_all_selected = are_all_selected
   )
 }
 

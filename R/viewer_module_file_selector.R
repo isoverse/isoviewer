@@ -8,8 +8,23 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
   # reactive values =====
   values <- reactiveValues(
-    iso_files = NULL
+    iso_files = NULL,
+    show_errors = get_gui_setting(ns("errors"), TRUE),
+    show_warnings = get_gui_setting(ns("warnings"), TRUE)
   )
+
+  # get error/warning filtered isofiles ====
+  get_filtered_iso_files <- reactive({
+    req(get_iso_files())
+    if (values$show_errors && values$show_warnings)
+      return(get_iso_files())
+    else if (!values$show_errors && values$show_warnings)
+      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = FALSE))
+    else if (values$show_errors && !values$show_warnings)
+      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = FALSE, remove_files_with_warnings = TRUE))
+    else
+      return(iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = TRUE))
+  })
 
   # data set name output ====
   output$dataset <- renderText(paste0("Dataset: ", get_variable()))
@@ -21,35 +36,51 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     column_select = c(File = file_id, Errors = error, Warning = warning)
   )
 
+  # get selected isofiles =====
+  get_selected_iso_files <- eventReactive(selector$get_selected(), {
+    req(get_filtered_iso_files())
+
+    # info message
+    module_message(
+      ns, "debug", sprintf(
+        "FILES user selected %d/%d files from '%s'",
+        length(selector$get_selected()), length(get_filtered_iso_files()), get_variable())
+    )
+
+    # store selected in settings
+    set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
+
+    # return selected iso_files
+    iso_files <- get_filtered_iso_files()
+
+    # quick filter based on id is much faster than iso_filter_files
+    iso_files[names(iso_files) %in% selector$get_selected()]
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+
   # generate isofiles table ====
-  observe({
-    req(iso_files <- get_iso_files())
+  observeEvent(get_filtered_iso_files(), {
     isolate({
-      module_message(ns, "debug", "setting iso files selection table")
-      df <- get_iso_files() %>%
+      # what is selected?
+      selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = c())
+
+      # info message
+      module_message(
+        ns, "debug", sprintf(
+          "FILES creating iso files selection table for '%s' with %d/%d selected",
+          get_variable(), length(selected), length(get_filtered_iso_files()))
+      )
+
+      # generate selector table
+      df <- get_filtered_iso_files() %>%
         iso_get_problems_summary(problem_files_only = FALSE) %>%
         mutate(
           row_id = dplyr::row_number(),
           warning = as.character(warning),
           error = as.character(error)
         )
-      selector$set_table(
-        df,
-        initial_selection =
-          get_gui_setting(ns(paste0("selector-", get_variable())), default = c())
-      )
+      selector$set_table(df)
+      selector$set_selected(selected)
     })
-  })
-
-  # monitor selected files ====
-  observe({
-    req(get_iso_files())
-    module_message(
-      ns, "debug", "selected files: ",
-      paste(selector$get_selected(), collapse = ", ")
-    )
-    # store selected in settings
-    set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
   })
 
   # dataset download ====
@@ -57,7 +88,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     filename = function() { basename(isoreader:::get_rds_export_filepath(get_iso_files(), get_variable())) },
     content = function(filename) {
       req(get_iso_files())
-      module_message(ns, "info", "downloading entire dataset ", get_variable())
+      module_message(ns, "info", "FILES downloading entire dataset ", get_variable())
       file_path <- file.path(tempdir(), isoreader:::get_rds_export_filepath(get_iso_files(), get_variable()))
       withProgress({
           iso_save(get_iso_files(), file_path, quiet = TRUE)
@@ -70,55 +101,48 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     }
   )
 
-  # FIXME: omit problematic =======
-  # omit_problematic <- function() {
-  #   if (length(values$omit_problematic) > 0 && !is.null(values$loaded_isofiles)) {
-  #     values$omit_isofiles <- iso_omit_files_with_problems(
-  #       values$loaded_isofiles, quiet = TRUE,
-  #       remove_files_with_errors = "error" %in% values$omit_problematic,
-  #       remove_files_with_warnings = "warning" %in% values$omit_problematic)
-  #     if (length(values$omit_isofiles) == 0)
-  #       values$omit_isofiles <- NULL
-  #   } else {
-  #     values$omit_isofiles <- values$loaded_isofiles
-  #   }
-  # }
-  #
-  # # changing omit
-  # observe({
-  #   new_omit <- input$omit
-  #   isolate({
-  #     values$omit_problematic <- input$omit
-  #     omit_problematic()
-  #   })
-  # })
-  #
+  # errors =======
+  observe({
+    toggle("errors_hide", condition = values$show_errors)
+    toggle("errors_show", condition = !values$show_errors)
+    set_gui_setting(ns("errors"), values$show_errors)
+  })
+  observeEvent(input$errors_hide, values$show_errors <- FALSE)
+  observeEvent(input$errors_show, values$show_errors <- TRUE)
+
+  # warnings =======
+  observe({
+    toggle("warnings_hide", condition = values$show_warnings)
+    toggle("warnings_show", condition = !values$show_warnings)
+    set_gui_setting(ns("warnings"), values$show_warnings)
+  })
+  observeEvent(input$warnings_hide, values$show_warnings <- FALSE)
+  observeEvent(input$warnings_show, values$show_warnings <- TRUE)
 
   # problems ====
-  callModule(problems_server, "problems", get_variable = get_variable, get_iso_files = get_iso_files)
+  callModule(problems_server, "problems", get_variable = get_variable, get_iso_files = get_filtered_iso_files)
 
-  # FIXME: code update ====
-  # code_update <- reactive({
-  #   # trigger code update for any of the below variables changing
-  #   function(rmarkdown = TRUE) {
-  #     generate_data_selection_code(
-  #       dataset = values$loaded_dataset %>% { if(is.null(.)) NULL else basename(.) },
-  #       read_func = load_func,
-  #       omit_type = values$omit_problematic,
-  #       select_files = # omit file selection if ALL files are selected
-  #         if (!is.null(values$omit_isofiles) && all(names(values$omit_isofiles) %in% isofiles_selector$get_selected()))
-  #           NA_character_
-  #       else isofiles_selector$get_selected(),
-  #       rmarkdown = rmarkdown
-  #     )
-  #   }
-  # })
+  # code update ====
+  code_update <- reactive({
+    # trigger code update for any of the below variables changing
+    function(rmarkdown = TRUE) {
+      generate_data_selection_code(
+        dataset = get_variable(),
+        remove_errors = !values$show_errors,
+        remove_warnings = !values$show_warnings,
+        select_files =
+          if(selector$are_all_selected()) NA_character_
+          else selector$get_selected(),
+        rmarkdown = rmarkdown
+      )
+    }
+  })
 
-  # FIXME: return functions ====
-  # list(
-  #   get_isofiles = get_selected_isofiles,
-  #   get_code_update = code_update
-  # )
+  # return functions ====
+  list(
+    get_selected_iso_files = get_selected_iso_files,
+    get_code_update = code_update
+  )
 
 }
 
@@ -141,13 +165,17 @@ module_file_selector_ui <- function(id, width = 12, file_list_height = "200px") 
             spaces(1),
             problems_button(ns("problems"), tooltip = "Show problems reported for this dataset."),
             spaces(1),
-            selectorTableButtons(ns("selector"))#,
-            # FIXME: omit with errors functionality =====
-            # checkboxGroupInput(
-            #   ns("omit"), label = NULL, inline = TRUE,
-            #   choices = c("Omit files with errors" = "error",
-            #               "Omit files with warnings" = "warning")
-            # )
+            tooltipInput(actionButton, ns("errors_hide"), label = "Errors", icon = icon("eye-slash"),
+                          tooltip = "Click to filter out files with errors") %>% shinyjs::hidden(),
+            tooltipInput(actionButton, ns("errors_show"), label = "Errors", icon = icon("eye"),
+                          tooltip = "Click to show files with errors") %>% shinyjs::hidden(),
+            spaces(1),
+            tooltipInput(actionButton, ns("warnings_hide"), label = "Warnings", icon = icon("eye-slash"),
+                         tooltip = "Click to filter out files with errors") %>% shinyjs::hidden(),
+            tooltipInput(actionButton, ns("warnings_show"), label = "Warnings", icon = icon("eye"),
+                         tooltip = "Click to show files with errors") %>% shinyjs::hidden(),
+            spaces(1),
+            selectorTableButtons(ns("selector"))
         )
     )
   )
@@ -169,7 +197,7 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
   # the modal dialog
   problem_modal <- reactive({
     req(get_iso_files())
-    module_message(ns, "debug", "showing problems modal dialog for ", get_variable())
+    module_message(ns, "debug", sprintf("FILES showing problems modal dialog for '%s'", get_variable()))
     modalDialog(
       title = h3(sprintf("Problems in '%s'", get_variable())),
       p("The following read problems were reported in this dataset. If any problems are unexpected (i.e. the files should have valid data), please ",
