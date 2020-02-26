@@ -12,7 +12,8 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
         file_info$get_code_update()(rmarkdown = rmarkdown),
         standards$get_code_update()(rmarkdown = rmarkdown),
         resistors$get_code_update()(rmarkdown = rmarkdown),
-        vendor_data_table$get_code_update()(rmarkdown = rmarkdown)
+        vendor_data_table$get_code_update()(rmarkdown = rmarkdown),
+        peak_table$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -57,6 +58,15 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "vendor_data_table")
   )
 
+  # peak table ====
+  peak_table <- callModule(
+    data_table_peak_table_server, "peak_table",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "peak_table")
+  )
+
+
 }
 
 
@@ -73,14 +83,16 @@ module_data_cf_ui <- function(id) {
       ),
       tabPanel("Standards", value = "standards", data_table_standards_ui(ns("standards"))),
       tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors"))),
-      tabPanel("Vendor Data Table", value = "vendor_data_table", data_table_vendor_data_table_ui(ns("vendor_data_table")))
+      tabPanel("Vendor Data Table", value = "vendor_data_table", data_table_vendor_data_table_ui(ns("vendor_data_table"))),
+      tabPanel("Peak Table", value = "peak_table", data_table_vendor_data_table_ui(ns("peak_table")))
     ),
     # OPTIONS ====
     option_boxes = list(
       data_table_file_info_column_selector_ui(ns("file_info"), width = 4),
       data_table_standards_column_selector_ui(ns("standards"), width = 4),
       data_table_resistors_column_selector_ui(ns("resistors"), width = 4),
-      data_table_vendor_data_table_column_selector_ui(ns("vendor_data_table"), width = 4)
+      data_table_vendor_data_table_column_selector_ui(ns("vendor_data_table"), width = 4),
+      data_table_peak_table_column_selector_ui(ns("peak_table"), width = 4)
 
       # cfRawDataSelectorUI(ns("raw_data"), width = 4, selector_height = "200px"),
       # cfRawDataSettingsUI(ns("raw_data"), width = 4),

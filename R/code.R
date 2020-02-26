@@ -110,6 +110,22 @@ generate_vendor_data_table_code <- function(dataset, selection, explicit_units, 
   )
 }
 
+# generate vendor data table code
+generate_peak_table_code <- function(dataset, selection, explicit_units, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Peak Table",
+    chunk_options = list("peak_table"),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate peak table"),
+      function_call(
+        "iso_get_peak_table",
+        params = list(select = selection)
+      ),
+      if (explicit_units) function_call("iso_make_units_explicit", comment = "make implicit units explicit")
+    )
+  )
+}
 
 # generate resistors code
 generate_resistors_code <- function(dataset, selection, rmarkdown = FALSE) {

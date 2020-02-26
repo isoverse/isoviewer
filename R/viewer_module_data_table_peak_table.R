@@ -1,6 +1,6 @@
-#' Vendor Data  Server
+#' Peak Table  Server
 #' @inheritParams data_table_server
-data_table_vendor_data_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_peak_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -13,7 +13,7 @@ data_table_vendor_data_table_server <- function(input, output, session, get_vari
       get_variable = get_variable,
       get_iso_files = get_iso_files,
       is_visible = is_visible,
-      # get vendor_data_table =====
+      # get peak_table =====
       get_data_table = reactive({
 
         # parameters
@@ -28,7 +28,7 @@ data_table_vendor_data_table_server <- function(input, output, session, get_vari
 
         # table selection function
         function(iso_files, selected) {
-          isoreader::iso_get_vendor_data_table(iso_files, select = c(!!!selected), quiet = TRUE) %>%
+          isoprocessor::iso_get_peak_table(iso_files, select = c(!!!selected), quiet = TRUE) %>%
             {
               if (expl_units) isoreader::iso_make_units_explicit(.)
               else isoreader::iso_strip_units(.)
@@ -36,9 +36,9 @@ data_table_vendor_data_table_server <- function(input, output, session, get_vari
             dplyr::mutate_if(is.numeric, signif, sig_digits)
         }
       }),
-      # get vendor_data_table columns =====
+      # get peak_table columns =====
       get_data_table_columns = function(iso_files) {
-        vdt <- isoreader::iso_get_vendor_data_table(iso_files, quiet = TRUE) %>%
+        vdt <- isoprocessor::iso_get_peak_table(iso_files, quiet = TRUE) %>%
           dplyr::select(-file_id)
         return(dplyr::tibble(Column = names(vdt), Units = isoreader::iso_get_units(vdt)))
       }
@@ -56,7 +56,7 @@ data_table_vendor_data_table_server <- function(input, output, session, get_vari
   # code update ====
   code_update <- reactive({
     function(rmarkdown = TRUE) {
-      generate_vendor_data_table_code(
+      generate_peak_table_code(
         dataset = get_variable(),
         selection =
           if (is.null(data_table$get_selected_columns())) list(rlang::expr(c()))
@@ -75,16 +75,16 @@ data_table_vendor_data_table_server <- function(input, output, session, get_vari
 }
 
 
-#' Vendor Data  Table UI
+#' Peak Table  Table UI
 #' @param ... passed on to data_table_ui
-data_table_vendor_data_table_ui <- function(id, ...) {
+data_table_peak_table_ui <- function(id, ...) {
   ns <- NS(id)
   data_table_ui(ns("data_table"), ...)
 }
 
-#' Vendor Data  Column Seletor UI
+#' Peak Table  Column Seletor UI
 #' @param ... passed on to data_table_column_selector_ui
-data_table_vendor_data_table_column_selector_ui <- function(id, ...) {
+data_table_peak_table_column_selector_ui <- function(id, ...) {
   ns <- NS(id)
   data_table_column_selector_ui(
     ns("data_table"),
