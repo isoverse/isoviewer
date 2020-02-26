@@ -1,3 +1,6 @@
+# NOTE: deprecated?
+storage_deprecated <- function() {
+
 # storage objects =====
 
 #' Local file system storage
@@ -399,4 +402,4 @@ fetch_gdrive_recent_files <- function(storage, file_pattern = NULL, n_max = 20, 
     dplyr::select(parent, everything())
 }
 
-
+}
