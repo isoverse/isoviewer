@@ -9,7 +9,8 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   code_update <-  reactive({
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
-        file_info$get_code_update()(rmarkdown = rmarkdown)
+        file_info$get_code_update()(rmarkdown = rmarkdown),
+        resistors$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -30,6 +31,13 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
   )
 
+  # resistors ====
+  resistors <- callModule(
+    data_table_resistors_server, "resistors",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "resistors")
+  )
 
 }
 
@@ -41,11 +49,13 @@ module_data_scan_ui <- function(id) {
     ns("base_data"),
     # TABS =====
     tab_panels = list(
-      tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info")))
+      tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info"))),
+      tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors")))
     ),
     # OPTIONS ====
     option_boxes = list(
-      data_table_file_info_column_selector_ui(ns("file_info"), width = 4)
+      data_table_file_info_column_selector_ui(ns("file_info"), width = 4),
+      data_table_resistors_column_selector_ui(ns("resistors"), width = 4)
     )
   )
 }

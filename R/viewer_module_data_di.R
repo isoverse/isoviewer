@@ -10,7 +10,9 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
         file_info$get_code_update()(rmarkdown = rmarkdown),
-        method_info$get_code_update()(rmarkdown = rmarkdown)
+        standards$get_code_update()(rmarkdown = rmarkdown),
+        resistors$get_code_update()(rmarkdown = rmarkdown),
+        vendor_data_table$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -31,14 +33,29 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
   )
 
-  # method info ====
-  method_info <- callModule(
-    method_info_server, "method_info",
+  # standards ====
+  standards <- callModule(
+    data_table_standards_server, "standards",
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
-    is_visible = reactive(base_data$get_tab_selection() == "method_info")
+    is_visible = reactive(base_data$get_tab_selection() == "standards")
   )
 
+  # resistors ====
+  resistors <- callModule(
+    data_table_resistors_server, "resistors",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "resistors")
+  )
+
+  # vendor data table ====
+  vendor_data_table <- callModule(
+    data_table_vendor_data_table_server, "vendor_data_table",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "vendor_data_table")
+  )
 
 }
 
@@ -51,12 +68,16 @@ module_data_di_ui <- function(id) {
     # TABS =====
     tab_panels = list(
       tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info"))),
-      tabPanel("Method Info", value = "method_info", method_info_table_ui(ns("method_info")))
+      tabPanel("Standards", value = "standards", data_table_standards_ui(ns("standards"))),
+      tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors"))),
+      tabPanel("Vendor Data Table", value = "vendor_data_table", data_table_vendor_data_table_ui(ns("vendor_data_table")))
     ),
     # OPTIONS ====
     option_boxes = list(
       data_table_file_info_column_selector_ui(ns("file_info"), width = 4),
-      method_info_selector_ui(ns("method_info"), width = 4)
+      data_table_standards_column_selector_ui(ns("standards"), width = 4),
+      data_table_resistors_column_selector_ui(ns("resistors"), width = 4),
+      data_table_vendor_data_table_column_selector_ui(ns("vendor_data_table"), width = 4)
     )
   )
 }

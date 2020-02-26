@@ -61,33 +61,6 @@ generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
   )
 }
 
-# generate vendor data table code
-generate_vendor_data_table_code <- function(selection, rmarkdown = FALSE) {
-  chunk(
-    code_only = !rmarkdown,
-    pre_chunk = "# Vendor Data Table",
-    chunk_options = list("vendor data table"),
-    code_block("iso_get_vendor_data_table", selection = selection)
-  )
-}
-
-# generate methods info code
-generate_method_info_code <- function(dataset, rmarkdown = FALSE) {
-  chunk(
-    code_only = !rmarkdown,
-    pre_chunk = "# Method Information",
-    chunk_options = list("method info"),
-    pipe(
-      add_comment(generate_dataset_vars(dataset)$subset, "aggregate standards method info"),
-      function_call("iso_get_standards")
-    ),
-    pipe(
-      add_comment(generate_dataset_vars(dataset)$subset, "aggregate resistors method info"),
-      function_call("iso_get_resistors")
-    )
-  )
-}
-
 # generate file info code
 generate_file_info_code <- function(dataset, selection, rmarkdown = FALSE) {
   chunk(
@@ -104,8 +77,8 @@ generate_file_info_code <- function(dataset, selection, rmarkdown = FALSE) {
   )
 }
 
-# generate standards info code
-generate_standards_info_code <- function(dataset, selection, rmarkdown = FALSE) {
+# generate standards code
+generate_standards_code <- function(dataset, selection, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Standards",
@@ -114,6 +87,40 @@ generate_standards_info_code <- function(dataset, selection, rmarkdown = FALSE) 
       add_comment(generate_dataset_vars(dataset)$subset, "aggregate standards info"),
       function_call(
         "iso_get_standards",
+        params = list(select = selection)
+      )
+    )
+  )
+}
+
+# generate vendor data table code
+generate_vendor_data_table_code <- function(dataset, selection, explicit_units, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Vendor Data Table",
+    chunk_options = list("vendor_data_table"),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate vendor data table"),
+      function_call(
+        "iso_get_vendor_data_table",
+        params = list(select = selection)
+      ),
+      if (explicit_units) function_call("iso_make_units_explicit", comment = "make implicit units explicit")
+    )
+  )
+}
+
+
+# generate resistors code
+generate_resistors_code <- function(dataset, selection, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Resistors",
+    chunk_options = list("resistors"),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate resistors info"),
+      function_call(
+        "iso_get_resistors",
         params = list(select = selection)
       )
     )

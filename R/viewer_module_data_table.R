@@ -4,7 +4,7 @@
 #'
 #' @param get_variable reactive function returning the selected variable
 #' @param get_iso_files reactive function returning the currently loaded isofiles
-#' @param get_data_table a regular function taking iso_files and a list of column names to retrieve the data table
+#' @param get_data_table a regular or reactive function taking iso_files and a list of column names to retrieve the data table
 #' @param get_data_table_columns a regular function taking iso_files and returning a vector of data table columns
 #' @param is_visible reactive function determining visibility of the auxiliary boxes
 #' @family file info module functions
@@ -18,17 +18,18 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
     callModule(
       selectorTableServer,
       "selector",
-      id_column = "col",
+      id_column = "Column",
       row_column = "rowid",
-      column_select = c(Column = col)
+      column_select = c(-rowid)
     )
 
   # generate selector list ====
   observeEvent(get_iso_files(), {
     req(length(get_iso_files()) > 0)
-    columns <- get_data_table_columns(get_iso_files())
+    columns_tbl <- get_data_table_columns(get_iso_files())
+    stopifnot("Column" %in% names(columns_tbl))
     selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
-    selector$set_table(tibble::tibble(col = columns, rowid = 1:length(columns)))
+    selector$set_table(dplyr::mutate(columns_tbl, rowid = dplyr::row_number()))
     selector$set_selected(selected)
   })
 
@@ -41,20 +42,26 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
     validate(need(length(get_iso_files()) > 0, "loading..."))
     selector$get_selected()
 
-    isolate({
-      # info message
+    # info message
+    isolate(
       module_message(
         ns, "info", sprintf(
           "DATA TABLE user selected %d/%d columns for '%s'",
           length(selector$get_selected()), selector$get_table_nrow(), get_variable())
       )
+    )
 
-      # store selected in settings
-      set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
+    # store selected in settings
+    isolate(set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected()))
 
-      # get file info
+    # get file info
+    if (shiny::is.reactive(get_data_table)) {
+      # retrieve function from reactive first
+      get_data_table()(get_iso_files(), selector$get_selected())
+    } else {
+      # call function directly
       get_data_table(get_iso_files(), selector$get_selected())
-    })
+    }
   })
 
   # file info table =====
@@ -99,12 +106,14 @@ data_table_ui <- function(id, min_height = "800px;") {
 
 #' Column Selector UI
 #' @param width box width
-data_table_column_selector_ui <- function(id, width = 4) {
+data_table_column_selector_ui <- function(id, width = 4, pre_table = list(), post_table = list()) {
   ns <- NS(id)
   div(id = ns("selector_box"),
       default_box(
         title = "Column Selector", width = width,
+        pre_table,
         selectorTableUI(ns("selector")),
+        post_table,
         footer = div(selectorTableButtons(ns("selector")))
       )
   )%>% shinyjs::hidden()

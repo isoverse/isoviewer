@@ -1,11 +1,11 @@
-#' File Info Server
+#' Standards Server
 #' @inheritParams data_table_server
-data_table_file_info_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_standards_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
 
-  # base data table ====
+  # base data table
   data_table <-
     callModule(
       data_table_server,
@@ -13,16 +13,14 @@ data_table_file_info_server <- function(input, output, session, get_variable, ge
       get_variable = get_variable,
       get_iso_files = get_iso_files,
       is_visible = is_visible,
-      # get file info
+      # get standards
       get_data_table = function(iso_files, selected) {
-        isoreader::iso_get_file_info(iso_files, select = c(!!!selected), quiet = TRUE) %>%
-          isoreader:::collapse_list_columns() %>%
-          isoreader:::iso_strip_units() # just in case user introduced some
+        isoreader::iso_get_standards(iso_files, select = c(!!!selected), quiet = TRUE)
       },
-      # get file info columns
+      # get standards columns
       get_data_table_columns = function(iso_files) {
-        columns <- names(isoreader::iso_get_file_info(iso_files, quiet = TRUE))
-        columns <- columns[!columns %in% c("file_id", "file_root")] # do not allow file_root while on server
+        columns <- names(isoreader::iso_get_standards(iso_files, quiet = TRUE))
+        columns <- columns[!columns %in% c("file_id")]
         return(dplyr::tibble(Column = columns))
       }
     )
@@ -30,7 +28,7 @@ data_table_file_info_server <- function(input, output, session, get_variable, ge
   # code update ====
   code_update <- reactive({
     function(rmarkdown = TRUE) {
-      generate_file_info_code(
+      generate_standards_code(
         dataset = get_variable(),
         selection =
           if (is.null(data_table$get_selected_columns())) list(rlang::expr(c()))
@@ -48,16 +46,16 @@ data_table_file_info_server <- function(input, output, session, get_variable, ge
 }
 
 
-#' File Info Table UI
+#' Standards Table UI
 #' @param ... passed on to data_table_ui
-data_table_file_info_ui <- function(id, ...) {
+data_table_standards_ui <- function(id, ...) {
   ns <- NS(id)
   data_table_ui(ns("data_table"), ...)
 }
 
-#' File Info Column Seletor UI
+#' Standards Column Seletor UI
 #' @param ... passed on to data_table_column_selector_ui
-data_table_file_info_column_selector_ui <- function(id, ...) {
+data_table_standards_column_selector_ui <- function(id, ...) {
   ns <- NS(id)
   data_table_column_selector_ui(ns("data_table"), ...)
 }

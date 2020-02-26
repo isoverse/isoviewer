@@ -28,8 +28,8 @@ Imports:
     shinyAce,
     shinycssloaders,
     rhandsontable,
-    UNF,
-    googledrive
+    DT,
+    UNF
 Suggests:
     knitr,
     rmarkdown
