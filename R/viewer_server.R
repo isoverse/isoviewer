@@ -5,7 +5,7 @@ viewer_server <- function(selected_variable = NULL) {
 
   shinyServer(function(input, output, session) {
 
-    # navigation bar (includes welcome screen)
+    # navigation bar (includes info screen)
     navbar <- callModule(
       module_navbar_server, "navbar",
       selected_variable = selected_variable

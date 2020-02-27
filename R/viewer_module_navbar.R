@@ -9,10 +9,16 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   ns <- session$ns
 
   # available variables in namespace
-  available_variables <- find_iso_objects()
+  all_objects <- find_iso_objects()
+  available_variables <-
+    list(
+      di = dplyr::filter(all_objects, type == "dual inlet")$variable,
+      cf = dplyr::filter(all_objects, type == "continuous flow")$variable,
+      scan = dplyr::filter(all_objects, type == "scan")$variable
+    )
 
   # non-variable menu items (make sure IDs are unique by tagging pi to them)
-  welcome <- sprintf("welcome%.6f", pi)
+  info <- sprintf("info%.6f", pi)
   close_id <- sprintf("close%.6f", pi)
   available_variables_NA <-
     setNames(
@@ -25,7 +31,24 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
     initialized = FALSE,
     selected_cf_variable = NULL,
     selected_di_variable = NULL,
-    selected_scan_variable = NULL
+    selected_scan_variable = NULL,
+    reset_settings = 1
+  )
+
+  # info server ====
+  callModule(
+    module_info_server, "info",
+    get_variables = reactive({ all_objects }),
+    get_settings = reactive({
+      values$reset_settings
+      input$menu
+      get_all_gui_settings_table()
+    }),
+    reset_settings = function() {
+      module_message(ns, "info", "RESETTING gui settings")
+      reset_gui_settings()
+      values$reset_settings <- values$reset_settings + 1
+    }
   )
 
   # render navbar ====
@@ -34,9 +57,9 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
     # determine selected
     selected <-
       if (!is.null(selected_variable)) selected_variable
-      else get_gui_setting(ns("menu"), default = welcome)
+      else get_gui_setting(ns("menu"), default = info)
     if (!selected %in% unlist(available_variables))
-      selected <- welcome
+      selected <- info
 
     # info message
     module_message(
@@ -63,8 +86,8 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
       position = "static-top",
       id = ns("menu"),
       selected = selected,
-      tabPanel("Info", value = welcome, icon = icon("info"),
-         div(id = ns("welcome"), viewer_ui_welcome()) %>% shinyjs::hidden()
+      tabPanel("Info", value = info, icon = icon("info"),
+         div(module_info_ui(ns("info")))
       ),
 
       # TODO: add upload screen to upload collection / read files ----
@@ -107,7 +130,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
 
     # update navbar if not already the new value
     if (update_navbar) updateNavbarPage(session, ns("menu"), selected = id)
-    shinyjs::toggle("welcome", condition = id == welcome)
+    shinyjs::toggle("info", condition = id == info)
 
     # set gui setting
     set_gui_setting(ns("menu"), id)

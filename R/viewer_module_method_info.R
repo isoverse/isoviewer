@@ -1,5 +1,4 @@
 #' Method Info Server
-#' @inheritParams file_info_server
 method_info_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
 
   # namespace

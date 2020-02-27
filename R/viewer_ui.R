@@ -26,7 +26,7 @@ viewer_ui <- function(sidebar_width = 170, start_menu = "welcome", theme = "unit
         type="text/css",
         HTML(stringr::str_c(
           # error validation output
-          #".shiny-output-error-validation { color: red; font-size: 16px; }", # do we want this read?
+          ".shiny-output-error-validation { color: black; font-size: 16px; padding: 20px 205px 20px 20px; }",
           ".shiny-output-error-info { color: black; font-size: 20px; padding: 20px; }",
           # body top padding
           ".box-body {padding-top: 5px; padding-bottom: 0px}",

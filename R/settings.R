@@ -71,6 +71,31 @@ get_gui_setting <- function(name, default = NULL) {
   }
 }
 
+# get all gui settings
+get_all_gui_settings <- function() {
+  if (are_gui_settings_on())
+    return(.isoviewer_gui_settings)
+  else
+    return(NULL)
+}
+
+# get all gui settings table
+get_all_gui_settings_table <- function() {
+  settings <- get_all_gui_settings()
+  if (is.null(settings) || length(settings) == 0) return(tibble::tibble())
+  tibble::tibble(
+    setting = names(settings),
+    type = purrr::map_chr(settings, ~class(.x)[1]),
+    length = purrr::map_int(settings, length),
+    value = purrr::map_chr(settings, ~{
+      if (is.list(.x)) "<list>"
+      else if (is.data.frame(.x)) "<tibble>"
+      else paste(as.character(.x), collapse = ", ")
+    })
+  ) %>%
+    dplyr::arrange(setting)
+}
+
 # save gui settings
 # @param file_path path to rds file
 save_gui_settings <- function(file_path) {
@@ -86,4 +111,8 @@ load_gui_settings <- function(file_path) {
 # reset gui settings
 reset_gui_settings <- function() {
   .isoviewer_gui_settings <<- list()
+  # back up gui settings continuously if in debug mode
+  if (setting("debug")) {
+    save_gui_settings("gui_settings.rds")
+  }
 }

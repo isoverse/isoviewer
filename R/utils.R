@@ -12,16 +12,23 @@ wrap_function_name <- function(string, max_length, divider = "_", newline = "\n"
 # find iso objects in the global environment
 find_iso_objects <- function() {
 
-  iso_objs <- rlang::set_names(ls(envir = .GlobalEnv))
-  iso_di <- purrr::map_lgl(iso_objs, ~isoreader::iso_is_dual_inlet(get(.x)))
-  iso_cf <- purrr::map_lgl(iso_objs, ~isoreader::iso_is_continuous_flow(get(.x)))
-  iso_scan <- purrr::map_lgl(iso_objs, ~isoreader::iso_is_scan(get(.x)))
+  # all objects
+  all_objs <-
+    ls(envir = .GlobalEnv) %>%
+    rlang::set_names() %>%
+    purrr::map(get)
+  iso_objs <- all_objs[purrr::map_lgl(all_objs, isoreader::iso_is_object)]
 
-  return(
-    list(
-      di = sort(names(iso_di[iso_di])),
-      cf = sort(names(iso_cf[iso_cf])),
-      scan = sort(names(iso_scan[iso_scan]))
-    )
+  # data frame of information
+  tibble::tibble(
+    type = purrr::map_chr(iso_objs, ~{
+      if (isoreader::iso_is_continuous_flow(.x))  "continuous flow"
+      else if (isoreader::iso_is_dual_inlet(.x)) "dual inlet"
+      else if (isoreader::iso_is_scan(.x)) "scan"
+      else NA_character_
+    }),
+    variable = names(iso_objs),
+    n_files = purrr::map_int(iso_objs, length),
+    size = purrr::map_chr(iso_objs, ~format(object.size(.x), unit = "auto"))
   )
 }
