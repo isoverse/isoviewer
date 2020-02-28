@@ -12,7 +12,7 @@ storage_deprecated <- function() {
 #' @param root the local directory (relative to working directory or absolute) that will serve as the root directory for data storage
 #' @param root_name the name of the root directory that should be shonw in isoviewer
 #' @family data storage functions
-#' @export
+
 local_storage <- function(root, root_name = "Data") {
   if (missing(root)) stop("no data directory provided", call. = FALSE)
   structure(
@@ -34,7 +34,7 @@ local_storage <- function(root, root_name = "Data") {
 #' @param oauth_token the file name for the authentication token (will be stored in the cache folder)
 #' @param local_dir the local directory where temporary files from the remote should be stored
 #' @family data storage functions
-#' @export
+
 gdrive_storage <- function(root, root_name = "Data", oauth_token = "gdrive_token.rds", local_dir = tempdir()) {
   if (missing(root)) stop("no remote data directory provided", call. = FALSE)
   structure(
@@ -60,7 +60,7 @@ gdrive_storage <- function(root, root_name = "Data", oauth_token = "gdrive_token
 #' @param storage the storage object
 #' @param save_credentials if login credentials are required - should they be stored for next time?
 #' @family data storage functions
-#' @export
+
 init_storage <- function(storage, save_credentials = TRUE) {
 
   if (!is_storage(storage)) stop("not a storage object", call. = FALSE)
@@ -141,7 +141,7 @@ is_gdrive_storage <- function(x) {
 #' @param n_max how many recent files to fetch
 #' @param verbose whether to provide information messages or not
 #' @family data storage functions
-#' @export
+
 refresh_recent_files <- function(storage, file_pattern, n_max, verbose = FALSE) {
   storage <- init_storage(storage)
   if (missing(file_pattern)) stop("no filename pattern supplied", call. = FALSE)
@@ -161,7 +161,7 @@ refresh_recent_files <- function(storage, file_pattern, n_max, verbose = FALSE) 
 #' Get the recent files
 #' Get recent files from the storage object
 #' @family data storage functions
-#' @export
+
 get_recent_files <- function(storage) {
   if(!is_storage(storage)) stop("not a storage object", call. = FALSE)
   return(storage$recent_files)
@@ -172,7 +172,7 @@ get_recent_files <- function(storage) {
 #' Refresh directory tree
 #' @return storage object with directory_tree updated
 #' @family data storage functions
-#' @export
+
 refresh_directory_tree <- function(storage, verbose = FALSE) {
   storage <- init_storage(storage)
 
@@ -189,7 +189,7 @@ refresh_directory_tree <- function(storage, verbose = FALSE) {
 #' Get the directory tree
 #' Get directory tree from the storage object
 #' @family data storage functions
-#' @export
+
 get_directory_tree <- function(storage) {
   if(!is_storage(storage)) stop("not a storage object", call. = FALSE)
   return(storage$directory_tree)
@@ -199,7 +199,7 @@ get_directory_tree <- function(storage) {
 
 #' Select a current folder in the directory tree
 #' @param folder which folder to select
-#' @export
+
 select_current_folder <- function(storage, folder) {
   storage <- init_storage(storage)
   if (is_local_storage(storage)) {
