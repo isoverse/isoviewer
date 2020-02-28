@@ -17,6 +17,13 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     generate_plot = generate_plot
   )
 
+  # traces selector ====
+  traces <- callModule(
+    trace_selector_server, "traces",
+    get_variable = get_variable,
+    get_iso_files = get_iso_files
+  )
+
   # show plot options boxes ====
   observeEvent(is_visible(), {
     toggle("selector_box", condition = is_visible())
@@ -27,20 +34,11 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   observeEvent(input$settings_refresh, { base_plot$render_plot() })
   observeEvent(input$selector_refresh, { base_plot$render_plot() })
 
-  # options data ====
-  get_options_data <- reactive({
-    req(length(get_iso_files()) > 0)
-    get_iso_files() %>% isoprocessor::iso_prepare_dual_inlet_plot_data(
-      # just so it's available
-      include_file_info = everything()
-    )
-  })
-
-  # get all aesthetics options ====
+  # get aesthetics dropdowns options ====
   get_aes_options <- reactive({
     req(length(get_iso_files()) > 0)
     file_info_cols <- get_iso_files() %>%
-      isoreader::iso_get_file_info() %>%
+      isoreader::iso_get_file_info(quiet = TRUE) %>%
       names()
     aes_options <- c(
       "None" = "NULL",
@@ -54,79 +52,6 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
         `File Info` = file_info_cols
       ))
     return(aes_options)
-  })
-
-  # data trace selector =====
-  selector <-
-    callModule(
-      selectorTableServer, "selector",
-      id_column = "data_wo_units",
-      row_column = "rowid",
-      column_select = c(Trace = label)
-    )
-
-  # generate data trace selector list ====
-  observeEvent(get_options_data(), {
-    datas <- get_options_data() %>%
-      dplyr::select(data, data_wo_units, category) %>% unique() %>%
-      dplyr::mutate(
-        data_wo_units = as.character(data_wo_units),
-        label = paste(category, data),
-        rowid = dplyr::row_number()
-      )
-    selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
-    selector$set_table(datas)
-    selector$set_selected(selected)
-  })
-
-  # monitor data trace selector ======
-  observeEvent(selector$get_selected(), {
-    # info
-    module_message(
-      ns, "info", sprintf(
-        "TRACE TABLE user selected %s for '%s'",
-        paste(selector$get_selected(), collapse = ", "), get_variable()
-      )
-    )
-    # store selected in settings
-    set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
-  })
-
-  # generate plot ====
-  generate_plot <- function() {
-    # get data from scratch (not from options) to enable signal conversion
-    get_iso_files() %>%
-      {
-        if (input$scale_signal != "NULL")
-          isoprocessor::iso_convert_signals(., to = input$scale_signal, quiet = TRUE)
-        else .
-      } %>%
-      isoprocessor::iso_plot_dual_inlet_data(
-        data = selector$get_selected(),
-        panel = !!get_function_parameter_values()$panel,
-        color = !!get_function_parameter_values()$color,
-        shape = !!get_function_parameter_values()$shape,
-        linetype = !!get_function_parameter_values()$linetype
-      )
-  }
-
-  # code update ====
-  code_update <- reactive({
-
-    function(rmarkdown = TRUE) {
-      generate_di_plot_code(
-        dataset = get_variable(),
-        scale_signal = input$scale_signal,
-        data =
-          if (length(selector$get_selected()) == 0) NULL
-          else if (selector$are_all_selected()) character(0)
-          else selector$get_selected(),
-        aes_options = get_function_parameter_values()[!get_function_parameter_is_default()],
-        theme_options = base_plot$get_theme_options(),
-        rmarkdown = rmarkdown
-      )
-
-    }
   })
 
   # function formals
@@ -190,6 +115,39 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     )
   })
 
+  # generate plot ====
+  generate_plot <- function() {
+    # get data from scratch (not from options) to enable signal conversion
+    validate(need(!is.null(traces$get_selected_traces()), "Error: please select at least one data trace."))
+    get_iso_files() %>%
+      {
+        if (input$scale_signal != "NULL")
+          isoprocessor::iso_convert_signals(., to = input$scale_signal, quiet = TRUE)
+        else .
+      } %>%
+      isoprocessor::iso_plot_dual_inlet_data(
+        data = traces$get_selected_traces(),
+        panel = !!get_function_parameter_values()$panel,
+        color = !!get_function_parameter_values()$color,
+        shape = !!get_function_parameter_values()$shape,
+        linetype = !!get_function_parameter_values()$linetype
+      )
+  }
+
+  # code update ====
+  code_update <- reactive({
+    function(rmarkdown = TRUE) {
+      generate_di_plot_code(
+        dataset = get_variable(),
+        scale_signal = input$scale_signal,
+        data = traces$get_selected_traces(),
+        aes_options = get_function_parameter_values()[!get_function_parameter_is_default()],
+        theme_options = base_plot$get_theme_options(),
+        rmarkdown = rmarkdown
+      )
+    }
+  })
+
   # return functions =====
   list(
     get_code_update = code_update
@@ -218,9 +176,9 @@ plot_di_data_selector_ui <- function(id, width = 4) {
         fluidRow(
           h4("Scale signals:") %>% column(width = 4),
           selectInput(ns("scale_signal"), NULL, choices = scaling_options) %>% column(width = 8)),
-        selectorTableUI(ns("selector")),
+        trace_selector_table_ui(ns("traces")),
         footer = div(
-          selectorTableButtons(ns("selector")),
+          trace_selector_table_buttons_ui(ns("traces")),
           spaces(1),
           tooltipInput(actionButton, ns("selector_refresh"), label = "Plot", icon = icon("refresh"),
                        tooltip = "Refresh plot with new scale and data selections."))

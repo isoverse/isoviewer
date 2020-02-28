@@ -50,6 +50,37 @@ generate_plot_code <- function(data, plot_params, theme1 = NULL, theme2 = NULL, 
   )
 }
 
+# generate di plot code
+generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Plot Raw Data",
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
+      if(scale_signal != "NULL")
+        function_call(
+          "iso_convert_signal",
+          params = list(to = scale_signal),
+          comment = "convert signal units"
+        ),
+      function_call(
+        "iso_plot_dual_inlet_data",
+        params = c(
+          if(!identical(data, character(0))) list(data = data),
+          aes_options
+        ),
+        comment = "plot dual inlet data",
+        fixed_eq_op = "="
+      )
+    ) %>%
+      plus(
+        if (length(theme_options) > 0)
+          function_call("ggplot2::theme", params = theme_options, comment = "customize the plot theme")
+      )
+  )
+}
+
 # generate export code
 generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
   chunk(
@@ -71,6 +102,22 @@ generate_file_info_code <- function(dataset, selection, rmarkdown = FALSE) {
       add_comment(generate_dataset_vars(dataset)$subset, "aggregate file info"),
       function_call(
         "iso_get_file_info",
+        params = list(select = selection)
+      )
+    )
+  )
+}
+
+# generate raw data code
+generate_raw_data_code <- function(dataset, selection, rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Raw Data",
+    chunk_options = list("raw_data"),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "aggregate raw data"),
+      function_call(
+        "iso_get_raw_data",
         params = list(select = selection)
       )
     )
@@ -285,20 +332,21 @@ add_comment <- function(code, comment = NULL) {
 }
 
 # function to generate a function call
-function_call <- function(func, params = list(), comment = NULL) {
+function_call <- function(func, params = list(), comment = NULL, fixed_eq_op = NULL) {
   if (length(params) == 0) {
     # no parameters
     code <- sprintf("%s()", func)
   } else if (length(params) == 1) {
     # 1 parameter
-    param <- function_parameter(names(params)[1], params[[1]])
+    param <- function_parameter(names(params)[1], params[[1]], fixed_eq_op = fixed_eq_op)
     if (!stringr::str_detect(param, "\\n"))
       code <- sprintf("%s(%s)", func, param)
     else
       code <- sprintf("%s(\n%s\n)", func, indent_by(param, 1))
   } else {
     # with multiple parameters
-    params <- purrr::map2_chr(names(params), params, function_parameter) %>% indent_by(1)
+    params <- purrr::map2_chr(names(params), params, function_parameter, fixed_eq_op = fixed_eq_op) %>%
+      indent_by(1)
     code <- sprintf("%s(\n%s\n)", func, paste(params, collapse = ",\n"))
   }
 
@@ -306,12 +354,14 @@ function_call <- function(func, params = list(), comment = NULL) {
 }
 
 # generate parameter
-function_parameter <- function(param, value, nchar_cutoff = 60L) {
+function_parameter <- function(param, value, nchar_cutoff = 60L, fixed_eq_op = NULL) {
   # value code
   is_symbol <- FALSE
   if (is.list(value) && rlang::is_expression(value[[1]])) {
     is_symbol <- TRUE
     value_code <- purrr::map_chr(value, rlang::expr_text)
+  } else if (rlang::is_expression(value)) {
+    value_code <- rlang::expr_text(value)
   } else if (is.character(value)) {
     value_code <- sprintf("\"%s\"", value)
   } else if (is.logical(value)) {
@@ -325,16 +375,21 @@ function_parameter <- function(param, value, nchar_cutoff = 60L) {
     stop("unknown value type: ", class(value[[1]])[1], call. = FALSE)
   }
 
+  # equivalence operator
+  if(!is.null(fixed_eq_op)) op <- fixed_eq_op
+  else if (length(value_code) > 1 && !is_symbol) op <- "%in%"
+  else op <- "="
+
   # parameter code
   if (length(value_code) == 1L) {
     # single value
-    return(sprintf("%s = %s", param, value_code))
+    return(sprintf("%s %s %s", param, op, value_code))
   } else {
     # multi value
-    param_code <- sprintf("%s %s c(%s)", param, if(is_symbol) "=" else "%in%", paste(value_code, collapse = ", "))
+    param_code <- sprintf("%s %s c(%s)", param, op, paste(value_code, collapse = ", "))
     if (nchar(param_code) > nchar_cutoff) {
       value_code <- sprintf("c(%s)", paste(value_code, collapse = ",\n  "))
-      param_code <- sprintf("%s %s \n%s", param, if(is_symbol) "=" else "%in%", indent_by(value_code, 1))
+      param_code <- sprintf("%s %s \n%s", param, op, indent_by(value_code, 1))
     }
     return(param_code)
   }
@@ -367,7 +422,7 @@ iso_convert_signal =
 "# convert signal
 iso_convert_signals(to = \"${units}\")",
 
-# convert signal ----
+# convert time ----
 iso_convert_time =
 "# convert time
 iso_convert_time(to = \"${units}\")",

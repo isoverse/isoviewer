@@ -10,6 +10,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     function(rmarkdown = TRUE, front_matter = rmarkdown) {
       code(
         file_info$get_code_update()(rmarkdown = rmarkdown),
+        raw_data$get_code_update()(rmarkdown = rmarkdown),
         standards$get_code_update()(rmarkdown = rmarkdown),
         resistors$get_code_update()(rmarkdown = rmarkdown),
         vendor_data_table$get_code_update()(rmarkdown = rmarkdown),
@@ -32,6 +33,14 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
+  )
+
+  # raw data ====
+  raw_data <- callModule(
+    data_table_raw_data_server, "raw_data",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "raw_data")
   )
 
   # standards ====
@@ -78,9 +87,7 @@ module_data_cf_ui <- function(id) {
     # TABS =====
     tab_panels = list(
       tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info"))),
-      tabPanel("Raw Data", value = "raw_data"
-               #cfRawDataPlotUI(ns("raw_data"))
-      ),
+      tabPanel("Raw Data", value = "raw_data", data_table_raw_data_ui(ns("raw_data"))),
       tabPanel("Standards", value = "standards", data_table_standards_ui(ns("standards"))),
       tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors"))),
       tabPanel("Vendor Data Table", value = "vendor_data_table", data_table_vendor_data_table_ui(ns("vendor_data_table"))),
@@ -89,16 +96,11 @@ module_data_cf_ui <- function(id) {
     # OPTIONS ====
     option_boxes = list(
       data_table_file_info_column_selector_ui(ns("file_info"), width = 4),
+      data_table_raw_data_column_selector_ui(ns("raw_data"), width = 4),
       data_table_standards_column_selector_ui(ns("standards"), width = 4),
       data_table_resistors_column_selector_ui(ns("resistors"), width = 4),
       data_table_vendor_data_table_column_selector_ui(ns("vendor_data_table"), width = 4),
       data_table_peak_table_column_selector_ui(ns("peak_table"), width = 4)
-
-      # cfRawDataSelectorUI(ns("raw_data"), width = 4, selector_height = "200px"),
-      # cfRawDataSettingsUI(ns("raw_data"), width = 4),
-      # methodInfoSelectorUI(ns("method_info"), width = 4),
-      # vendorDataTableSelectorUI(ns("vendor_data_table"), width = 4, selector_height = "400px"),
-      # exportSettingsUI(ns("export"), width = 4)
     )
   )
 }
