@@ -20,7 +20,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
     isoreader::iso_get_file_info(get_iso_files(), quiet = TRUE)
   })
 
-  # type select ====
+  # type selection ====
   observeEvent(get_file_info(), {
     types <- unique(get_file_info()$type)
     if (length(types) > 0) {
@@ -31,6 +31,11 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   })
   observeEvent(input$type, {
     set_gui_setting(ns(paste0("type-", get_variable())), input$type)
+    # type selection triggers a new plot immediately since it is such a big change
+    if (base_plot$has_plot()) {
+      reset_zoom_stack()
+      base_plot$render_plot()
+    }
   })
 
   # traces selector ====
@@ -122,6 +127,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
       need(!is.null(traces$get_selected_traces()), "Error: please select at least one data trace.") %then%
         need(!is.null(input$type), "Error: please select a data type to plot.")
     )
+    zoom$last_type <- input$type
     get_iso_files() %>%
       {
         if (input$scale_signal != "NULL")
@@ -131,6 +137,8 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
       isoprocessor::iso_plot_scan_data(
         type = input$type,
         data = traces$get_selected_traces(),
+        x_interval = c(get_last_zoom()$x_min, get_last_zoom()$x_max),
+        y_interval = c(get_last_zoom()$y_min, get_last_zoom()$y_max),
         panel = !!get_function_parameter_values()$panel,
         color = !!get_function_parameter_values()$color,
         linetype = !!get_function_parameter_values()$linetype
@@ -145,10 +153,53 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
         type = input$type,
         scale_signal = input$scale_signal,
         data = traces$get_selected_traces(),
+        zoom = get_last_zoom(),
         aes_options = get_function_parameter_values()[!get_function_parameter_is_default()],
         theme_options = base_plot$get_theme_options(),
         rmarkdown = rmarkdown
       )
+    }
+  })
+
+  # disable/enable buttons =====
+  observeEvent(base_plot$has_plot(), {
+    shinyjs::toggleState("zoom_all", condition = base_plot$has_plot())
+    shinyjs::toggleState("zoom_back", condition = base_plot$has_plot())
+  })
+
+  # zoom functions =====
+  zoom <- reactiveValues(
+    stack = list(list(x_min = NULL, x_max = NULL, y_min = NULL, y_max = NULL)),
+    last_type = NULL
+  )
+  add_to_zoom_stack <- function(x_min, x_max, y_min, y_max, update = TRUE, only_add_if_new = TRUE) {
+    new_zoom <- list(x_min = x_min, x_max = x_max, y_min = y_min, y_max = y_max)
+    if (only_add_if_new && identical(get_last_zoom(), new_zoom)) return(NULL)
+    module_message(ns, "info", "ZOOM adding to stack: x = [", x_min, "; ", x_max, "] / y = [", y_min, "; ", y_max, "]")
+    zoom$stack <- c(zoom$stack, list(new_zoom))
+    if (update) base_plot$render_plot()
+  }
+  load_last_zoom <- function(update = TRUE) {
+    last_element <- length(zoom$stack)
+    if (last_element > 1) zoom$stack[last_element] <- NULL
+    if (update) base_plot$render_plot()
+  }
+  get_last_zoom <- function() {
+    zoom$stack[[length(zoom$stack)]]
+  }
+  reset_zoom_stack <- function() {
+    zoom$stack <- list(list(zoom = NULL, x_min = NULL, x_max = NULL))
+  }
+
+  # zoom events ====
+  observeEvent(get_variable(), reset_zoom_stack())
+  observeEvent(base_plot$dblclick(), load_last_zoom())
+  observeEvent(input$zoom_back, load_last_zoom())
+  observeEvent(input$zoom_all, add_to_zoom_stack(x_min = NULL, x_max = NULL, y_min = NULL, y_max = NULL))
+  observeEvent(base_plot$brush(), {
+    brush <- base_plot$brush()
+    if (!is.null(brush$xmin) && !is.null(brush$xmax) && !is.null(brush$ymin) && !is.null(brush$ymax)) {
+     add_to_zoom_stack(x_min = brush$xmin, x_max = brush$xmax, y_min = brush$ymin, y_max = brush$ymax)
     }
   })
 
@@ -163,7 +214,16 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
 #' scan plot UI
 plot_scan_ui <- function(id) {
   ns <- NS(id)
-  plot_ui(ns("base_plot"))
+  plot_ui(
+    ns("base_plot"),
+    brush_direction = "xy", dblclick = TRUE,
+    center_actions = tagList(
+      tooltipInput(actionButton, ns("zoom_all"), "", icon = icon("resize-full", lib = "glyphicon"),
+                   tooltip = "Show all data") %>% shinyjs::disabled(),
+      tooltipInput(actionButton, ns("zoom_back"), "", icon = icon("rotate-left"),
+                   tooltip = "Revert to previous zoom") %>% shinyjs::disabled()
+    )
+  )
 }
 
 #' data selector

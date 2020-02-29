@@ -70,7 +70,7 @@ module_data_scan_ui <- function(id) {
       tabPanel("File Info", value = "file_info", data_table_file_info_ui(ns("file_info"))),
       tabPanel("Raw Data", value = "raw_data", data_table_raw_data_ui(ns("raw_data"))),
       tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors"))),
-      tabPanel("Plot", value = "plot", plot_di_ui(ns("plot")))
+      tabPanel("Plot", value = "plot", plot_scan_ui(ns("plot")))
     ),
     # OPTIONS ====
     option_boxes = list(

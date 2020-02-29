@@ -73,9 +73,6 @@ plot_server <- function(input, output, session, get_variable, generate_plot) {
     shinyjs::toggleState("download_dialog", condition = values$has_plot)
   })
 
-  # double click ====
-  observeEvent(input$plot_dblclick, dblclick())
-
   # generate plot ====
   generate_full_plot <- reactive({
     req(p <- generate_plot())
@@ -148,22 +145,35 @@ plot_server <- function(input, output, session, get_variable, generate_plot) {
     render_plot = render_plot,
     has_plot = reactive({ values$has_plot }),
     dblclick = reactive({ input$plot_dblclick }),
+    click = reactive({ input$plot_click }),
+    brush = reactive({ input$plot_brush }),
     get_theme_options = get_theme_options
   )
 }
 
 
 #' plot UI
-plot_ui <-
-  function(id,
-           min_height = "500px;",
-           action_widths = c(3, 6, 3),
-           left_actions = list(),
-           center_actions = list(),
-           right_actions = list()) {
+#' @param brush_direction if NULL no brush, if "x", "y", or "xy", creates a brush
+plot_ui <- function(
+  id, min_height = "500px;",
+  action_widths = c(3, 6, 3),
+  left_actions = list(),  center_actions = list(), right_actions = list(),
+  click = FALSE, dblclick = FALSE, brush_direction = NULL) {
 
   # namespace
   ns <- NS(id)
+
+  if (!is.null(brush_direction)) {
+    brush <- brushOpts(
+      id = ns("plot_brush"),
+      delay = 10000, # ms (basically let the user finish the brush themselves)
+      delayType = "debounce",
+      direction = brush_direction,
+      resetOnNew = TRUE
+    )
+  } else {
+    brush <- NULL
+  }
 
   tagList(
       # plot actions
@@ -184,13 +194,9 @@ plot_ui <-
       ),
       div(id = ns("plot_div"), style = paste("min-height:", min_height),
           plotOutput(ns("plot"), height = "100%",
-                     dblclick = ns("plot_dblclick"),
-                     brush = brushOpts(
-                       id = ns("plot_brush"),
-                       delayType = "debounce",
-                       direction = "x",
-                       resetOnNew = TRUE
-                     )) %>%
+                     dblclick = if (dblclick) ns("plot_dblclick") else NULL,
+                     click = if (click) ns("plot_click") else NULL,
+                     brush = brush) %>%
             withSpinner(type = 5, proxy.height = min_height)
       )
   )

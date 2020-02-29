@@ -8,6 +8,16 @@ wrap_function_name <- function(string, max_length, divider = "_", newline = "\n"
   purrr::map2_chr(cuts, pieces, ~stringr::str_c(stringr::str_c(ifelse(.x == 1, newline, ""), .y), collapse = divider))
 }
 
+# calculate number of reasonable digits for an interval
+n_interval_digits <- function(interval, diff_sigs = 2) {
+  return(-floor(log10(diff(sort(interval)))) + diff_sigs)
+}
+# round interval depending on its range
+round_interval_digits <- function(interval, diff_sigs = 2) {
+  n_digits <- n_interval_digits(interval, diff_sigs = diff_sigs)
+  round(interval, n_digits)
+}
+
 
 # find iso objects in the global environment
 find_iso_objects <- function() {

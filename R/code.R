@@ -82,7 +82,8 @@ generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = lis
 }
 
 # generate scan plot code
-generate_scan_plot_code <- function(dataset, type, scale_signal, data, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
+generate_scan_plot_code <- function(dataset, type, scale_signal, data, zoom, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
+
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Plot Raw Data",
@@ -100,6 +101,10 @@ generate_scan_plot_code <- function(dataset, type, scale_signal, data, aes_optio
         params = c(
           list(type = type),
           if(!identical(data, character(0))) list(data = data),
+          if(!is.null(zoom$x_min) && !is.null(zoom$x_max))
+            list(x_interval = round_interval_digits(c(zoom$x_min, zoom$x_max))),
+          if(!is.null(zoom$y_min) && !is.null(zoom$y_max))
+            list(y_interval = round_interval_digits(c(zoom$y_min, zoom$y_max))),
           aes_options
         ),
         comment = "plot scan data",
