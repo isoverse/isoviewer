@@ -50,7 +50,7 @@ dualInletViewServer <- function(input, output, session, data_dir, load_server = 
     }
   })
   code_preview <- callModule(
-    codePreviewServer, "di_code", code_func_reac = code_update,
+    code_preview_server, "di_code", code_func_reac = code_update,
     download_file = reactive({ stringr::str_c("VIEW ", di_dataset$get_dataset_name()) }))
 
 
@@ -94,7 +94,7 @@ dualInletViewUI <- function(id, width = 12) {
   ns <- NS(id)
   tagList(
     datasetsUI(ns("di_dataset"), width = 6),
-    codePreviewUI(ns("di_code"), width = 6, height = "300px"),
+    code_preview_ui(ns("di_code"), width = 6, height = "300px"),
     dualInletDataUI(ns("di_data"), width = 12)
 
     #FIXME

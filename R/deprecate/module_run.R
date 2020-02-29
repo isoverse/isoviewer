@@ -59,7 +59,7 @@ iso_view_continuous_flow_files <- function(iso_files, ...) {
 
         # USE SHINY JS AND EXTENSIONS ---
         useShinyjs(),
-        codePreviewShinyjsExtension(),
+        code_preview_shinyjs_extension(),
         continuousFlowDataUI("cf_data", width = 12)
       )
     ),

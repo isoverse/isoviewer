@@ -63,7 +63,7 @@ app_ui <- function(allow_data_upload, sidebar_width = 170, start_menu = "welcome
 
       # USE SHINY JS AND EXTENSIONS ---
       useShinyjs(),
-      codePreviewShinyjsExtension()
+      code_preview_shinyjs_extension()
 
     ) %>%
     dashboardSidebar(width = sidebar_width),

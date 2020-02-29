@@ -339,7 +339,7 @@ isofilesLoadServer <- function(
     }
   })
   code_preview <- callModule(
-    codePreviewServer, "code_preview", code_func_reac = code_update,
+    code_preview_server, "code_preview", code_func_reac = code_update,
     download_file = reactive({ stringr::str_c("LOAD ", input$dataset_name) }))
 
 
@@ -399,7 +399,7 @@ isofilesLoadUI <- function(id, label = NULL) {
     ),
 
     # code preview
-    codePreviewUI(ns("code_preview"), width = 6, height = "305px")
+    code_preview_ui(ns("code_preview"), width = 6, height = "305px")
   )
 }
 

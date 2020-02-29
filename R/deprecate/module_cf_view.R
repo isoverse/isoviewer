@@ -50,7 +50,7 @@ continuousFlowViewServer <- function(input, output, session, data_dir, load_serv
     }
   })
   code_preview <- callModule(
-    codePreviewServer, "cf_code", code_func_reac = code_update,
+    code_preview_server, "cf_code", code_func_reac = code_update,
     download_file = reactive({ stringr::str_c("VIEW ", cf_dataset$get_dataset_name()) }))
 
 
@@ -95,7 +95,7 @@ continuousFlowViewUI <- function(id, width = 12) {
   ns <- NS(id)
   tagList(
     datasetsUI(ns("cf_dataset"), width = 6),
-    codePreviewUI(ns("cf_code"), width = 6, height = "300px"),
+    code_preview_ui(ns("cf_code"), width = 6, height = "300px"),
     continuousFlowDataUI(ns("cf_data"), width = 12)
     ## FIXME/DEBUG
     # default_box("test", width = 12, checkboxInput(ns("testing_it"), "test", value = TRUE))
