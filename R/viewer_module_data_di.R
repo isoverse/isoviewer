@@ -23,7 +23,7 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
   base_data <- callModule(
     module_data_server, "base_data",
     get_selected_variable = get_selected_variable,
-    variable_check_func = isoreader::iso_is_dual_inlet,
+    data_type = "dual_inlet",
     get_code_update = code_update
   )
 

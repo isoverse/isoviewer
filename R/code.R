@@ -325,25 +325,41 @@ generate_load_list_code <- function(read_paths, read_func, read_params, save_fil
 
 # generate code for file header and setup
 # @param setup_addon additional lines to go into setup
-generate_file_header_code <- function(title, rmarkdown = FALSE, front_matter = rmarkdown, install = front_matter,
-                                      setup = TRUE, caching_on = FALSE) {
+generate_file_header_code <- function(
+  title, dataset, read_func, rmarkdown = FALSE, front_matter = rmarkdown,
+  install = front_matter, setup = TRUE, load = rmarkdown) {
   # generate header
   code(
     if (rmarkdown && front_matter) code_block("header", title = title),
     if (rmarkdown && install)
-      code(
-        code_block("install_github", package = "isoverse/isoreader"),
-        code_block("install_github", package = "isoverse/isoprocessor")
+      chunk(
+        code_only = !rmarkdown,
+        chunk_options = list("install", echo=FALSE, eval=FALSE),
+        function_call("install.packages", params = list("devtools"),
+                      comment = "run once to install"),
+        function_call("devtools::install_github", params = list("isoverse/isoreader")),
+        function_call("devtools::install_github", params = list("isoverse/isoprocessor"))
       ),
-    if (setup) chunk(
-      code_only = !rmarkdown,
-      pre_chunk = "# Libraries",
-      post_chunk = "This document was generated with [isoviewer](http://isoviewer.isoverse.org) version `r packageVersion(\"isoviewer\")` for [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.",
-      chunk_options = list("setup", message=FALSE, warning=FALSE),
-      # load libraries
-      add_comment("library(isoreader)\nlibrary(isoprocessor)", "load libraries"),
-      if (caching_on) code_block("caching_on")
-    )
+    if (setup)
+      chunk(
+        code_only = !rmarkdown,
+        pre_chunk = "This document was generated with [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.\n\n# Libraries",
+        chunk_options = list("setup", message=FALSE, warning=FALSE),
+        # load libraries
+        add_comment("library(isoreader)\nlibrary(isoprocessor)", "load libraries")
+      ),
+    if (load)
+      chunk(
+        code_only = !rmarkdown,
+        pre_chunk = "# Load Data",
+        chunk_options = list("load"),
+        assign_call(
+          "path", "\"\"",
+          comment = "TODO: fill in the path to your data folder or file(s)"),
+        assign_call(
+          dataset, function_call(read_func, params = list(rlang::sym("path")))
+        ) %>% add_comment("read in dataset")
+      )
   )
 }
 
@@ -420,7 +436,10 @@ function_call <- function(func, params = list(), comment = NULL, fixed_eq_op = N
     code <- sprintf("%s()", func)
   } else if (length(params) == 1) {
     # 1 parameter
-    param <- function_parameter(names(params)[1], params[[1]], fixed_eq_op = fixed_eq_op)
+    if (is.null(names(params)))
+      param <- function_parameter(NULL, params[[1]], fixed_eq_op = fixed_eq_op)
+    else
+      param <- function_parameter(names(params)[1], params[[1]], fixed_eq_op = fixed_eq_op)
     if (!stringr::str_detect(param, "\\n"))
       code <- sprintf("%s(%s)", func, param)
     else
@@ -463,8 +482,11 @@ function_parameter <- function(param, value, nchar_cutoff = 60L, fixed_eq_op = N
   else op <- "="
 
   # parameter code
-  if (length(value_code) == 1L) {
-    # single value
+  if (length(value_code) == 1L && is.null(param)) {
+    # single value, no parameter name
+    return(value_code)
+  } else if (length(value_code) == 1L && !is.null(param)) {
+    # single value with parameter name
     return(sprintf("%s %s %s", param, op, value_code))
   } else {
     # multi value

@@ -1,10 +1,10 @@
 #' Data server (main module)
 #'
 #' @param get_selected_variable reactive function returning the variable name
-#' @param variable_check_func safety check function for the variable (usually some flavour of iso_is...)
+#' @param data_type the type of data server (character), is used to construct iso_read... and iso_is_... calls
 #' @param get_code_update a reactive code update function, has to return a function that takes 'rmarkdown' as a parameter
 module_data_server <- function(input, output, session, get_selected_variable,
-                               variable_check_func = function(obj) {TRUE},
+                               data_type = c("continuous_flow", "dual_inlet", "scan"),
                                get_code_update = reactive({ function(rmarkdown) {""} })) {
 
   # namespace
@@ -16,13 +16,14 @@ module_data_server <- function(input, output, session, get_selected_variable,
   )
 
   # file selector module =====
+  variable_check_func <- rlang::parse_expr(sprintf("isoreader::iso_is_%s(obj)", data_type))
   files <- callModule(
     module_file_selector_server, "files",
     get_variable = get_selected_variable,
     get_iso_files = reactive({
       req(get_selected_variable())
       obj <- get(get_selected_variable(), envir = .GlobalEnv)
-      stopifnot(variable_check_func(obj))
+      stopifnot(rlang::eval_tidy(variable_check_func))
       return(obj)
     })
   )
@@ -68,7 +69,9 @@ module_data_server <- function(input, output, session, get_selected_variable,
       code(
         generate_file_header_code(
           title = paste("Viewing", get_selected_variable()),
-          setup = TRUE, caching_on = FALSE, # FIXME: deprecate caching_on parameter?
+          dataset = get_selected_variable(),
+          read_func = paste0("iso_read_", data_type),
+          setup = TRUE, load = TRUE,
           rmarkdown = rmarkdown, front_matter = front_matter),
         files$get_code_update()(rmarkdown = rmarkdown),
         get_code_update()(rmarkdown = rmarkdown),

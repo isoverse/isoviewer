@@ -21,7 +21,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   base_data <- callModule(
     module_data_server, "base_data",
     get_selected_variable = get_selected_variable,
-    variable_check_func = isoreader::iso_is_scan,
+    data_type = "scan",
     get_code_update = code_update
   )
 

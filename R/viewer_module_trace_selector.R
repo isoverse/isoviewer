@@ -7,7 +7,7 @@ trace_selector_server <- function(input, output, session, get_variable, get_iso_
   # data trace selector =====
   selector <-
     callModule(
-      selectorTableServer, "selector",
+      selector_table_server, "selector",
       id_column = "data",
       row_column = "rowid",
       column_select = c(Trace = label)
@@ -66,12 +66,12 @@ trace_selector_server <- function(input, output, session, get_variable, get_iso_
 #' trace selector ui
 trace_selector_table_ui <- function(id) {
   ns <- NS(id)
-  selectorTableUI(ns("selector"))
+  selector_table_ui(ns("selector"))
 }
 
 #' trace selector buttons ui
 trace_selector_table_buttons_ui <- function(id) {
   ns <- NS(id)
-  selectorTableButtons(ns("selector"))
+  selector_table_buttons_ui(ns("selector"))
 }
 
