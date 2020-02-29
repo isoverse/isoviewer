@@ -28,6 +28,7 @@ Imports:
     shinyBS,
     shinyAce,
     shinycssloaders,
+    shinythemes,
     DT
 Suggests:
     knitr,
