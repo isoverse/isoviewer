@@ -1,6 +1,7 @@
 #' @keywords internal
 "_PACKAGE"
 
+#' @importFrom magrittr %>%
 #' @importFrom rlang sym !!!
 #' @importFrom tibble enframe deframe
 #' @importFrom tidyr spread
@@ -11,12 +12,10 @@
 #' @importFrom shinyAce aceEditor updateAceEditor
 #' @importFrom shinyBS bsTooltip bsModal
 #' @importFrom shinycssloaders withSpinner
-#' @importFrom rhandsontable rHandsontableOutput renderRHandsontable rhandsontable hot_table hot_col hot_to_r
 #' @importFrom stats setNames
 #' @importFrom utils packageVersion
 #' @importFrom R.utils isAbsolutePath filePath
 #' @importFrom methods is
-#' @importFrom UNF unf
 NULL
 
 #' @export
