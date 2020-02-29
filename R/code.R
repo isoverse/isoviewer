@@ -81,6 +81,38 @@ generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = lis
   )
 }
 
+# generate scan plot code
+generate_scan_plot_code <- function(dataset, type, scale_signal, data, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Plot Raw Data",
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
+      if(scale_signal != "NULL")
+        function_call(
+          "iso_convert_signal",
+          params = list(to = scale_signal),
+          comment = "convert signal units"
+        ),
+      function_call(
+        "iso_plot_scan_data",
+        params = c(
+          list(type = type),
+          if(!identical(data, character(0))) list(data = data),
+          aes_options
+        ),
+        comment = "plot scan data",
+        fixed_eq_op = "="
+      )
+    ) %>%
+      plus(
+        if (length(theme_options) > 0)
+          function_call("ggplot2::theme", params = theme_options, comment = "customize the plot theme")
+      )
+  )
+}
+
 # generate export code
 generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
   chunk(

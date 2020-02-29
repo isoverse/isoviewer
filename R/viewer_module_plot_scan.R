@@ -1,6 +1,6 @@
-#' Dual inlet plot
+#' scan plot
 #' @param get_variable get variable name
-plot_di_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+plot_scan_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -13,6 +13,25 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     get_variable = get_variable,
     generate_plot = generate_plot
   )
+
+  # file info ====
+  get_file_info <- reactive({
+    req(length(get_iso_files()) > 0)
+    isoreader::iso_get_file_info(get_iso_files(), quiet = TRUE)
+  })
+
+  # type select ====
+  observeEvent(get_file_info(), {
+    types <- unique(get_file_info()$type)
+    if (length(types) > 0) {
+      selected <- get_gui_setting(ns(paste0("type-", get_variable())), default = types[1])
+      if (!selected %in% types) selected <- types[1]
+      updateSelectInput(session, "type", choices = types, selected = selected)
+    }
+  })
+  observeEvent(input$type, {
+    set_gui_setting(ns(paste0("type-", get_variable())), input$type)
+  })
 
   # traces selector ====
   traces <- callModule(
@@ -32,16 +51,12 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   observeEvent(input$selector_refresh, { base_plot$render_plot() })
 
   # get aesthetics dropdowns options ====
-  get_aes_options <- reactive({
-    req(length(get_iso_files()) > 0)
-    file_info_cols <- get_iso_files() %>%
-      isoreader::iso_get_file_info(quiet = TRUE) %>%
-      names()
+  get_aes_options <- eventReactive(get_file_info(), {
+    file_info_cols <- names(get_file_info())
     aes_options <- c(
       "None" = "NULL",
       list(
         `Data Columns` = c(
-          "Standard/Sample (type)" = "type",
           "Traces with units (data)" = "data",
           "Traces no units (data_wo_units)" = "data_wo_units",
           "Category (category)" = "category"
@@ -52,7 +67,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   })
 
   # function formals
-  func_formals <- formals(isoprocessor:::iso_plot_dual_inlet_data.iso_file_list)
+  func_formals <- formals(isoprocessor:::iso_plot_scan_data.iso_file_list)
 
   # panel aesthetic ======
   panel <- callModule(
@@ -74,16 +89,6 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     reset_trigger = reactive({ input$reset })
   )
 
-  # shape aesthetic ======
-  shape <- callModule(
-    function_plot_param_server, "shape",
-    get_variable = get_variable,
-    type = "expression",
-    get_value_options = get_aes_options,
-    default_value = func_formals$shape,
-    reset_trigger = reactive({ input$reset })
-  )
-
   # linetype aesthetic ======
   linetype <- callModule(
     function_plot_param_server, "linetype",
@@ -99,7 +104,6 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     list(
       panel = panel$get_value(),
       color = color$get_value(),
-      shape = shape$get_value(),
       linetype = linetype$get_value()
     )
   })
@@ -107,7 +111,6 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     c(
       panel = panel$is_default(),
       color = color$is_default(),
-      shape = shape$is_default(),
       linetype = linetype$is_default()
     )
   })
@@ -115,18 +118,21 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # generate plot ====
   generate_plot <- function() {
     # get data from scratch (not from options) to enable signal conversion
-    validate(need(!is.null(traces$get_selected_traces()), "Error: please select at least one data trace."))
+    validate(
+      need(!is.null(traces$get_selected_traces()), "Error: please select at least one data trace.") %then%
+        need(!is.null(input$type), "Error: please select a data type to plot.")
+    )
     get_iso_files() %>%
       {
         if (input$scale_signal != "NULL")
           isoprocessor::iso_convert_signals(., to = input$scale_signal, quiet = TRUE)
         else .
       } %>%
-      isoprocessor::iso_plot_dual_inlet_data(
+      isoprocessor::iso_plot_scan_data(
+        type = input$type,
         data = traces$get_selected_traces(),
         panel = !!get_function_parameter_values()$panel,
         color = !!get_function_parameter_values()$color,
-        shape = !!get_function_parameter_values()$shape,
         linetype = !!get_function_parameter_values()$linetype
       )
   }
@@ -134,8 +140,9 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # code update ====
   code_update <- reactive({
     function(rmarkdown = TRUE) {
-      generate_di_plot_code(
+      generate_scan_plot_code(
         dataset = get_variable(),
+        type = input$type,
         scale_signal = input$scale_signal,
         data = traces$get_selected_traces(),
         aes_options = get_function_parameter_values()[!get_function_parameter_is_default()],
@@ -153,14 +160,14 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
 }
 
 
-#' dual inlet plot UI
-plot_di_ui <- function(id) {
+#' scan plot UI
+plot_scan_ui <- function(id) {
   ns <- NS(id)
   plot_ui(ns("base_plot"))
 }
 
 #' data selector
-plot_di_data_selector_ui <- function(id, width = 4) {
+plot_scan_data_selector_ui <- function(id, width = 4) {
   ns <- NS(id)
 
   # scaling options
@@ -170,6 +177,10 @@ plot_di_data_selector_ui <- function(id, width = 4) {
   div(id = ns("selector_box"),
       default_box(
         title = "Data Selector", width = width,
+        fluidRow(
+          h4("Data Type:") %>% column(width = 4),
+          selectInput(ns("type"), NULL, choices = c()) %>% column(width = 8)
+        ),
         fluidRow(
           h4("Scale signals:") %>% column(width = 4),
           selectInput(ns("scale_signal"), NULL, choices = scaling_options) %>% column(width = 8)
@@ -184,8 +195,8 @@ plot_di_data_selector_ui <- function(id, width = 4) {
   )%>% hidden()
 }
 
-# dual inlet plot options UI
-plot_di_options_ui <- function(id, width = 4) {
+# scan plot options UI
+plot_scan_options_ui <- function(id, width = 4) {
   ns <- NS(id)
 
   div(id = ns("settings_box"),
@@ -193,7 +204,6 @@ plot_di_options_ui <- function(id, width = 4) {
         title = "Plot Settings", width = width,
         function_plot_param_ui(ns("panel"), label = "Panel by:"),
         function_plot_param_ui(ns("color"), label = "Color by:"),
-        function_plot_param_ui(ns("shape"), label = "Shape by:"),
         function_plot_param_ui(ns("linetype"), label = "Linetype by:"),
         plot_height_ui(ns("base_plot")),
         plot_font_size_ui(ns("base_plot")),

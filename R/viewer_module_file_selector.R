@@ -32,7 +32,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   selector <- callModule(
     selectorTableServer, "selector",
     id_column = "file_id", row_column = "row_id",
-    column_select = c(File = file_id, Errors = error, Warning = warning)
+    column_select = c(File = file_id, `File Size` = file_size, Errors = error, Warning = warning)
   )
 
   # get selected isofiles =====
@@ -71,9 +71,12 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
       # generate selector table
       df <- get_filtered_iso_files() %>%
-        isoreader::iso_get_problems_summary(problem_files_only = FALSE) %>%
+        isoreader::iso_get_problems_summary(
+          problem_files_only = FALSE, include_file_info = file_size
+        ) %>%
         dplyr::mutate(
           row_id = dplyr::row_number(),
+          file_size = ifelse(!is.na(file_size), sprintf("%.1f kB", file_size/1024), "NA"),
           warning = as.character(warning),
           error = as.character(error)
         )
@@ -212,7 +215,7 @@ problems_server <- function(input, output, session, get_variable, get_iso_files)
   # problems table
   output$problems <- renderTable({
     req(get_iso_files())
-    probs <-iso_get_problems(get_iso_files())
+    probs <- isoreader::iso_get_problems(get_iso_files())
     if (nrow(probs) == 0) {
       tibble::tibble(Problem = "no problems")
     } else {
