@@ -12,7 +12,8 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
         file_info$get_code_update()(rmarkdown = rmarkdown),
         raw_data$get_code_update()(rmarkdown = rmarkdown),
         resistors$get_code_update()(rmarkdown = rmarkdown),
-        plot$get_code_update()(rmarkdown = rmarkdown)
+        plot$get_code_update()(rmarkdown = rmarkdown),
+        download$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -55,6 +56,12 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "plot")
+  )
+
+  # download ====
+  download <- callModule(
+    data_download_server, "download",
+    get_variable = get_selected_variable
   )
 
 }

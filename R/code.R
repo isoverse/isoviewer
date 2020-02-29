@@ -164,12 +164,18 @@ generate_scan_plot_code <- function(dataset, type, scale_signal, data, zoom, aes
 }
 
 # generate export code
-generate_export_code <- function(filepath, export_params, rmarkdown = FALSE) {
+generate_export_code <- function(dataset, rmarkdown = FALSE) {
   chunk(
     code_only = !rmarkdown,
-    pre_chunk = "## Export data",
-    code_block("iso_export_to_excel", filepath = filepath, params = export_params),
-    code_block("iso_export_to_feather", filepath = filepath, params = export_params),
+    pre_chunk = "# Export data",
+    pipe(
+      add_comment(dataset, "export entire dataset"),
+      function_call(
+        "iso_export_to_excel",
+        params = list(dataset),
+        comment = "export to excel"
+      )
+    ),
     chunk_options = list("export data")
   )
 }
@@ -346,7 +352,15 @@ generate_file_header_code <- function(
         pre_chunk = "This document was generated with [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.\n\n# Libraries",
         chunk_options = list("setup", message=FALSE, warning=FALSE),
         # load libraries
-        add_comment("library(isoreader)\nlibrary(isoprocessor)", "load libraries")
+        "library(isoreader)\nlibrary(isoprocessor)" %>% add_comment("load libraries"),
+
+        # global knitting options for automatic saving of all plots as .png and .pdf
+'knitr::opts_chunk$set(
+  dev = c("png", "pdf"), fig.keep = "all",
+  dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
+  fig.path = file.path("fig_output", paste0(gsub("\\.[Rr]md", "", knitr::current_input()), "_"))
+)' %>% add_comment("global knitting options for automatic saving of plots as .png and .pdf")
+
       ),
     if (load)
       chunk(

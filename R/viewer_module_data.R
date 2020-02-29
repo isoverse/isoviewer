@@ -7,6 +7,31 @@ module_data_server <- function(input, output, session, get_selected_variable,
                                data_type = c("continuous_flow", "dual_inlet", "scan"),
                                get_code_update = reactive({ function(rmarkdown) {""} })) {
 
+  # TODO: implement code jumping
+  # # code jumping
+  # observe({
+  #   req(cf_data$get_data_tab())
+  #
+  #   if (is.null(cf_dataset$get_dataset_path()))
+  #     search_term <- "load dataset"
+  #   else {
+  #     search_term <-
+  #       switch(cf_data$get_data_tab(),
+  #              raw_data = "raw data",
+  #              file_info = "file info",
+  #              method_info = "method info",
+  #              vendor_data_table = "vendor data table",
+  #              export = "export",
+  #              NULL)
+  #   }
+  #
+  #   module_message(ns, "debug", "jumping into code at: ", search_term)
+  #
+  #   if (!is.null(search_term))
+  #     code_preview$focus_code_preview(search = search_term, center = TRUE, case_sensitive = FALSE)
+  # })
+
+
   # namespace
   ns <- session$ns
 

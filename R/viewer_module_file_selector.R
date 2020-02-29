@@ -93,7 +93,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
       module_message(ns, "info", "FILES downloading entire dataset ", get_variable())
       file_path <- file.path(tempdir(), isoreader:::get_rds_export_filepath(get_iso_files(), get_variable()))
       withProgress({
-          iso_save(get_iso_files(), file_path, quiet = TRUE)
+          isoreader::iso_save(get_iso_files(), file_path, quiet = TRUE)
           file.copy(from = file_path, to = filename)
         },
         message = "Preparing dataset...",

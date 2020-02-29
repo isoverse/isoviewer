@@ -14,7 +14,8 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
         standards$get_code_update()(rmarkdown = rmarkdown),
         resistors$get_code_update()(rmarkdown = rmarkdown),
         vendor_data_table$get_code_update()(rmarkdown = rmarkdown),
-        plot$get_code_update()(rmarkdown = rmarkdown)
+        plot$get_code_update()(rmarkdown = rmarkdown),
+        download$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -75,6 +76,11 @@ module_data_di_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "plot")
   )
 
+  # download ====
+  download <- callModule(
+    data_download_server, "download",
+    get_variable = get_selected_variable
+  )
 
 }
 
