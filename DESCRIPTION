@@ -1,7 +1,7 @@
 Package: isoviewer
 Title: Visualize IRMS data
 Description: Graphical user interface components for exploring isotope data.
-Version: 0.7.1.9999
+Version: 0.8.0
 Authors@R: person("Sebastian", "Kopf", email = "sebastian.kopf@colorado.edu",
     role = c("aut", "cre"))
 URL: https://github.com/isoverse/isoviewer
@@ -17,8 +17,8 @@ Imports:
     tibble,
     stringr,
     ggplot2,
-    isoreader,
-    isoprocessor,
+    isoreader (>= 1.1.3),
+    isoprocessor (>= 0.6.3),
     rlang,
     shiny,
     shinydashboard,
