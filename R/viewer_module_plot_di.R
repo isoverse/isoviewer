@@ -5,14 +5,27 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # namespace
   ns <- session$ns
 
-  # FIXME: remember scale signal settings!
-
   # plot server =====
   base_plot <- callModule(
     plot_server, "base_plot",
     get_variable = get_variable,
-    generate_plot = generate_plot
+    generate_plot = generate_plot,
+    reset_trigger = reactive({ input$reset })
   )
+
+  # signal selection =====
+  observeEvent(get_variable(), {
+    req(get_variable())
+    updateSelectInput(
+      session, "scale_signal",
+      selected = get_gui_setting(ns(paste0("signal-", get_variable())), default = "NULL")
+    )
+  })
+  observeEvent(input$scale_signal, {
+    req(get_variable())
+    module_message(ns, "info", "PLOT user set scale_signal to '", input$scale_signal, "'")
+    set_gui_setting(ns(paste0("signal-", get_variable())), input$scale_signal)
+  }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
   # traces selector ====
   traces <- callModule(
@@ -42,9 +55,9 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
       list(
         `Data Columns` = c(
           "Standard/Sample (type)" = "type",
-          "Traces with units (data)" = "data",
-          "Traces no units (data_wo_units)" = "data_wo_units",
-          "Category (category)" = "category"
+          "Traces (data)" = "data",
+          #"Traces no units (data_wo_units)" = "data_wo_units", # too confusing
+          "Category" = "category"
         ),
         `File Info` = file_info_cols
       ))
@@ -176,10 +189,11 @@ plot_di_data_selector_ui <- function(id, width = 4) {
         ),
         trace_selector_table_ui(ns("traces")),
         footer = div(
-          trace_selector_table_buttons_ui(ns("traces")),
-          spaces(1),
           tooltipInput(actionButton, ns("selector_refresh"), label = "Plot", icon = icon("refresh"),
-                       tooltip = "Refresh plot with new scale and data selections."))
+                       tooltip = "Refresh plot with new scale and data selections."),
+          spaces(1),
+          trace_selector_table_buttons_ui(ns("traces"))
+        )
       )
   )%>% hidden()
 }
