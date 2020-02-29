@@ -69,6 +69,7 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
+
 <div id="isoviewer" class="section level1">
 
 
@@ -77,7 +78,7 @@
 <a href="#about" class="anchor"></a>About</h2>
 <p>The <a href="https://isoviewer.isoverse.org">isoviewer</a> graphical user interface (GUI) provided by this package is based on the functionlity implemented by the <a href="https://isoreader.isoverse.org">isoreader</a> and <a href="https://isoprocessor.isoverse.org">isoprocessor</a> packages The purpose of the GUI is two fold.</p>
 <p>First and foremost, it is a learning tool to illustrate how to build literate RMarkdown data processing files for IRMS data using the underlying isoreader package as a unified interface for reading, converting and quickly visualizing various raw IRMS data file formats.</p>
-<p>The second purpose is to provide an example for a web-based IRMS data repository that is easy to run on any computer/server completely platform-independent and open-source. The isoviewer package provides some rudimentary GUI modules that could be used in other more customized applications. However, while this example app is relatively light weight and does not use a database back-end, one could consider more elaborate use cases of the isoreader and similar packages as a programmatic interface to IRMS data that allows large scale parallel processing, reproducible aggregation and potentially sharing of years of accumulated data.</p>
+<p>The second purpose is to provide an example for a web-based IRMS data repository that is easy to run on any computer/server completely platform-independent and open-source. The isoviewer package provides some rudimentary GUI modules that could be used in other more customized applications.</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -91,10 +92,15 @@
 <div id="using-the-user-interface" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-the-user-interface" class="anchor"></a>Using the User Interface</h2>
-<p>Once isoviewer is installed, you can easily launch the user interface on your local machine by using the <code>run</code> function and providing the path to the directory where your data is stored (the <code>data_dir</code> parameter). Additional optional parameters control other aspects of the GUI and can be set as needed. See <code>?isoviewer::run</code> for help. To run it as a local server accessible via your network, make sure to specify the correct <code>host</code> IP address and a fixed <code>port</code> (see <code><a href="https://rdrr.io/pkg/shiny/man/runApp.html">?shiny::runApp</a></code> for details).</p>
+<p>Once isoviewer is installed, you can easily launch the user interface on your local machine by using the <code><a href="reference/iso_start_viewer.html">iso_start_viewer()</a></code> function which will search for all iso file objects in your workspace and make them accessible through the graphical interface.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(isoviewer)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">run</span>(<span class="dt">data_dir =</span> <span class="st">"."</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/iso_start_viewer.html">iso_start_viewer</a></span>()</a></code></pre></div>
 </div>
+</div>
+<div id="online-demo" class="section level1">
+<h1 class="hasAnchor">
+<a href="#online-demo" class="anchor"></a>Online Demo</h1>
+<p>An online demo of the isoviewer GUI is <a href="https://kopflab.shinyapps.io/isoviewer_demo/">available on our server</a> but has limited computational resources (i.e. could be slow).</p>
 <div id="open-source" class="section level2">
 <h2 class="hasAnchor">
 <a href="#open-source" class="anchor"></a>Open Source</h2>
@@ -107,6 +113,7 @@
 <p>This package is part of the isoverse suite of data tools for stable isotopes.</p>
 </div>
 </div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -137,7 +144,7 @@
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://cran.r-project.org/package=isoviewer"><img src="http://www.r-pkg.org/badges/version/isoviewer" alt="CRAN_Status_Badge"></a></li>
-<li><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.7.1.9999-orange.svg?style=flat-square" alt="Git_Hub_Version"></a></li>
+<li><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.8.0-orange.svg?style=flat-square" alt="Git_Hub_Version"></a></li>
 <li><a href="https://isoviewer.isoverse.org"><img src="https://img.shields.io/badge/docs-online-green.svg" alt="Documentation"></a></li>
 </ul>
 </div>
