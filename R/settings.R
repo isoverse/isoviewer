@@ -48,7 +48,14 @@ are_gui_settings_on <- function() {
 # back them up or save them in a file)
 set_gui_setting <- function(name, value) {
   if (are_gui_settings_on()) {
-    .isoviewer_gui_settings[[name]] <<- value
+
+    settings <- .isoviewer_gui_settings
+    settings[[name]] <- value
+    assign(
+      x = ".isoviewer_gui_settings",
+      value = settings,
+      envir = .GlobalEnv
+    )
 
     # back up gui settings continuously if in debug mode
     if (setting("debug")) {
@@ -105,12 +112,21 @@ save_gui_settings <- function(file_path) {
 # load gui settings
 load_gui_settings <- function(file_path) {
   stopifnot(file.exists(file_path))
-  .isoviewer_gui_settings <<- readr::read_rds(file_path)
+  assign(
+    x = ".isoviewer_gui_settings",
+    value = readr::read_rds(file_path),
+    envir = .GlobalEnv
+  )
 }
 
 # reset gui settings
 reset_gui_settings <- function() {
   .isoviewer_gui_settings <<- list()
+  assign(
+    x = ".isoviewer_gui_settings",
+    value = list(),
+    envir = .GlobalEnv
+  )
   # back up gui settings continuously if in debug mode
   if (setting("debug")) {
     save_gui_settings("gui_settings.rds")
