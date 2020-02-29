@@ -10,7 +10,7 @@ fileInfoServer <- function(input, output, session, isofiles, visible = NULL) {
 
   # file info selector
   file_info_selector <- callModule(
-    selectorTableServer, "selector", id_column = "info", col_headers = c("Info"))
+    selector_table_server, "selector", id_column = "info", col_headers = c("Info"))
 
   # generate selector list
   observe({
@@ -81,10 +81,10 @@ fileInfoSelectorUI <- function(id, width = 4, selector_height = "200px") {
   div(id = ns("selector_box"),
       default_box(
         title = "File Info Selector", width = width,
-        selectorTableUI(ns("selector"), height = selector_height),
+        selector_table_ui(ns("selector"), height = selector_height),
         footer = div(
           #style = "height: 35px;",
-          selectorTableButtons(ns("selector")))
+          selector_table_buttons_ui(ns("selector")))
       )
   )%>% hidden()
 }

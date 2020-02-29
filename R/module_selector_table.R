@@ -9,7 +9,7 @@
 #' @param col_headers name of the column headers
 #' @param hot_mods hands on table modifiers
 #' @family selector table module functions
-selectorTableServer <- function(input, output, session, id_column, col_headers, hot_mods = NULL) {
+selector_table_server <- function(input, output, session, id_column, col_headers, hot_mods = NULL) {
 
   # namespace
   ns <- session$ns
@@ -108,7 +108,7 @@ selectorTableServer <- function(input, output, session, id_column, col_headers, 
 #' Selector table UI
 #' @inheritParams isofilesLoadUI
 #' @family selector table module functions
-selectorTableUI <- function(id, height = "200px") {
+selector_table_ui <- function(id, height = "200px") {
   ns <- NS(id)
   rHandsontableOutput(ns("selection_table"), width = "100%", height = height) %>%
     withSpinner(type = 7, proxy.height = height)
@@ -117,7 +117,7 @@ selectorTableUI <- function(id, height = "200px") {
 #' Selector table buttons
 #' @inheritParams isofilesLoadUI
 #' @family selector table module functions
-selectorTableButtons <- function(id) {
+selector_table_buttons_ui <- function(id) {
   ns <- NS(id)
   tagList(
     hidden(actionButton(ns("select_all"), "Select all", icon = icon("check-square-o"))),

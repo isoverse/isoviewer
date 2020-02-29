@@ -102,7 +102,7 @@ cfRawDataServer <- function(input, output, session, isofiles, dataset_name, visi
 
   # mass and ratio selector
   mass_ratio_selector <- callModule(
-    selectorTableServer, "selector", id_column = "column", col_headers = c("Data", "Type"),
+    selector_table_server, "selector", id_column = "column", col_headers = c("Data", "Type"),
     hot_mods = function(hot) hot_col(hot, col = c("Data", "Type"), halign = "htCenter"))
 
   # generate selector list
@@ -354,10 +354,10 @@ cfRawDataSelectorUI <- function(id, width = 4, selector_height = "200px") {
         fluidRow(
           h4("Scale time:") %>% column(width = 4),
           selectInput(ns("scale_time"), NULL, choices = time_options, selected = "seconds") %>% column(width = 8)),
-        selectorTableUI(ns("selector"), height = selector_height),
+        selector_table_ui(ns("selector"), height = selector_height),
         footer = div(
           #style = "height: 35px;",
-          selectorTableButtons(ns("selector")),
+          selector_table_buttons_ui(ns("selector")),
           spaces(1),
           tooltipInput(actionButton, ns("selector_refresh"), label = "Plot", icon = icon("refresh"),
                        tooltip = "Refresh plot with new scale, mass and ratio selections.")

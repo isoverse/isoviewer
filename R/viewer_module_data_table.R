@@ -16,7 +16,7 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
   # file info selector
   selector <-
     callModule(
-      selectorTableServer,
+      selector_table_server,
       "selector",
       id_column = "Column",
       row_column = "rowid",
@@ -112,9 +112,9 @@ data_table_column_selector_ui <- function(id, width = 4, pre_table = list(), pos
       default_box(
         title = "Column Selector", width = width,
         pre_table,
-        selectorTableUI(ns("selector")),
+        selector_table_ui(ns("selector")),
         post_table,
-        footer = div(selectorTableButtons(ns("selector")))
+        footer = div(selector_table_buttons_ui(ns("selector")))
       )
   )%>% shinyjs::hidden()
 }

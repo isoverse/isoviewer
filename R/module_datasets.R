@@ -155,7 +155,7 @@ datasetsServer <- function(input, output, session, data_dir, extensions, load_fu
 
   # isofiles list ====
   isofiles_selector <- callModule(
-    selectorTableServer, "isofiles_selector",
+    selector_table_server, "isofiles_selector",
     id_column = "file_id", col_headers = c("File", "Errors", "Warnings"),
     hot_mods = function(hot) hot_col(hot, col = c("Errors", "Warnings"), halign = "htCenter"))
 
@@ -284,7 +284,7 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
     default_box(
       title = "Dataset", width = width,
       selectInput(ns("datasets"), label = NULL, choices = c("Loading..." = "")),
-      selectorTableUI(ns("isofiles_selector"), height = "200px"),
+      selector_table_ui(ns("isofiles_selector"), height = "200px"),
       footer =
         div(#style = "height: 50px;",
             div(id = ns("dataset_actions"),
@@ -296,7 +296,7 @@ datasetsUI <- function(id, width = 12, file_list_height = "200px") {
                 spaces(1),
                 problemsButton(ns("dataset_problems"), tooltip = "Show problems reported for this dataset."),
                 spaces(1),
-                selectorTableButtons(ns("isofiles_selector")),
+                selector_table_buttons_ui(ns("isofiles_selector")),
                 checkboxGroupInput(ns("omit"), label = NULL, inline = TRUE,
                                    choices = c("Omit files with errors" = "error",
                                                "Omit files with warnings" = "warning"))

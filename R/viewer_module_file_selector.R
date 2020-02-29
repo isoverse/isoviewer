@@ -30,7 +30,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
 
   # isofiles selector server ====
   selector <- callModule(
-    selectorTableServer, "selector",
+    selector_table_server, "selector",
     id_column = "file_id", row_column = "row_id",
     column_select = c(File = file_id, `File Size` = file_size, Errors = error, Warning = warning)
   )
@@ -159,7 +159,7 @@ module_file_selector_ui <- function(id, width = 12, file_list_height = "200px") 
   tagList(
     default_box(
       title = textOutput(ns("dataset")), width = width,
-      selectorTableUI(ns("selector")),
+      selector_table_ui(ns("selector")),
       footer =
         div(id = ns("actions"),
             tooltipOutput(downloadButton, ns("download"), "Download",
@@ -177,7 +177,7 @@ module_file_selector_ui <- function(id, width = 12, file_list_height = "200px") 
             tooltipInput(actionButton, ns("warnings_show"), label = "Warnings", icon = icon("eye"),
                          tooltip = "Click to show files with errors") %>% shinyjs::hidden(),
             spaces(1),
-            selectorTableButtons(ns("selector"))
+            selector_table_buttons_ui(ns("selector"))
         )
     )
   )
