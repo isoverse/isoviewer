@@ -1,7 +1,8 @@
 #' generic plot server
 #' @param get_variable get variable name
 #' @param generate_plot function to create the plot
-plot_server <- function(input, output, session, get_variable, generate_plot) {
+#' @param reset_trigger reactive function to trigger a reset of the plot options (plot height, legend and font size)
+plot_server <- function(input, output, session, get_variable, generate_plot, reset_trigger = reactive({})) {
 
   # namespace
   ns <- session$ns
@@ -48,6 +49,13 @@ plot_server <- function(input, output, session, get_variable, generate_plot) {
       session, "font_size",
       value = get_gui_setting(ns(paste0("font_size-", get_variable())))
     )
+  })
+
+  # reset settings
+  observeEvent(reset_trigger(), {
+    updateNumericInput(session, "plot_height", value = 500)
+    updateSelectInput(session, "legend_position", selected = "right")
+    updateNumericInput(session, "font_size", value = 18)
   })
 
   # reset plot =====

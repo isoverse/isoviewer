@@ -14,7 +14,8 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
         standards$get_code_update()(rmarkdown = rmarkdown),
         resistors$get_code_update()(rmarkdown = rmarkdown),
         vendor_data_table$get_code_update()(rmarkdown = rmarkdown),
-        peak_table$get_code_update()(rmarkdown = rmarkdown)
+        peak_table$get_code_update()(rmarkdown = rmarkdown),
+        plot$get_code_update()(rmarkdown = rmarkdown)
       )
     }
   })
@@ -75,6 +76,13 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
     is_visible = reactive(base_data$get_tab_selection() == "peak_table")
   )
 
+  # plot ====
+  plot <- callModule(
+    plot_cf_server, "plot",
+    get_variable = get_selected_variable,
+    get_iso_files = base_data$get_selected_iso_files,
+    is_visible = reactive(base_data$get_tab_selection() == "plot")
+  )
 
 }
 
@@ -91,7 +99,8 @@ module_data_cf_ui <- function(id) {
       tabPanel("Standards", value = "standards", data_table_standards_ui(ns("standards"))),
       tabPanel("Resistors", value = "resistors", data_table_standards_ui(ns("resistors"))),
       tabPanel("Vendor Data Table", value = "vendor_data_table", data_table_vendor_data_table_ui(ns("vendor_data_table"))),
-      tabPanel("Peak Table", value = "peak_table", data_table_vendor_data_table_ui(ns("peak_table")))
+      tabPanel("Peak Table", value = "peak_table", data_table_vendor_data_table_ui(ns("peak_table"))),
+      tabPanel("Plot", value = "plot", plot_cf_ui(ns("plot")))
     ),
     # OPTIONS ====
     option_boxes = list(
@@ -100,7 +109,9 @@ module_data_cf_ui <- function(id) {
       data_table_standards_column_selector_ui(ns("standards"), width = 4),
       data_table_resistors_column_selector_ui(ns("resistors"), width = 4),
       data_table_vendor_data_table_column_selector_ui(ns("vendor_data_table"), width = 4),
-      data_table_peak_table_column_selector_ui(ns("peak_table"), width = 4)
+      data_table_peak_table_column_selector_ui(ns("peak_table"), width = 4),
+      plot_cf_data_selector_ui(ns("plot"), width = 4),
+      plot_cf_options_ui(ns("plot"), width = 4)
     )
   )
 }

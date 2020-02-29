@@ -81,6 +81,51 @@ generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = lis
   )
 }
 
+# generate cf plot code
+generate_cf_plot_code <- function(dataset, scale_signal, scale_time, zoom, data, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
+
+  chunk(
+    code_only = !rmarkdown,
+    pre_chunk = "# Plot Raw Data",
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    pipe(
+      add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
+      if(scale_signal != "NULL")
+        function_call(
+          "iso_convert_signal",
+          params = list(to = scale_signal),
+          comment = "convert signal units"
+        ),
+      if(scale_time != "seconds") # seconds is the default
+        function_call(
+          "iso_convert_time",
+          params = list(to = scale_time),
+          comment = "convert time units"
+        ),
+      function_call(
+        "iso_plot_continuous_flow_data",
+        params = c(
+          if(!identical(data, character(0))) list(data = data),
+          if(!is.null(zoom$x_min) && !is.null(zoom$x_max))
+            list(time_interval = round_interval_digits(
+              c(
+                isoprocessor:::scale_time(zoom$x_min, to = scale_time, from = "seconds"),
+                isoprocessor:::scale_time(zoom$x_max, to = scale_time, from = "seconds")
+              ))),
+          if(!is.null(zoom$zoom)) list(zoom = zoom$zoom),
+          aes_options
+        ),
+        comment = "plot continuous flow data",
+        fixed_eq_op = "="
+      )
+    ) %>%
+      plus(
+        if (length(theme_options) > 0)
+          function_call("ggplot2::theme", params = theme_options, comment = "customize the plot theme")
+      )
+  )
+}
+
 # generate scan plot code
 generate_scan_plot_code <- function(dataset, type, scale_signal, data, zoom, aes_options = list(), theme_options = list(), rmarkdown = FALSE) {
 
