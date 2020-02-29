@@ -105,7 +105,7 @@ module_data_server <- function(input, output, session, get_selected_variable,
     }
   })
   code_preview <- callModule(
-    codePreviewServer, "code", code_func_reac = code_update,
+    code_preview_server, "code", code_func_reac = code_update,
     download_file = reactive({ paste("VIEW", get_selected_variable()) })
   )
 
@@ -125,7 +125,7 @@ module_data_ui <- function(id, tab_panels = list(), option_boxes = list()) {
       # file selector
       module_file_selector_ui(ns("files"), width = 6),
       # code preview
-      codePreviewUI(ns("code"), width = 6, height = "345px"),
+      code_preview_ui(ns("code"), width = 6, height = "345px"),
       # data tabs
       div(id = ns("data_div"),
           fluidRow(

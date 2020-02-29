@@ -42,7 +42,7 @@ data_table_peak_table_server <- function(input, output, session, get_variable, g
       }),
       # get peak_table columns =====
       get_data_table_columns = function(iso_files) {
-        vdt <- isoprocessor::iso_get_peak_table(iso_files, quiet = TRUE) %>%
+        vdt <- suppressWarnings(isoprocessor::iso_get_peak_table(iso_files, quiet = TRUE)) %>%
           dplyr::select(-file_id)
         return(dplyr::tibble(Column = names(vdt), Units = isoreader::iso_get_units(vdt)))
       }

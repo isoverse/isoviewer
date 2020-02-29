@@ -1,7 +1,6 @@
 #' Isoviewer App UI
 #'
 #' @description Generates the user interface part of the isoviewer app
-#' @inheritParams app_server
 #' @param sidebar_width the width of the sidebar
 #' @param deault_menu default selected menu
 viewer_ui <- function(sidebar_width = 170, start_menu = "welcome", theme = "united") {
@@ -18,7 +17,7 @@ viewer_ui <- function(sidebar_width = 170, start_menu = "welcome", theme = "unit
     # USE SHINY JS, DASHBOARD AND EXTENSIONS ----
     shinyjs::useShinyjs(),
     shinyWidgets::useShinydashboard(),
-    codePreviewShinyjsExtension(),
+    code_preview_shinyjs_extension(),
 
     # CSS Styles ----
     tags$head(
