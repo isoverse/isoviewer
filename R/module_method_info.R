@@ -1,46 +1,57 @@
 #' Method Info Server
-#' @inheritParams isofilesLoadServer
-#' @param isofiles reactive function returning the currently loaded isofiles
-#' @param visible reactive function determining visibility of the auxiliary boxes
-#' @family method info module functions
-methodInfoServer <- function(input, output, session, isofiles, visible = NULL) {
+method_info_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
 
-  # show selector box
-  observe({
-    if (is.function(visible))
-      toggle("selector_box", condition = visible() & length(isofiles()) > 0 )
-    else
-      toggle("selector_box", condition = length(isofiles()) > 0)
+  # show selector box ====
+  observeEvent(is_visible(), {
+    toggle("selector_box", condition = is_visible())
   })
 
-  # standard info
-  output$standards_table <- renderTable({
-    validate(need(length(isofiles()) > 0, "Please select a dataset and at least one data file."))
-    module_message(ns, "debug", "rendering standards info table")
-    iso_get_standards_info(isofiles(), quiet = TRUE)
-  }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
+  # select default radio button ====
+  observeEvent(get_variable(), {
+    updateRadioButtons(
+      session, "selector",
+      selected = get_gui_setting(ns(paste0("selector-", get_variable())), default = "resistors")
+    )
+  })
+
+  # standard info =====
+  output$standards_table <- DT::renderDataTable({
+    validate(need(length(get_iso_files()) > 0, "loading..."))
+    module_message(ns, "info", "METHOD INFO rendering standards info table")
+    DT::datatable(
+      isoreader::iso_get_standards(get_iso_files(), quiet = TRUE),
+      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
+      filter = "bottom"
+    )
+  })
 
   # resistors info
-  output$resistors_table <- renderTable({
-    validate(need(length(isofiles()) > 0, "Please select a dataset and at least one data file."))
-    module_message(ns, "debug", "rendering resistors info table")
-    iso_get_resistors_info(isofiles(), quiet = TRUE)
-  }, striped = TRUE, spacing = 'xs', width = '100%', align = NULL)
+  output$resistors_table <- DT::renderDataTable({
+    validate(need(length(get_iso_files()) > 0, "loading..."))
+    module_message(ns, "info", "METHOD INFO rendering resistors info table")
+    DT::datatable(
+      isoreader::iso_get_resistors(get_iso_files(), quiet = TRUE),
+      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
+      filter = "bottom"
+    )
+  })
 
   # toggle visibility
   observeEvent(input$selector, {
-    toggle("standards", condition = input$selector == "standards")
-    toggle("resistors", condition = input$selector == "resistors")
+    # store selected in settings
+    set_gui_setting(ns(paste0("selector-", get_variable())), input$selector)
+    shinyjs::toggle("standards", condition = (input$selector == "standards"))
+    shinyjs::toggle("resistors", condition = (input$selector == "resistors"))
   })
-
 
   # code update ====
   code_update <- reactive({
     function(rmarkdown = TRUE) {
       generate_method_info_code(
+        dataset = get_variable(),
         rmarkdown = rmarkdown
       )
     }
@@ -54,30 +65,31 @@ methodInfoServer <- function(input, output, session, isofiles, visible = NULL) {
 
 
 #' Method Info Table UI
-#' @inheritParams isofilesLoadUI
 #' @family method info module functions
-methodInfoTableUI <- function(id) {
+method_info_table_ui <- function(id, min_height = "800px;") {
   ns <- NS(id)
   tagList(
-    div(id = ns("standards"), style = 'overflow-x: scroll; height: 400px;',
-        tableOutput(ns("standards_table")) %>% withSpinner(type = 5, proxy.height = "400px;")),
-    hidden(div(id = ns("resistors"), style = 'overflow-x: scroll; height: 400px;',
-        tableOutput(ns("resistors_table")) %>% withSpinner(type = 5, proxy.height = "400px;")))
+    div(id = ns("standards"), style = paste0('overflow-x: scroll; min-height: ', min_height),
+        DT::dataTableOutput(ns("standards_table")) %>% withSpinner(type = 5, proxy.height = min_height)
+    ) %>% shinyjs::hidden(),
+    div(id = ns("resistors"), style = paste0('overflow-x: scroll; min-height: ', min_height),
+        DT::dataTableOutput(ns("resistors_table")) %>% withSpinner(type = 5, proxy.height = min_height)
+    ) %>% shinyjs::hidden()
   )
 }
 
 
-#' Method Info Selector UI
-#' @inheritParams isofilesLoadUI
+#' Method Info Selector UIUI
 #' @param width box width
 #' @family file info module functions
-methodInfoSelectorUI <- function(id, width = 4) {
+method_info_selector_ui <- function(id, width = 4) {
   ns <- NS(id)
   div(id = ns("selector_box"),
       default_box(
         title = "Method Info Selector", width = width,
-        radioButtons(ns("selector"), label = NULL,
-                     choices = c("Standards" = "standards", "Resistors" = "resistors"))
+        radioButtons(
+          ns("selector"), label = NULL,
+          choices = c("Resistors" = "resistors", "Standards" = "standards"))
       )
   ) %>% hidden()
 }

@@ -8,10 +8,12 @@
 
 <title>Function reference • Isoviewer</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/simplex/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
@@ -32,7 +34,9 @@
 
 
 
+
 <meta property="og:title" content="Function reference" />
+
 
 
 
@@ -73,20 +77,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.7.1.9999</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="http://server.kopflab.com/shiny/apps/isoviewer/">Demo</a>
+  <a href="https://kopflab.shinyapps.io/isoviewer_demo/">Demo</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/isoverse/isoviewer">
@@ -128,9 +131,9 @@
       <tr>
         
         <td>
-          <p><code><a href="run.html">run()</a></code> </p>
+          <p><code><a href="iso_start_viewer.html">iso_start_viewer()</a></code> </p>
         </td>
-        <td><p>Start the user interface</p></td>
+        <td><p>Start the isoviewer graphical user interface</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -142,298 +145,436 @@
       <tr>
         
         <td>
-          <p><code><a href="app_server.html">app_server()</a></code> </p>
-        </td>
-        <td><p>Isoviewer App Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="app_ui.html">app_ui()</a></code> </p>
-        </td>
-        <td><p>Isoviewer App UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cfRawDataPlotUI.html">cfRawDataPlotUI()</a></code> </p>
-        </td>
-        <td><p>Continuous Flow Raw Data Plot UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cfRawDataSelectorUI.html">cfRawDataSelectorUI()</a></code> </p>
-        </td>
-        <td><p>Continuous Flow Raw Data Selector UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cfRawDataServer.html">cfRawDataServer()</a></code> </p>
-        </td>
-        <td><p>Continuous Flow Raw Data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="cfRawDataSettingsUI.html">cfRawDataSettingsUI()</a></code> </p>
-        </td>
-        <td><p>Continuous Flow Raw Data Settings UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="codePreviewServer.html">codePreviewServer()</a></code> </p>
+          <p><code><a href="code_preview_server.html">code_preview_server()</a></code> </p>
         </td>
         <td><p>Code Preview Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="codePreviewShinyjsExtension.html">codePreviewShinyjsExtension()</a></code> </p>
+          <p><code><a href="code_preview_shinyjs_extension.html">code_preview_shinyjs_extension()</a></code> </p>
         </td>
         <td><p>JS Extension for code preview</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="codePreviewUI.html">codePreviewUI()</a></code> </p>
+          <p><code><a href="code_preview_ui.html">code_preview_ui()</a></code> </p>
         </td>
         <td><p>Code Preview UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="continuousFlowDataServer.html">continuousFlowDataServer()</a></code> </p>
+          <p><code><a href="data_download_server.html">data_download_server()</a></code> </p>
         </td>
-        <td><p>Continuous Flow Data Server</p></td>
+        <td><p>data download server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="continuousFlowDataUI.html">continuousFlowDataUI()</a></code> </p>
+          <p><code><a href="data_table_column_selector_ui.html">data_table_column_selector_ui()</a></code> </p>
         </td>
-        <td><p>Continuous Flow Data UI</p></td>
+        <td><p>Column Selector UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="continuousFlowViewServer.html">continuousFlowViewServer()</a></code> </p>
+          <p><code><a href="data_table_file_info_column_selector_ui.html">data_table_file_info_column_selector_ui()</a></code> </p>
         </td>
-        <td><p>Continuous Flow View Server</p></td>
+        <td><p>File Info Column Seletor UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="continuousFlowViewUI.html">continuousFlowViewUI()</a></code> </p>
-        </td>
-        <td><p>Continuous Flow View UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dataUploadServer.html">dataUploadServer()</a></code> </p>
-        </td>
-        <td><p>Data Upload Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dataUploadUI.html">dataUploadUI()</a></code> </p>
-        </td>
-        <td><p>Data Upload UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="datasetsServer.html">datasetsServer()</a></code> </p>
-        </td>
-        <td><p>Datasets server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="datasetsUI.html">datasetsUI()</a></code> </p>
-        </td>
-        <td><p>Dataset UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="diRawDataPlotUI.html">diRawDataPlotUI()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Raw Data Plot UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="diRawDataSelectorUI.html">diRawDataSelectorUI()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Raw Data Selector UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="diRawDataServer.html">diRawDataServer()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Raw Data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="diRawDataSettingsUI.html">diRawDataSettingsUI()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Raw Data Settings UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dualInletDataServer.html">dualInletDataServer()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Data Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dualInletDataUI.html">dualInletDataUI()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet Data UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dualInletViewServer.html">dualInletViewServer()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet View Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="dualInletViewUI.html">dualInletViewUI()</a></code> </p>
-        </td>
-        <td><p>Dual Inlet View UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="exportServer.html">exportServer()</a></code> </p>
-        </td>
-        <td><p>Export Server</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="exportSettingsUI.html">exportSettingsUI()</a></code> </p>
-        </td>
-        <td><p>Export Setings UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="exportUI.html">exportUI()</a></code> </p>
-        </td>
-        <td><p>Method Info Table UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="fileInfoSelectorUI.html">fileInfoSelectorUI()</a></code> </p>
-        </td>
-        <td><p>File Info Selector UI</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="fileInfoServer.html">fileInfoServer()</a></code> </p>
+          <p><code><a href="data_table_file_info_server.html">data_table_file_info_server()</a></code> </p>
         </td>
         <td><p>File Info Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="fileInfoTableUI.html">fileInfoTableUI()</a></code> </p>
+          <p><code><a href="data_table_file_info_ui.html">data_table_file_info_ui()</a></code> </p>
         </td>
         <td><p>File Info Table UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="fileSelectorServer.html">fileSelectorServer()</a></code> </p>
+          <p><code><a href="data_table_peak_table_column_selector_ui.html">data_table_peak_table_column_selector_ui()</a></code> </p>
         </td>
-        <td><p>file selector server side</p></td>
+        <td><p>Peak Table  Column Seletor UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="fileSelectorUI.html">fileSelectorUI()</a></code> </p>
+          <p><code><a href="data_table_peak_table_server.html">data_table_peak_table_server()</a></code> </p>
         </td>
-        <td><p>File Selector UI</p></td>
+        <td><p>Peak Table  Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="isofilesLoadServer.html">isofilesLoadServer()</a></code> </p>
+          <p><code><a href="data_table_peak_table_ui.html">data_table_peak_table_ui()</a></code> </p>
         </td>
-        <td><p>Isofiles Load Server</p></td>
+        <td><p>Peak Table  Table UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="isofilesLoadUI.html">isofilesLoadUI()</a></code> </p>
+          <p><code><a href="data_table_raw_data_column_selector_ui.html">data_table_raw_data_column_selector_ui()</a></code> </p>
         </td>
-        <td><p>Isofiles Load UI</p></td>
+        <td><p>Raw Data Column Seletor UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="methodInfoSelectorUI.html">methodInfoSelectorUI()</a></code> </p>
+          <p><code><a href="data_table_raw_data_server.html">data_table_raw_data_server()</a></code> </p>
         </td>
-        <td><p>Method Info Selector UI</p></td>
+        <td><p>Raw Data Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="methodInfoServer.html">methodInfoServer()</a></code> </p>
+          <p><code><a href="data_table_raw_data_ui.html">data_table_raw_data_ui()</a></code> </p>
+        </td>
+        <td><p>Raw Data Table UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_resistors_column_selector_ui.html">data_table_resistors_column_selector_ui()</a></code> </p>
+        </td>
+        <td><p>Resistors Column Seletor UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_resistors_server.html">data_table_resistors_server()</a></code> </p>
+        </td>
+        <td><p>Resistors Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_resistors_ui.html">data_table_resistors_ui()</a></code> </p>
+        </td>
+        <td><p>Resistors Table UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_server.html">data_table_server()</a></code> </p>
+        </td>
+        <td><p>Basic data table server with column selection option</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_standards_column_selector_ui.html">data_table_standards_column_selector_ui()</a></code> </p>
+        </td>
+        <td><p>Standards Column Seletor UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_standards_server.html">data_table_standards_server()</a></code> </p>
+        </td>
+        <td><p>Standards Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_standards_ui.html">data_table_standards_ui()</a></code> </p>
+        </td>
+        <td><p>Standards Table UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_ui.html">data_table_ui()</a></code> </p>
+        </td>
+        <td><p>Data Table UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_vendor_data_table_column_selector_ui.html">data_table_vendor_data_table_column_selector_ui()</a></code> </p>
+        </td>
+        <td><p>Vendor Data  Column Seletor UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_vendor_data_table_server.html">data_table_vendor_data_table_server()</a></code> </p>
+        </td>
+        <td><p>Vendor Data  Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="data_table_vendor_data_table_ui.html">data_table_vendor_data_table_ui()</a></code> </p>
+        </td>
+        <td><p>Vendor Data  Table UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="function_plot_param_server.html">function_plot_param_server()</a></code> </p>
+        </td>
+        <td><p>function plot parameter server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="function_plot_param_ui.html">function_plot_param_ui()</a></code> </p>
+        </td>
+        <td><p>function plot parameter UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="iso_start_viewer.html">iso_start_viewer()</a></code> </p>
+        </td>
+        <td><p>Start the isoviewer graphical user interface</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="method_info_selector_ui.html">method_info_selector_ui()</a></code> </p>
+        </td>
+        <td><p>Method Info Selector UIUI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="method_info_server.html">method_info_server()</a></code> </p>
         </td>
         <td><p>Method Info Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="methodInfoTableUI.html">methodInfoTableUI()</a></code> </p>
+          <p><code><a href="method_info_table_ui.html">method_info_table_ui()</a></code> </p>
         </td>
         <td><p>Method Info Table UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="modalFileSelectorUI.html">modalFileSelectorUI()</a></code> </p>
+          <p><code><a href="module_data_cf_server.html">module_data_cf_server()</a></code> </p>
         </td>
-        <td><p>modalFileSelector</p></td>
+        <td><p>Continuous flow files Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotDownloadLink.html">plotDownloadLink()</a></code> </p>
+          <p><code><a href="module_data_cf_ui.html">module_data_cf_ui()</a></code> </p>
         </td>
-        <td><p>Plot Download Link</p></td>
+        <td><p>Continuous flow files UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="plotDownloadServer.html">plotDownloadServer()</a></code> </p>
+          <p><code><a href="module_data_di_server.html">module_data_di_server()</a></code> </p>
         </td>
-        <td><p>Plot Download Server</p></td>
+        <td><p>Dual inlet flow files Server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="problemsButton.html">problemsButton()</a></code> </p>
+          <p><code><a href="module_data_di_ui.html">module_data_di_ui()</a></code> </p>
+        </td>
+        <td><p>Dual files UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_data_scan_server.html">module_data_scan_server()</a></code> </p>
+        </td>
+        <td><p>Scan flow files Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_data_scan_ui.html">module_data_scan_ui()</a></code> </p>
+        </td>
+        <td><p>Scan files UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_data_server.html">module_data_server()</a></code> </p>
+        </td>
+        <td><p>Data server (main module)</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_data_ui.html">module_data_ui()</a></code> </p>
+        </td>
+        <td><p>Continuous flow files UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_file_selector_server.html">module_file_selector_server()</a></code> </p>
+        </td>
+        <td><p>File selector server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_file_selector_ui.html">module_file_selector_ui()</a></code> </p>
+        </td>
+        <td><p>File selector UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_info_server.html">module_info_server()</a></code> </p>
+        </td>
+        <td><p>info server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_info_settings_ui.html">module_info_settings_ui()</a></code> </p>
+        </td>
+        <td><p>settings ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_info_ui.html">module_info_ui()</a></code> </p>
+        </td>
+        <td><p>info ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_info_variables_ui.html">module_info_variables_ui()</a></code> </p>
+        </td>
+        <td><p>variables ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_info_welcome_ui.html">module_info_welcome_ui()</a></code> </p>
+        </td>
+        <td><p>welcome ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_navbar_server.html">module_navbar_server()</a></code> </p>
+        </td>
+        <td><p>Variable Selection Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="module_navbar_ui.html">module_navbar_ui()</a></code> </p>
+        </td>
+        <td><p>module variable selection navbar</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_cf_data_selector_ui.html">plot_cf_data_selector_ui()</a></code> </p>
+        </td>
+        <td><p>data selector</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_cf_server.html">plot_cf_server()</a></code> </p>
+        </td>
+        <td><p>cf plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_cf_ui.html">plot_cf_ui()</a></code> </p>
+        </td>
+        <td><p>cf plot UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_di_data_selector_ui.html">plot_di_data_selector_ui()</a></code> </p>
+        </td>
+        <td><p>data selector</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_di_server.html">plot_di_server()</a></code> </p>
+        </td>
+        <td><p>Dual inlet plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_di_ui.html">plot_di_ui()</a></code> </p>
+        </td>
+        <td><p>dual inlet plot UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_font_size_ui.html">plot_font_size_ui()</a></code> </p>
+        </td>
+        <td><p>font size</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_height_ui.html">plot_height_ui()</a></code> </p>
+        </td>
+        <td><p>plot height ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_legend_ui.html">plot_legend_ui()</a></code> </p>
+        </td>
+        <td><p>legend ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_scan_data_selector_ui.html">plot_scan_data_selector_ui()</a></code> </p>
+        </td>
+        <td><p>data selector</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_scan_server.html">plot_scan_server()</a></code> </p>
+        </td>
+        <td><p>scan plot</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_scan_ui.html">plot_scan_ui()</a></code> </p>
+        </td>
+        <td><p>scan plot UI</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_server.html">plot_server()</a></code> </p>
+        </td>
+        <td><p>generic plot server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_ui.html">plot_ui()</a></code> <code><a href="plot_ui.html">plot_ui()</a></code> </p>
+        </td>
+        <td><p>data download ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="problems_button.html">problems_button()</a></code> </p>
         </td>
         <td><p>Dataset problems button</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="problemsServer.html">problemsServer()</a></code> </p>
+          <p><code><a href="problems_server.html">problems_server()</a></code> </p>
         </td>
         <td><p>Problems Server
 Stand-alone for showing a dataset's problems.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="selectorTableButtons.html">selectorTableButtons()</a></code> </p>
+          <p><code><a href="selector_table_buttons_ui.html">selector_table_buttons_ui()</a></code> </p>
         </td>
         <td><p>Selector table buttons</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="selectorTableServer.html">selectorTableServer()</a></code> </p>
+          <p><code><a href="selector_table_server.html">selector_table_server()</a></code> </p>
         </td>
         <td><p>Selector table server</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="selectorTableUI.html">selectorTableUI()</a></code> </p>
+          <p><code><a href="selector_table_ui.html">selector_table_ui()</a></code> </p>
         </td>
         <td><p>Selector table UI</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="vendorDataTableSelectorUI.html">vendorDataTableSelectorUI()</a></code> </p>
+          <p><code><a href="trace_selector_server.html">trace_selector_server()</a></code> </p>
         </td>
-        <td><p>File Info Selector UI</p></td>
+        <td><p>select data trace</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="vendorDataTableServer.html">vendorDataTableServer()</a></code> </p>
+          <p><code><a href="trace_selector_table_buttons_ui.html">trace_selector_table_buttons_ui()</a></code> </p>
         </td>
-        <td><p>Vendor Data Table Server</p></td>
+        <td><p>trace selector buttons ui</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="vendorDataTableTableUI.html">vendorDataTableTableUI()</a></code> </p>
+          <p><code><a href="trace_selector_table_ui.html">trace_selector_table_ui()</a></code> </p>
         </td>
-        <td><p>File Info Table UI</p></td>
+        <td><p>trace selector ui</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="viewer_server.html">viewer_server()</a></code> </p>
+        </td>
+        <td><p>Isoviewer App Server</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="viewer_ui.html">viewer_ui()</a></code> </p>
+        </td>
+        <td><p>Isoviewer App UI</p></td>
       </tr>
     </tbody>
     </table>

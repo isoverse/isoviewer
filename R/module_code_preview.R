@@ -4,11 +4,11 @@
 #'
 #' Generates the shinyJS extensions for updating the code preview. Must be included ONCE in the UI if this module is used (no matter how many times).
 #' @family code preview module functions
-codePreviewShinyjsExtension <- function() {
+code_preview_shinyjs_extension <- function() {
 
   js_code <- c(
 # update code preview function that preserves cursor position, sroll position and line selection
-# @params see R function in codePreviewServer for details
+# @params see R function in code_preview_server for details
 updateCodePreview =
 "shinyjs.updateCodePreview = function(data) {
   var $el = $('#' + data.id);
@@ -27,7 +27,7 @@ updateCodePreview =
 }",
 
 # move to specific position in code preview
-# @params see R function in codePreviewServer for details
+# @params see R function in code_preview_server for details
 focusCodePreview =
 "shinyjs.focusCodePreview = function(data) {
   var $el = $('#' + data.id);
@@ -56,16 +56,15 @@ focusCodePreview =
 }")
 
   tagList(
-    extendShinyjs(text = str_c(js_code, collapse = "\n"), functions = names(js_code))
+    extendShinyjs(text = stringr::str_c(js_code, collapse = "\n"), functions = names(js_code))
   )
 }
 
 #' Code Preview Server
-#' @inheritParams fileSelectorServer
 #' @param code_func_reac reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{front_matter} that can be called to generate the code
 #' @param download_file reactive function that returns the download file name (with or without .Rmd ending)
 #' @family code preview module functions
-codePreviewServer <- function(input, output, session, code_func_reac, download_file) {
+code_preview_server <- function(input, output, session, code_func_reac, download_file) {
 
   # namespace
   ns <- session$ns
@@ -109,7 +108,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
 
   # save/download RMarkdown
   output$code_download <- downloadHandler(
-    filename = function() { download_file() %>% str_replace("\\.Rmd$", "") %>% str_c(".Rmd") },
+    filename = function() { download_file() %>% stringr::str_replace("\\.Rmd$", "") %>% stringr::str_c(".Rmd") },
     content = function(filename) {
       module_message(ns, "info", "preparing RMarkdown file for download")
       con <- file(filename)
@@ -132,7 +131,7 @@ codePreviewServer <- function(input, output, session, code_func_reac, download_f
 #' @param width width of the box
 #' @param height height of the code preview
 #' @family code preview module functions
-codePreviewUI <- function(id, width = 12, height = "400px") {
+code_preview_ui <- function(id, width = 12, height = "400px") {
   ns <- NS(id)
 
   # code previes

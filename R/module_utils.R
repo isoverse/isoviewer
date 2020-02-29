@@ -11,7 +11,7 @@ generate_content_hash <- function(x) {
 # display module message
 # @param type if this is an info meessage or debug (debug only shows if in debug mode)
 module_message <- function(ns, type = c("info", "debug"), ...) {
-  if (type == "debug" && !setting("debug")) return()
+  if (!setting("log") || (type == "debug" && !setting("debug"))) return()
   prefix <- if(type == "info") "INFO: " else if (type == "debug") "DEBUG: " else stop("don't know message type", type)
   cat(file=stderr(), prefix, ..., " (NS: ", ns(NULL),")\n", sep = "")
 }

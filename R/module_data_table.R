@@ -1,104 +1,120 @@
-#' # Data Table ====
-#' # NOTE: not used yet... remove if unused
-#' # NOTE: this might be the one causing the new character(0) issue!
-#' # server side data table that is easy to update while retaining user settings / recreate new if new data is called for
-#' # only works in server side mode, sorry (the replaceData does not work client-side)
+#' Basic data table server with column selection option
 #'
+#' This is for the usual iso_get_... aggregation functions.
 #'
-#' #' Data Table UI
-#' #' @inheritParams isofilesLoadUI
-#' dataTableUI <- function(id) {
-#'   ns <- NS(id)
-#'   dataTableOutput(ns("data_table"))
-#' }
-#'
-#' #' Data Table Server
-#' #' @param rownames default passed onto datatable function
-#' #' @param selection default passed onto datatable function
-#' #' @param filter default passed onto datatable function
-#' #' @param sig_digitis number of significant digits used for all numeric formatting
-#' #' @param extensions default passed onto datatable function
-#' #' @param options default passed onto datatable function
-#' #' @param ... additional params passed onto datatable function
-#' dataTableServer <- function(
-#'   input, output, session,
-#'   rownames = FALSE, selection = "none", filter = "top", # data table defaults
-#'   sig_digits = 3, # data table default numeric formatting
-#'   extensions = c("Buttons", "KeyTable"), # data table defaults
-#'   options = list( # data table defaults
-#'     dom = "Bltpi", # Buttons, Length, Table, Pagniation, Information
-#'     pageLength = 5, lengthMenu = c(5, 10, 15, 20, 50, 100), # paging menu
-#'     keys = TRUE, #KeyTable extension for excel like navigation
-#'     scrollX = TRUE, # automatic x scrolling for large table fits
-#'     buttons = list(list(extend = "colvis")) # Buttons - allow column selection for all
-#'   ), ...) {
-#'
-#'   # namespace
-#'   ns <- session$ns
-#'
-#'   # reactive values
-#'   values <- reactiveValues(
-#'     data = NULL,
-#'     new_table_data = NULL
-#'   )
-#'
-#'   # update data function
-#'   update_data <- function(data) {
-#'     if (is.null(values$data) || !setequal(names(values$data), names(data))) {
-#'       values$new_table_data <- data
-#'     } else {
-#'       values$data <- data
-#'     }
-#'   }
-#'
-#'   # render data table
-#'   output$data_table <- DT::renderDataTable({
-#'     req(values$new_table_data)
-#'     message("INFO: Generating new data table for namespace '", ns(NULL), "'")
-#'     isolate({
-#'       values$data <- values$new_table_data
-#'       # generate datatable
-#'       dt <- datatable(values$data, rownames = rownames,
-#'                       selection = selection, filter = filter,
-#'                       #extensions = c("FixedHeader", "Scroller", "ColReorder", "Buttons", "KeyTable"), # potential extensions
-#'                       extensions = extensions,
-#'                       options = options)
-#'       # format all numerics to 3 significant digits (SK note: make formatting more customizable)
-#'       dt %>% formatSignif(names(values$data)[sapply(values$data, class) == "numeric"], digits = sig_digits) #
-#'     })}, server = TRUE)
-#'
-#'   # define data proxy
-#'   proxy <- dataTableProxy(ns("data_table"), deferUntilFlush = FALSE)
-#'   observe({
-#'     req(values$data)
-#'     message("INFO: Updating data table for namespace '", ns(NULL), "'")
-#'     #replaceData(proxy, values$data, rownames = rownames, resetPaging = TRUE)
-#'     # SK NOTE: this is a workaround because ajax needs session differently than dataTableProxy
-#'     # https://github.com/rstudio/DT/issues/359
-#'     dataTableAjax(session, values$data, rownames = rownames, outputId = "data_table")
-#'     reloadData(proxy, resetPaging = TRUE)
-#'     # SK NOTE: also, the reloadData will NOT reset the ranges on the column filters (this is probably a bug in DT)
-#'   })
-#'
-#'   # return functions
-#'   list(
-#'     update = update_data,
-#'     rows_selected = reactive(input$data_table_rows_selected)
-#'   )
-#'
-#' }
-#'
-#'
-#' #' Simple data table with useful defaults for a simple table
-#' #' @inheritParams dataTableServer
-#' dataTableServerSimple <- function(
-#'   input, output, session,
-#'   rownames = FALSE, selection = "none", filter = "none",
-#'   sig_digits = 3, extensions = list(),
-#'   options = list(dom = "t", pageLength = 50), ...) {
-#'
-#'   # call main datatable server function
-#'   dataTableServer(input, output, session, rownames = FALSE, selection = selection, filter=filter,
-#'                   extensions = extensions, options = options)
-#' }
-#'
+#' @param get_variable reactive function returning the selected variable
+#' @param get_iso_files reactive function returning the currently loaded isofiles
+#' @param get_data_table a regular or reactive function taking iso_files and a list of column names to retrieve the data table
+#' @param get_data_table_columns a regular function taking iso_files and returning a vector of data table columns
+#' @param is_visible reactive function determining visibility of the auxiliary boxes
+#' @family file info module functions
+data_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible, get_data_table, get_data_table_columns) {
+
+  # namespace
+  ns <- session$ns
+
+  # file info selector
+  selector <-
+    callModule(
+      selector_table_server,
+      "selector",
+      id_column = "Column",
+      row_column = "rowid",
+      column_select = c(-rowid)
+    )
+
+  # generate selector list ====
+  observeEvent(get_iso_files(), {
+    req(length(get_iso_files()) > 0)
+    columns_tbl <- get_data_table_columns(get_iso_files())
+    stopifnot("Column" %in% names(columns_tbl))
+    selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
+    selector$set_table(dplyr::mutate(columns_tbl, rowid = dplyr::row_number()))
+    selector$set_selected(selected)
+  })
+
+  # show selector box ====
+  observeEvent(is_visible(), { toggle("selector_box", condition = is_visible()) })
+
+  # get selected file info =====
+  get_selected_data_table <- reactive({
+    # triger for both iso files and selected info columns
+    validate(need(length(get_iso_files()) > 0, "loading..."))
+    selector$get_selected()
+
+    # info message
+    isolate(
+      module_message(
+        ns, "info", sprintf(
+          "DATA TABLE user selected %d/%d columns for '%s'",
+          length(selector$get_selected()), selector$get_table_nrow(), get_variable())
+      )
+    )
+
+    # store selected in settings
+    isolate(set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected()))
+
+    # get file info
+    if (shiny::is.reactive(get_data_table)) {
+      # retrieve function from reactive first
+      get_data_table()(get_iso_files(), selector$get_selected())
+    } else {
+      # call function directly
+      get_data_table(get_iso_files(), selector$get_selected())
+    }
+  })
+
+  # file info table =====
+  output$table <- DT::renderDataTable({
+    req(get_selected_data_table())
+    module_message(ns, "info", "DATA TABLE rendering table")
+    DT::datatable(
+      get_selected_data_table(),
+      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
+      filter = "bottom"
+    )
+  })
+
+  # code update ====
+  code_update <- reactive({
+    function(rmarkdown = TRUE) {
+      generate_file_info_code(
+        dataset = get_variable(),
+        selection =
+          if (is.null(selector$get_selected())) list(rlang::expr(c()))
+          else if (selector$are_all_selected()) list(rlang::expr(everything()))
+          else purrr::map(selector$get_selected(), rlang::sym),
+        rmarkdown = rmarkdown
+      )
+    }
+  })
+
+  # return functions
+  list(
+    get_selected_columns = selector$get_selected,
+    are_all_columns_selected = selector$are_all_selected
+  )
+}
+
+
+#' Data Table UI
+data_table_ui <- function(id, min_height = "800px;") {
+  ns <- NS(id)
+  div(style = paste0('overflow-x: scroll; min-height: ', min_height),
+      DT::dataTableOutput(ns("table")) %>% withSpinner(type = 5, proxy.height = min_height))
+}
+
+#' Column Selector UI
+#' @param width box width
+data_table_column_selector_ui <- function(id, width = 4, pre_table = list(), post_table = list()) {
+  ns <- NS(id)
+  div(id = ns("selector_box"),
+      default_box(
+        title = "Column Selector", width = width,
+        pre_table,
+        selector_table_ui(ns("selector")),
+        post_table,
+        footer = div(selector_table_buttons_ui(ns("selector")))
+      )
+  )%>% shinyjs::hidden()
+}

@@ -11,8 +11,8 @@ Graphical user interface components for exploring isotope data.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/kopflab/isoviewer}
-  \item Report bugs at \url{https://github.com/kopflab/isoviewer/issues}
+  \item \url{https://github.com/isoverse/isoviewer}
+  \item Report bugs at \url{https://github.com/isoverse/isoviewer/issues}
 }
 
 }

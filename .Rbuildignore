@@ -9,3 +9,4 @@
 ^README-.*\.png$
 ^README\.Rmd$
 ^logo\.png$
+R/deprecate

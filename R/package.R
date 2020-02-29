@@ -1,14 +1,9 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom rlang sym
-#' @import isoreader
-#' @import dplyr
-#' @import googledrive
+#' @importFrom rlang sym !!!
 #' @importFrom tibble enframe deframe
 #' @importFrom tidyr spread
-#' @importFrom purrr map map2_chr
-#' @import stringr
 #' @import ggplot2
 #' @import shiny
 #' @import shinydashboard
@@ -24,6 +19,9 @@
 #' @importFrom UNF unf
 NULL
 
+#' @export
+magrittr::`%>%`
+
 # quiets concerns of R CMD check about . that appears in pipelines
 # and some very commonly used variable names used in NSE commands
 utils::globalVariables(c("."))
@@ -35,7 +33,3 @@ release_questions <- function() {
     "Is it passing win-builder?"
   )
 }
-
-# TODO:
-# - allow logging to file in addition to console
-# - include DT? # @importFrom DT dataTableOutput datatable dataTableAjax reloadData formatSignif dataTableProxy
