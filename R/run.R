@@ -35,6 +35,9 @@ iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALS
     sprintf("iso files variable '%s' is not an iso object", iso_files_name) %>%
     stop(call. = FALSE)
 
+  # reset
+  if(reset) reset_gui_settings()
+
   # log messages
   if (log) turn_log_on()
   else turn_log_off()
