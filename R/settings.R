@@ -121,7 +121,6 @@ load_gui_settings <- function(file_path) {
 
 # reset gui settings
 reset_gui_settings <- function() {
-  .isoviewer_gui_settings <<- list()
   assign(
     x = ".isoviewer_gui_settings",
     value = list(),
