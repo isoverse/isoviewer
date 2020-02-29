@@ -2,11 +2,11 @@
 
 `%then%` <- shiny:::`%OR%`
 
-# generate content hash
-generate_content_hash <- function(x) {
-  if (is.null(x) || length(x) == 0) return (unf("<EMPTY>")$unflong)
-  else return(unf(x)$unflong)
-}
+# # generate content hash
+# generate_content_hash <- function(x) {
+#   if (is.null(x) || length(x) == 0) return (unf("<EMPTY>")$unflong)
+#   else return(unf(x)$unflong)
+# }
 
 # display module message
 # @param type if this is an info meessage or debug (debug only shows if in debug mode)
