@@ -85,19 +85,13 @@
     <loc>http://isoviewer.isoverse.org/reference/function_plot_param_ui.html</loc>
   </url>
   <url>
+    <loc>http://isoviewer.isoverse.org/reference/iso_find_objects.html</loc>
+  </url>
+  <url>
     <loc>http://isoviewer.isoverse.org/reference/iso_start_viewer.html</loc>
   </url>
   <url>
     <loc>http://isoviewer.isoverse.org/reference/isoviewer-package.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/method_info_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/method_info_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/method_info_table_ui.html</loc>
   </url>
   <url>
     <loc>http://isoviewer.isoverse.org/reference/module_data_cf_server.html</loc>
@@ -149,6 +143,9 @@
   </url>
   <url>
     <loc>http://isoviewer.isoverse.org/reference/module_navbar_ui.html</loc>
+  </url>
+  <url>
+    <loc>http://isoviewer.isoverse.org/reference/module_settings_server.html</loc>
   </url>
   <url>
     <loc>http://isoviewer.isoverse.org/reference/plot_cf_data_selector_ui.html</loc>

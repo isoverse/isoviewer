@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.0</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.2</span>
       </span>
     </div>
 
@@ -122,40 +122,30 @@
     </div>
 
     <pre class="usage"><span class='fu'>iso_start_viewer</span>(
-  <span class='kw'>iso_files</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>restore</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>reset</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>launch</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>iso_objects</span> <span class='kw'>=</span> <span class='fu'><a href='iso_find_objects.html'>iso_find_objects</a></span>(),
+  <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>log</span> <span class='kw'>=</span> !<span class='no'>local</span>,
+  <span class='kw'>runApp_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>()
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>iso_files</th>
-      <td><p>variable name - if provided, will start the viewer on this collection of iso files</p></td>
+      <th>iso_objects</th>
+      <td><p>named list of iso file objects to make available in the viewer</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>passed on to the <code><a href='https://rdrr.io/pkg/shiny/man/runApp.html'>runApp</a></code> call (only if <code>launch = TRUE</code>), can include server-specific parameters such as host or port</p></td>
-    </tr>
-    <tr>
-      <th>restore</th>
-      <td><p>whether to restore the GUI to the previous state (if available). If <code>TRUE</code>, will store the GUI settings for future restore.</p></td>
-    </tr>
-    <tr>
-      <th>reset</th>
-      <td><p>whether to reset the GUI state upon viewer start</p></td>
+      <th>local</th>
+      <td><p>whether running locally or as a server application (e.g. on shinyapps.io)</p></td>
     </tr>
     <tr>
       <th>log</th>
-      <td><p>whether to show log info messages or not</p></td>
+      <td><p>whether to show log info messages or not (by default only if running as server application, i.e. non-local)</p></td>
     </tr>
     <tr>
-      <th>launch</th>
-      <td><p>whether to launch the shiny app or return it as an object</p></td>
+      <th>runApp_params</th>
+      <td><p>passed on to the <code><a href='https://rdrr.io/pkg/shiny/man/runApp.html'>runApp</a></code> call. Common parameters to specify include <code>port</code> and <code>launch.browser</code>. Only relevant if <code>local = TRUE</code>.</p></td>
     </tr>
     </table>
 

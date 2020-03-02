@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.0</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.2</span>
       </span>
     </div>
 
@@ -121,7 +121,14 @@
     <p>Scan flow files Server</p>
     </div>
 
-    <pre class="usage"><span class='fu'>module_data_scan_server</span>(<span class='no'>input</span>, <span class='no'>output</span>, <span class='no'>session</span>, <span class='no'>get_selected_variable</span>)</pre>
+    <pre class="usage"><span class='fu'>module_data_scan_server</span>(
+  <span class='no'>input</span>,
+  <span class='no'>output</span>,
+  <span class='no'>session</span>,
+  <span class='no'>settings</span>,
+  <span class='kw'>iso_objects</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='no'>get_selected_variable</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
