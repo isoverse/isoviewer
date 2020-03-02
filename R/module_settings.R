@@ -5,7 +5,11 @@ module_settings_server <- function(input, output, session, settings, initial_set
 
   # init message ====
   global_settings_var <- ".isoviewer_gui_settings"
-  initial_settings <- if(store_in_global_env) get(global_settings_var, envir = .GlobalEnv) else NULL
+  if(store_in_global_env && exists(global_settings_var, envir = .GlobalEnv)) {
+    initial_settings <- get(global_settings_var, envir = .GlobalEnv)
+  } else {
+    initial_settings <- NULL
+  }
   if (!is.null(initial_settings)) {
     module_message(session$ns, "info", "SETTINGS initializing settings with ", length(initial_settings), " values")
   }
