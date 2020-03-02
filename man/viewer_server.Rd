@@ -4,7 +4,12 @@
 \alias{viewer_server}
 \title{Isoviewer App Server}
 \usage{
-viewer_server(selected_variable = NULL)
+viewer_server(iso_objects = list(), local = FALSE)
+}
+\arguments{
+\item{iso_objects}{named list of iso file objects to make available in the viewer}
+
+\item{local}{whether running locally or as a server application (e.g. on shinyapps.io)}
 }
 \description{
 Generates the server part of the isoviewer app

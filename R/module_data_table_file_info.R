@@ -1,6 +1,6 @@
 #' File Info Server
 #' @inheritParams data_table_server
-data_table_file_info_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_file_info_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -10,6 +10,7 @@ data_table_file_info_server <- function(input, output, session, get_variable, ge
     callModule(
       data_table_server,
       "data_table",
+      settings = settings,
       get_variable = get_variable,
       get_iso_files = get_iso_files,
       is_visible = is_visible,

@@ -1,6 +1,6 @@
 #' Raw Data Server
 #' @inheritParams data_table_server
-data_table_raw_data_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_raw_data_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -10,6 +10,7 @@ data_table_raw_data_server <- function(input, output, session, get_variable, get
     callModule(
       data_table_server,
       "data_table",
+      settings = settings,
       get_variable = get_variable,
       get_iso_files = get_iso_files,
       is_visible = is_visible,
@@ -21,7 +22,7 @@ data_table_raw_data_server <- function(input, output, session, get_variable, get
         if (is.null(sig_digits)) sig_digits <- 4
 
         # store parameters
-        isolate(set_gui_setting(ns(paste0("signif-", get_variable())), sig_digits))
+        isolate(settings$set(ns(paste0("signif-", get_variable())), sig_digits))
 
         # table selection function
         function(iso_files, selected) {
@@ -41,7 +42,7 @@ data_table_raw_data_server <- function(input, output, session, get_variable, get
 
   # restore settings ====
   observeEvent(get_variable(), {
-    sig_digits <- get_gui_setting(ns(paste0("signif-", get_variable())), default = 4)
+    sig_digits <- settings$get(ns(paste0("signif-", get_variable())), default = 4)
     updateNumericInput(session, "signif", value = sig_digits)
   })
 

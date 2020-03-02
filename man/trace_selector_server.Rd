@@ -4,7 +4,14 @@
 \alias{trace_selector_server}
 \title{select data trace}
 \usage{
-trace_selector_server(input, output, session, get_variable, get_iso_files)
+trace_selector_server(
+  input,
+  output,
+  session,
+  settings,
+  get_variable,
+  get_iso_files
+)
 }
 \description{
 select data trace

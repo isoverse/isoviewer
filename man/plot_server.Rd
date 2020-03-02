@@ -8,6 +8,7 @@ plot_server(
   input,
   output,
   session,
+  settings,
   get_variable,
   generate_plot,
   reset_trigger = reactive({ })

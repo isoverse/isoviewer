@@ -4,7 +4,14 @@
 \alias{module_data_cf_server}
 \title{Continuous flow files Server}
 \usage{
-module_data_cf_server(input, output, session, get_selected_variable)
+module_data_cf_server(
+  input,
+  output,
+  session,
+  settings,
+  iso_objects = list(),
+  get_selected_variable
+)
 }
 \arguments{
 \item{get_selected_variable}{reactive function returning the variable name}

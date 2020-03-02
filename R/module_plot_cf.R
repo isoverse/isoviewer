@@ -1,6 +1,6 @@
 #' cf plot
 #' @param get_variable get variable name
-plot_cf_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+plot_cf_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -8,6 +8,7 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
   # plot server =====
   base_plot <- callModule(
     plot_server, "base_plot",
+    settings = settings,
     get_variable = get_variable,
     generate_plot = generate_plot,
     reset_trigger = reactive({ input$reset })
@@ -18,13 +19,13 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
     req(get_variable())
     updateSelectInput(
       session, "scale_signal",
-      selected = get_gui_setting(ns(paste0("signal-", get_variable())), default = "NULL")
+      selected = settings$get(ns(paste0("signal-", get_variable())), default = "NULL")
     )
   })
   observeEvent(input$scale_signal, {
     req(get_variable())
     module_message(ns, "info", "PLOT user set scale_signal to '", input$scale_signal, "'")
-    set_gui_setting(ns(paste0("signal-", get_variable())), input$scale_signal)
+    settings$set(ns(paste0("signal-", get_variable())), input$scale_signal)
   }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
   # time selection =====
@@ -32,12 +33,12 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
     req(get_variable())
     updateSelectInput(
       session, "scale_time",
-      selected = get_gui_setting(ns(paste0("time-", get_variable())), default = "seconds")
+      selected = settings$get(ns(paste0("time-", get_variable())), default = "seconds")
     )
   })
   observeEvent(input$scale_time, {
     module_message(ns, "info", "PLOT user set scale_time to '", input$scale_time, "'")
-    set_gui_setting(ns(paste0("time-", get_variable())), input$scale_time)
+    settings$set(ns(paste0("time-", get_variable())), input$scale_time)
   }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
   # file info ====
@@ -49,6 +50,7 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
   # traces selector ====
   traces <- callModule(
     trace_selector_server, "traces",
+    settings = settings,
     get_variable = get_variable,
     get_iso_files = get_iso_files
   )
@@ -85,6 +87,7 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
   # panel aesthetic ======
   panel <- callModule(
     function_plot_param_server, "panel",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -95,6 +98,7 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
   # color aesthetic ======
   color <- callModule(
     function_plot_param_server, "color",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -105,6 +109,7 @@ plot_cf_server <- function(input, output, session, get_variable, get_iso_files, 
   # linetype aesthetic ======
   linetype <- callModule(
     function_plot_param_server, "linetype",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,

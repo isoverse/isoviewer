@@ -1,5 +1,5 @@
 #' select data trace
-trace_selector_server <- function(input, output, session, get_variable, get_iso_files) {
+trace_selector_server <- function(input, output, session, settings, get_variable, get_iso_files) {
 
   # namespace
   ns <- session$ns
@@ -8,6 +8,7 @@ trace_selector_server <- function(input, output, session, get_variable, get_iso_
   selector <-
     callModule(
       selector_table_server, "selector",
+      settings = settings,
       id_column = "data",
       row_column = "rowid",
       column_select = c(Trace = label)
@@ -28,7 +29,7 @@ trace_selector_server <- function(input, output, session, get_variable, get_iso_
         ),
         rowid = dplyr::row_number()
       )
-    selected <- get_gui_setting(ns(get_variable()), default = NULL)
+    selected <- settings$get(ns(get_variable()), default = NULL)
     selector$set_table(datas)
     selector$set_selected(selected)
   })
@@ -43,7 +44,7 @@ trace_selector_server <- function(input, output, session, get_variable, get_iso_
       )
     )
     # store selected in settings
-    set_gui_setting(ns(get_variable()), selector$get_selected())
+    settings$set(ns(get_variable()), selector$get_selected())
   })
 
   # get selected traces =====

@@ -8,6 +8,7 @@ data_table_file_info_server(
   input,
   output,
   session,
+  settings,
   get_variable,
   get_iso_files,
   is_visible

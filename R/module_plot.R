@@ -2,7 +2,7 @@
 #' @param get_variable get variable name
 #' @param generate_plot function to create the plot
 #' @param reset_trigger reactive function to trigger a reset of the plot options (plot height, legend and font size)
-plot_server <- function(input, output, session, get_variable, generate_plot, reset_trigger = reactive({})) {
+plot_server <- function(input, output, session, settings, get_variable, generate_plot, reset_trigger = reactive({})) {
 
   # namespace
   ns <- session$ns
@@ -17,15 +17,15 @@ plot_server <- function(input, output, session, get_variable, generate_plot, res
   # remember settings ====
   observeEvent(input$plot_height, {
     module_message(ns, "info", "PLOT user set height to ", input$plot_height)
-    set_gui_setting(ns(paste0("plot_height-", get_variable())), input$plot_height)
+    settings$set(ns(paste0("plot_height-", get_variable())), input$plot_height)
   })
   observeEvent(input$legend_position, {
     module_message(ns, "info", "PLOT user set legend position to '", input$legend_position, "'")
-    set_gui_setting(ns(paste0("legend_position-", get_variable())), input$legend_position)
+    settings$set(ns(paste0("legend_position-", get_variable())), input$legend_position)
   })
   observeEvent(input$font_size, {
     module_message(ns, "info", "PLOT user set font size to ", input$font_size)
-    set_gui_setting(ns(paste0("font_size-", get_variable())), input$font_size)
+    settings$set(ns(paste0("font_size-", get_variable())), input$font_size)
   })
 
   # restore settings =====
@@ -33,21 +33,21 @@ plot_server <- function(input, output, session, get_variable, generate_plot, res
     req(get_variable())
     updateNumericInput(
       session, "plot_height",
-      value = get_gui_setting(ns(paste0("plot_height-", get_variable())))
+      value = settings$get(ns(paste0("plot_height-", get_variable())))
     )
   })
   observeEvent(get_variable(), {
     req(get_variable())
     updateSelectInput(
       session, "legend_position",
-      selected = get_gui_setting(ns(paste0("legend_position-", get_variable())))
+      selected = settings$get(ns(paste0("legend_position-", get_variable())))
     )
   })
   observeEvent(get_variable(), {
     req(get_variable())
     updateNumericInput(
       session, "font_size",
-      value = get_gui_setting(ns(paste0("font_size-", get_variable())))
+      value = settings$get(ns(paste0("font_size-", get_variable())))
     )
   })
 

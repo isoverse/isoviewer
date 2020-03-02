@@ -1,6 +1,7 @@
 #' Continuous flow files Server
 #' @inheritParams module_data_server
-module_data_cf_server <- function(input, output, session, get_selected_variable) {
+module_data_cf_server <- function(input, output, session, settings,
+                                  iso_objects = list(), get_selected_variable) {
 
   # namespace
   ns <- session$ns
@@ -24,6 +25,8 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # basic data server =====
   base_data <- callModule(
     module_data_server, "base_data",
+    settings = settings,
+    iso_objects = iso_objects,
     get_selected_variable = get_selected_variable,
     data_type = "continuous_flow",
     get_code_update = code_update
@@ -32,6 +35,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # file info ====
   file_info <- callModule(
     data_table_file_info_server, "file_info",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
@@ -40,6 +44,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # raw data ====
   raw_data <- callModule(
     data_table_raw_data_server, "raw_data",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "raw_data")
@@ -48,6 +53,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # standards ====
   standards <- callModule(
     data_table_standards_server, "standards",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "standards")
@@ -56,6 +62,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # resistors ====
   resistors <- callModule(
     data_table_resistors_server, "resistors",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "resistors")
@@ -64,6 +71,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # vendor data table ====
   vendor_data_table <- callModule(
     data_table_vendor_data_table_server, "vendor_data_table",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "vendor_data_table")
@@ -72,6 +80,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # peak table ====
   peak_table <- callModule(
     data_table_peak_table_server, "peak_table",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "peak_table")
@@ -80,6 +89,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # plot ====
   plot <- callModule(
     plot_cf_server, "plot",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "plot")
@@ -88,6 +98,7 @@ module_data_cf_server <- function(input, output, session, get_selected_variable)
   # download ====
   download <- callModule(
     data_download_server, "download",
+    settings = settings,
     get_variable = get_selected_variable
   )
 

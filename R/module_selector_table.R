@@ -12,7 +12,7 @@
 #' @param dom the available table control elements and their order
 #' @param selector_buttons whether the selector buttons are present
 #' @family selector table module functions
-selector_table_server <- function(input, output, session, id_column, row_column = id_column, column_select = NULL,
+selector_table_server <- function(input, output, session, settings, id_column, row_column = id_column, column_select = NULL,
                                 page_lengths = list( c(5, 10, 20, -1),  c("5", "10", "20", "All")),
                                 initial_page_length = page_lengths[[1]][1], dom = "fltip", selector_buttons = TRUE) {
 

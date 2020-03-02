@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Variable Selection Server — module_navbar_server • Isoviewer</title>
+<title>stores the settings — module_settings_server • Isoviewer</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Variable Selection Server — module_navbar_server" />
-<meta property="og:description" content="Module to select environment variable" />
+<meta property="og:title" content="stores the settings — module_settings_server" />
+<meta property="og:description" content="stores the settings" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -112,34 +112,34 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Variable Selection Server</h1>
-    <small class="dont-index">Source: <a href='https://github.com/isoverse/isoviewer/blob/master/R/module_navbar.R'><code>R/module_navbar.R</code></a></small>
-    <div class="hidden name"><code>module_navbar_server.Rd</code></div>
+    <h1>stores the settings</h1>
+    <small class="dont-index">Source: <a href='https://github.com/isoverse/isoviewer/blob/master/R/module_settings.R'><code>R/module_settings.R</code></a></small>
+    <div class="hidden name"><code>module_settings_server.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Module to select environment variable</p>
+    <p>stores the settings</p>
     </div>
 
-    <pre class="usage"><span class='fu'>module_navbar_server</span>(
+    <pre class="usage"><span class='fu'>module_settings_server</span>(
   <span class='no'>input</span>,
   <span class='no'>output</span>,
   <span class='no'>session</span>,
   <span class='no'>settings</span>,
-  <span class='kw'>iso_objects</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>close_button</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>initial_settings</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>store_in_global_env</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>settings</th>
-      <td><p>settings_server provide a central settings server if intending to share/save/restore settings accross the app, otherwise the default bare servers works fine.</p></td>
+      <th>initial_settings</th>
+      <td><p>initial settings</p></td>
     </tr>
     <tr>
-      <th>close_button</th>
-      <td><p>whether to include a close button</p></td>
+      <th>store_in_global_env</th>
+      <td><p>whether to load/save settings from/in global environment</p></td>
     </tr>
     </table>
 

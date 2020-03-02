@@ -1,5 +1,5 @@
 #' data download server
-data_download_server <- function(input, output, session, get_variable) {
+data_download_server <- function(input, output, session, settings, get_variable) {
 
   # TODO: implement issue #16
 

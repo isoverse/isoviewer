@@ -5,7 +5,7 @@
 \title{Problems Server
 Stand-alone for showing a dataset's problems.}
 \usage{
-problems_server(input, output, session, get_variable, get_iso_files)
+problems_server(input, output, session, settings, get_variable, get_iso_files)
 }
 \arguments{
 \item{get_variable}{reactive function returning the name of the variable}

@@ -8,6 +8,7 @@ module_info_server(
   input,
   output,
   session,
+  settings,
   get_variables,
   get_settings,
   reset_settings

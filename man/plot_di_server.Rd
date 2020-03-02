@@ -4,7 +4,15 @@
 \alias{plot_di_server}
 \title{Dual inlet plot}
 \usage{
-plot_di_server(input, output, session, get_variable, get_iso_files, is_visible)
+plot_di_server(
+  input,
+  output,
+  session,
+  settings,
+  get_variable,
+  get_iso_files,
+  is_visible
+)
 }
 \arguments{
 \item{get_variable}{get variable name}

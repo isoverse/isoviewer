@@ -2,15 +2,28 @@
 #' Variable Selection Server
 #'
 #' Module to select environment variable
-#' @param selected_variable the default variable to select (if any)
-module_navbar_server <- function(input, output, session, selected_variable = NULL) {
+#' @param settings settings_server provide a central settings server if intending to share/save/restore settings accross the app, otherwise the default bare servers works fine.
+#' @param close_button whether to include a close button
+module_navbar_server <- function(
+  input, output, session, settings,
+  iso_objects = list(), close_button = FALSE) {
 
   # namespace
   ns <- session$ns
 
+  # safety check
+  if (length(iso_objects) > 0L) {
+    if (length(names(iso_objects)) == 0L || any(nchar(names(iso_objects)) == 0L)) {
+      stop("all iso objects provided to the viewer must be named", call. = FALSE)
+    }
+    if (any(duplicated(names(iso_objects)))) {
+      stop("all iso objects provided to the viewer must have unique names", call. = FALSE)
+    }
+  }
+
   # available variables in namespace
-  all_objects <- find_iso_objects()
-  available_variables <-
+  all_objects <- parse_iso_objects(iso_objects)
+  type_objects <-
     list(
       di = dplyr::filter(all_objects, type == "dual inlet")$variable,
       cf = dplyr::filter(all_objects, type == "continuous flow")$variable,
@@ -20,14 +33,15 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   # non-variable menu items (make sure IDs are unique by tagging pi to them)
   info <- sprintf("info%.6f", pi)
   close_id <- sprintf("close%.6f", pi)
-  available_variables_NA <-
+  type_objects_NA <-
     setNames(
-      sprintf("%s%.6f", names(available_variables), pi),
-      names(available_variables)
+      sprintf("%s%.6f", names(type_objects), pi),
+      names(type_objects)
     )
 
   # reactive values
   values <- reactiveValues(
+    last_menu_item = info,
     initialized = FALSE,
     selected_cf_variable = NULL,
     selected_di_variable = NULL,
@@ -38,15 +52,15 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   # info server ====
   callModule(
     module_info_server, "info",
-    get_variables = reactive({ all_objects }),
+    settings = settings,
+    get_variables = reactive({ dplyr::select(all_objects, -.data$obj) }),
     get_settings = reactive({
       values$reset_settings
       input$menu
-      get_all_gui_settings_table()
+      settings$get_all_as_table()
     }),
     reset_settings = function() {
-      module_message(ns, "info", "RESETTING gui settings")
-      reset_gui_settings()
+      settings$reset()
       values$reset_settings <- values$reset_settings + 1
     }
   )
@@ -55,22 +69,19 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   output$menu <- renderUI({
 
     # determine selected
-    selected <-
-      if (!is.null(selected_variable)) selected_variable
-      else get_gui_setting(ns("menu"), default = info)
-    if (!selected %in% unlist(available_variables))
-      selected <- info
+    selected <- settings$get("menu", ns, default = info)
+    if (!selected %in% all_objects$variable) selected <- info
 
     # info message
     module_message(
       ns, "info", sprintf("NAVBAR creating navbar with the available variables: '%s', and selection '%s'",
-      available_variables %>% unlist() %>%  paste(collapse = "', '"), selected)
+      paste(all_objects$variable, collapse = "', '"), selected)
     )
 
     # tab panels
     tab_panels <-
       purrr::map2(
-        available_variables, available_variables_NA,
+        type_objects, type_objects_NA,
         ~ {
           if (length(.x) > 0)
             purrr::map(.x, tabPanel)
@@ -78,8 +89,8 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
             list(tabPanel(shiny::em("No data available"), value = .y))
         })
 
-    # navbar
-    navbarPage(
+    # navbar arguments
+    args <- list(
       theme = shinythemes::shinytheme("united"),
       title = "isoviewer",
       collapsible = FALSE,
@@ -87,7 +98,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
       id = ns("menu"),
       selected = selected,
       tabPanel("Info", value = info, icon = icon("info"),
-         div(module_info_ui(ns("info")))
+               div(module_info_ui(ns("info")))
       ),
 
       # TODO: add upload screen to upload collection / read files ----
@@ -104,10 +115,32 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
         list("Scan", menuName = "di", icon = icon("line-chart")),
         tab_panels$scan
       ))
-      # tabPanel("Close", value = close_id, icon = icon("sign-out-alt"),
-      #          box(h2("Saving settings and closing the application..."), width = 12)
-      # )
     )
+
+    # close button?
+    if (close_button)
+      args <- c(args, list(tabPanel("Close", value = close_id, icon = icon("window-close"), width = 12)))
+
+    # navbar
+    do.call(navbarPage, args = args)
+  })
+
+  # close dialog =====
+  close_dialog <- modalDialog(
+    title = NULL, fade = FALSE, easyClose = TRUE, size = "s",
+    h2("Close GUI?"),
+    footer =
+      tagList(
+        actionButton(ns("close"), label = "Close", icon = icon("window-close")),
+        modalButton("Cancel")
+      )
+  )
+
+  # close event ===
+  observeEvent(input$close, {
+    module_message(ns, "info", "APP closing...")
+    shinyjs::js$closeWindow()
+    stopApp()
   })
 
   # user selects navbar ----
@@ -120,20 +153,21 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   select_navbar_item <- function(id, update_navbar = TRUE) {
 
     if (id == close_id) {
-      # FIXME: this doesn't quite work properly yet with the displaying of the logout message (others aren't hiddne)
-      # additional ideas for closing the window: https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R
-      module_message(ns, "info", "closing application")
-      stopApp()
+      # show cancel model and switch back to previous tab
+      showModal(close_dialog)
+      id <- values$last_menu_item
+      update_navbar <- TRUE
     } else {
       module_message(ns, "info", "NAVBAR loading menu item: '", id, "'")
     }
 
     # update navbar if not already the new value
-    if (update_navbar) updateNavbarPage(session, ns("menu"), selected = id)
+    values$last_menu_item <- id
+    if (update_navbar) updateNavbarPage(session, "menu", selected = id)
     shinyjs::toggle("info", condition = id == info)
 
     # set gui setting
-    set_gui_setting(ns("menu"), id)
+    settings$set("menu", id, ns)
 
     # default selections
     selected_cf_variable <- NULL
@@ -141,22 +175,22 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
     selected_scan_variable <- NULL
 
     # check what is selected (if anything)
-    if (id %in% available_variables$cf) {
+    if (id %in% type_objects$cf) {
       # cf variable selected
       selected_cf_variable <- id
-    } else if (id == available_variables_NA[['cf']]) {
+    } else if (id == type_objects_NA[['cf']]) {
       # NA selected for cf
       selected_cf_variable <- NA_character_
-    } else if (id %in% available_variables$di) {
+    } else if (id %in% type_objects$di) {
       # di variable selected
       selected_di_variable <- id
-    } else if (id == available_variables_NA[['di']]) {
+    } else if (id == type_objects_NA[['di']]) {
       # NA selected for di
       selected_di_variable <- NA_character_
-    } else if (id %in% available_variables$scan) {
+    } else if (id %in% type_objects$scan) {
       # di variable selected
       selected_scan_variable <- id
-    } else if (id == available_variables_NA[['scan']]) {
+    } else if (id == type_objects_NA[['scan']]) {
       # NA selected for scan
       selected_scan_variable <- NA_character_
     }
@@ -179,6 +213,19 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   )
 }
 
+# generate code for navbar runctions
+code_navbar_shinyjs_extension <- function() {
+
+  js_code <- c(
+    # close window
+    closeWindow =
+      "shinyjs.closeWindow = function() { window.close(); }"
+    )
+
+  tagList(
+    extendShinyjs(text = paste(js_code, collapse = "\n"), functions = names(js_code))
+  )
+}
 
 #' module variable selection navbar
 #'

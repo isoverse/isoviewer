@@ -8,6 +8,8 @@ module_data_server(
   input,
   output,
   session,
+  settings,
+  iso_objects = list(),
   get_selected_variable,
   data_type = c("continuous_flow", "dual_inlet", "scan"),
   get_code_update = reactive({     function(rmarkdown) {         ""     } })

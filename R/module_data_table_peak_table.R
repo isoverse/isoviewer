@@ -1,6 +1,6 @@
 #' Peak Table  Server
 #' @inheritParams data_table_server
-data_table_peak_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+data_table_peak_table_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -10,6 +10,7 @@ data_table_peak_table_server <- function(input, output, session, get_variable, g
     callModule(
       data_table_server,
       "data_table",
+      settings = settings,
       get_variable = get_variable,
       get_iso_files = get_iso_files,
       is_visible = is_visible,
@@ -23,8 +24,8 @@ data_table_peak_table_server <- function(input, output, session, get_variable, g
         if (is.null(expl_units)) expl_units <- TRUE
 
         # store parameters
-        isolate(set_gui_setting(ns(paste0("signif-", get_variable())), sig_digits))
-        isolate(set_gui_setting(ns(paste0("units-", get_variable())), expl_units))
+        isolate(settings$set(ns(paste0("signif-", get_variable())), sig_digits))
+        isolate(settings$set(ns(paste0("units-", get_variable())), expl_units))
 
         # table selection function
         function(iso_files, selected) {
@@ -51,9 +52,9 @@ data_table_peak_table_server <- function(input, output, session, get_variable, g
 
   # restore settings ====
   observeEvent(get_variable(), {
-    sig_digits <- get_gui_setting(ns(paste0("signif-", get_variable())), default = 4)
+    sig_digits <- settings$get(ns(paste0("signif-", get_variable())), default = 4)
     updateNumericInput(session, "signif", value = sig_digits)
-    expl_units <- get_gui_setting(ns(paste0("units-", get_variable())), default = TRUE)
+    expl_units <- settings$get(ns(paste0("units-", get_variable())), default = TRUE)
     updateCheckboxInput(session, "units", value = expl_units)
   })
 

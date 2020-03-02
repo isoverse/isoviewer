@@ -4,7 +4,7 @@
 \alias{data_download_server}
 \title{data download server}
 \usage{
-data_download_server(input, output, session, get_variable)
+data_download_server(input, output, session, settings, get_variable)
 }
 \description{
 data download server

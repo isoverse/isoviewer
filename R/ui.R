@@ -18,6 +18,7 @@ viewer_ui <- function(sidebar_width = 170, start_menu = "welcome", theme = "unit
     shinyjs::useShinyjs(),
     shinyWidgets::useShinydashboard(),
     code_preview_shinyjs_extension(),
+    code_navbar_shinyjs_extension(),
 
     # CSS Styles ----
     tags$head(

@@ -2,7 +2,7 @@
 #' @param get_variables reactive function returning the variables
 #' @param get_settings reactive function returning the settings
 #' @param reset_settings function to trigger settings reset
-module_info_server <- function(input, output, session, get_variables, get_settings, reset_settings) {
+module_info_server <- function(input, output, session, settings, get_variables, get_settings, reset_settings) {
   # namespace
   ns <- session$ns
 
@@ -12,7 +12,7 @@ module_info_server <- function(input, output, session, get_variables, get_settin
     module_message(ns, "info", "VARIABLES TABLE rendering table")
     DT::datatable(
       get_variables(),
-      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 10),
+      options = list(orderClasses = TRUE, lengthMenu = c(5, 10, 25, 50, 100), pageLength = 25),
       filter = "bottom"
     )
   })
@@ -20,7 +20,6 @@ module_info_server <- function(input, output, session, get_variables, get_settin
   # settings table =====
   output$settings <- DT::renderDataTable({
     validate(
-      need(are_gui_settings_on(), "GUI settings are turned off.") %then%
       need(!is.null(get_settings()) && nrow(get_settings()) > 0, "No settings available yet.") %then%
       need(input$tabs == "settings", "Loading...")
     )

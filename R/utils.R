@@ -18,17 +18,25 @@ round_interval_digits <- function(interval, diff_sigs = 2) {
   round(interval, n_digits)
 }
 
-
-# find iso objects in the global environment
-find_iso_objects <- function() {
+#' Find iso objects
+#'
+#' Finds all iso file objects in the provided environment (the global environment by default).
+#'
+#' @param env where to look for iso objects, by default the global environment
+#' @return list of found iso objects (all types) and their values
+#' @export
+iso_find_objects <- function(env = .GlobalEnv) {
 
   # all objects
-  all_objs <-
-    ls(envir = .GlobalEnv) %>%
+  objs <-
+    ls(envir = env) %>%
     rlang::set_names() %>%
     purrr::map(get)
-  iso_objs <- all_objs[purrr::map_lgl(all_objs, isoreader::iso_is_object)]
+  return(objs[purrr::map_lgl(objs, isoreader::iso_is_object)])
+}
 
+# parse iso objects into the different classes
+parse_iso_objects <- function(iso_objs) {
   # data frame of information
   tibble::tibble(
     type = purrr::map_chr(iso_objs, ~{
@@ -38,6 +46,7 @@ find_iso_objects <- function() {
       else NA_character_
     }),
     variable = names(iso_objs),
+    obj = iso_objs,
     n_files = purrr::map_int(iso_objs, length),
     size = purrr::map_chr(iso_objs, ~format(object.size(.x), unit = "auto"))
   )

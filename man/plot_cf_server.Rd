@@ -4,7 +4,15 @@
 \alias{plot_cf_server}
 \title{cf plot}
 \usage{
-plot_cf_server(input, output, session, get_variable, get_iso_files, is_visible)
+plot_cf_server(
+  input,
+  output,
+  session,
+  settings,
+  get_variable,
+  get_iso_files,
+  is_visible
+)
 }
 \arguments{
 \item{get_variable}{get variable name}
