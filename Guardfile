@@ -29,7 +29,9 @@ guard 'process', name: 'Shiny', command: ['R', '-e', "
   scnx <- readr::read_rds('inst/extdata/datasets/scan_examples.scan.rds');
   };
   cfx_wpt <- isoprocessor::iso_set_peak_table_automatically_from_vendor_data_table(cfx[1:10]);
-  if (file.exists('gui_settings.rds')) isoviewer:::load_gui_settings('gui_settings.rds');
+  if (file.exists('gui_settings.rds')) {
+    .isoviewer_gui_settings <- readr::read_rds('gui_settings.rds')
+  }
   isoviewer:::turn_debug_on();
   isoviewer::iso_start_viewer(log = TRUE, runApp_params = list(port = #{port}))"] do
   watch(%r{NAMESPACE})

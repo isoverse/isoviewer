@@ -8,6 +8,7 @@ data_table_server(
   input,
   output,
   session,
+  settings,
   get_variable,
   get_iso_files,
   is_visible,
@@ -28,9 +29,5 @@ data_table_server(
 }
 \description{
 This is for the usual iso_get_... aggregation functions.
-}
-\seealso{
-Other file info module functions: 
-\code{\link{method_info_selector_ui}()}
 }
 \concept{file info module functions}

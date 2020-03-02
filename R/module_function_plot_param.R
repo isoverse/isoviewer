@@ -5,7 +5,7 @@
 #' @param func_formals formals of the relevant function (to determine default)
 #' @param reset_trigger reactive function to trigger a reset to the default value (if necessary)
 function_plot_param_server <- function(
-  input, output, session, get_variable, type = c("expression", "logical"),
+  input, output, session, settings, get_variable, type = c("expression", "logical"),
   get_value_options, default_value, reset_trigger = reactive({})) {
 
   # namespace
@@ -31,12 +31,12 @@ function_plot_param_server <- function(
     if (type == "expression") {
       updateSelectInput(
         session, "value", choices = get_value_options(),
-        selected = get_gui_setting(ns(get_variable()), default = default_value)
+        selected = settings$get(ns(get_variable()), default = default_value)
       )
     } else if (type == "logical") {
       updateCheckboxInput(
         session, "value",
-        value = get_gui_setting(ns(get_variable()), default = default_value)
+        value = settings$get(ns(get_variable()), default = default_value)
       )
     }
   })
@@ -46,7 +46,7 @@ function_plot_param_server <- function(
     if (type == "expression") {
       updateSelectInput(
         session, "value", choices = get_value_options(),
-        selected = get_gui_setting(ns(get_variable()), default = default_value)
+        selected = settings$get(ns(get_variable()), default = default_value)
       )
     }
   })
@@ -69,7 +69,7 @@ function_plot_param_server <- function(
       sprintf("PLOT PARAM set to '%s' for '%s'", input$value, get_variable())
     )
     # update settings
-    set_gui_setting(ns(get_variable()), input$value)
+    settings$set(ns(get_variable()), input$value)
 
     # process & store value
     value <- input$value
@@ -91,12 +91,12 @@ function_plot_param_server <- function(
       selectInput(
         ns("value"), NULL,
         choices = get_value_options(),
-        selected = get_gui_setting(ns(get_variable()), default = default_value)
+        selected = settings$get(ns(get_variable()), default = default_value)
       )
     } else if (type == "logical") {
       checkboxInput(
         ns("value"), NULL,
-        value = get_gui_setting(ns(get_variable()), default = default_value)
+        value = settings$get(ns(get_variable()), default = default_value)
       )
     }
   })

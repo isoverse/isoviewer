@@ -3,7 +3,9 @@
 #' @param get_selected_variable reactive function returning the variable name
 #' @param data_type the type of data server (character), is used to construct iso_read... and iso_is_... calls
 #' @param get_code_update a reactive code update function, has to return a function that takes 'rmarkdown' as a parameter
-module_data_server <- function(input, output, session, get_selected_variable,
+module_data_server <- function(input, output, session, settings,
+                               iso_objects = list(),
+                               get_selected_variable,
                                data_type = c("continuous_flow", "dual_inlet", "scan"),
                                get_code_update = reactive({ function(rmarkdown) {""} })) {
 
@@ -44,10 +46,12 @@ module_data_server <- function(input, output, session, get_selected_variable,
   variable_check_func <- rlang::parse_expr(sprintf("isoreader::iso_is_%s(obj)", data_type))
   files <- callModule(
     module_file_selector_server, "files",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = reactive({
       req(get_selected_variable())
-      obj <- get(get_selected_variable(), envir = .GlobalEnv)
+      stopifnot(get_selected_variable() %in% names(iso_objects))
+      obj <- iso_objects[[get_selected_variable()]]
       stopifnot(rlang::eval_tidy(variable_check_func))
       return(obj)
     })
@@ -58,7 +62,7 @@ module_data_server <- function(input, output, session, get_selected_variable,
     shinyjs::hide("div")
     shinyjs::hide("no_data")
     if (!is.null(get_selected_variable()) && !is.na(get_selected_variable())) {
-      selected_tab <- get_gui_setting(ns(paste0("tabs-", get_selected_variable())), default = "plot")
+      selected_tab <- settings$get(ns(paste0("tabs-", get_selected_variable())), default = "plot")
       module_message(ns, "info", sprintf("DATA loading screen for variable '%s' on tab '%s'",
                                          get_selected_variable(), selected_tab))
       updateTabsetPanel(session, "tabs", selected = selected_tab)
@@ -84,7 +88,7 @@ module_data_server <- function(input, output, session, get_selected_variable,
   get_tab_selection <- reactive(input$tabs)
   observeEvent(get_tab_selection(), {
     module_message(ns, "info", sprintf("DATA TABS user selected tab '%s'", input$tabs))
-    set_gui_setting(ns(paste0("tabs-", get_selected_variable())), input$tabs)
+    settings$set(ns(paste0("tabs-", get_selected_variable())), input$tabs)
   }, priority = 100, ignoreInit = TRUE)
 
   # code preview ====
@@ -105,7 +109,9 @@ module_data_server <- function(input, output, session, get_selected_variable,
     }
   })
   code_preview <- callModule(
-    code_preview_server, "code", code_func_reac = code_update,
+    code_preview_server, "code",
+    settings = settings,
+    code_func_reac = code_update,
     download_file = reactive({ paste("VIEW", get_selected_variable()) })
   )
 

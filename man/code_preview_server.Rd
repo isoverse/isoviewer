@@ -4,7 +4,14 @@
 \alias{code_preview_server}
 \title{Code Preview Server}
 \usage{
-code_preview_server(input, output, session, code_func_reac, download_file)
+code_preview_server(
+  input,
+  output,
+  session,
+  settings,
+  code_func_reac,
+  download_file
+)
 }
 \arguments{
 \item{code_func_reac}{reactive function that returns a function(!) with parameters \code{rmarkdown} and \code{front_matter} that can be called to generate the code}

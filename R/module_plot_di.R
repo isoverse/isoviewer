@@ -1,6 +1,6 @@
 #' Dual inlet plot
 #' @param get_variable get variable name
-plot_di_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+plot_di_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -8,6 +8,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # plot server =====
   base_plot <- callModule(
     plot_server, "base_plot",
+    settings = settings,
     get_variable = get_variable,
     generate_plot = generate_plot,
     reset_trigger = reactive({ input$reset })
@@ -18,18 +19,19 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
     req(get_variable())
     updateSelectInput(
       session, "scale_signal",
-      selected = get_gui_setting(ns(paste0("signal-", get_variable())), default = "NULL")
+      selected = settings$get(ns(paste0("signal-", get_variable())), default = "NULL")
     )
   })
   observeEvent(input$scale_signal, {
     req(get_variable())
     module_message(ns, "info", "PLOT user set scale_signal to '", input$scale_signal, "'")
-    set_gui_setting(ns(paste0("signal-", get_variable())), input$scale_signal)
+    settings$set(ns(paste0("signal-", get_variable())), input$scale_signal)
   }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
   # traces selector ====
   traces <- callModule(
     trace_selector_server, "traces",
+    settings = settings,
     get_variable = get_variable,
     get_iso_files = get_iso_files
   )
@@ -70,6 +72,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # panel aesthetic ======
   panel <- callModule(
     function_plot_param_server, "panel",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -80,6 +83,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # color aesthetic ======
   color <- callModule(
     function_plot_param_server, "color",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -90,6 +94,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # shape aesthetic ======
   shape <- callModule(
     function_plot_param_server, "shape",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -100,6 +105,7 @@ plot_di_server <- function(input, output, session, get_variable, get_iso_files, 
   # linetype aesthetic ======
   linetype <- callModule(
     function_plot_param_server, "linetype",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,

@@ -8,6 +8,7 @@ selector_table_server(
   input,
   output,
   session,
+  settings,
   id_column,
   row_column = id_column,
   column_select = NULL,

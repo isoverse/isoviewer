@@ -8,6 +8,7 @@ module_file_selector_server(
   input,
   output,
   session,
+  settings,
   get_variable,
   get_iso_files
 )

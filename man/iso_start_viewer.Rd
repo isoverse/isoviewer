@@ -5,26 +5,20 @@
 \title{Start the isoviewer graphical user interface}
 \usage{
 iso_start_viewer(
-  iso_files = NULL,
-  ...,
-  restore = TRUE,
-  reset = FALSE,
-  log = FALSE,
-  launch = TRUE
+  iso_objects = iso_find_objects(),
+  local = TRUE,
+  log = !local,
+  runApp_params = list()
 )
 }
 \arguments{
-\item{iso_files}{variable name - if provided, will start the viewer on this collection of iso files}
+\item{iso_objects}{named list of iso file objects to make available in the viewer}
 
-\item{...}{passed on to the \code{\link[shiny]{runApp}} call (only if \code{launch = TRUE}), can include server-specific parameters such as host or port}
+\item{local}{whether running locally or as a server application (e.g. on shinyapps.io)}
 
-\item{restore}{whether to restore the GUI to the previous state (if available). If \code{TRUE}, will store the GUI settings for future restore.}
+\item{log}{whether to show log info messages or not (by default only if running as server application, i.e. non-local)}
 
-\item{reset}{whether to reset the GUI state upon viewer start}
-
-\item{log}{whether to show log info messages or not}
-
-\item{launch}{whether to launch the shiny app or return it as an object}
+\item{runApp_params}{passed on to the \code{\link[shiny]{runApp}} call. Common parameters to specify include \code{port} and \code{launch.browser}. Only relevant if \code{local = TRUE}.}
 }
 \description{
 Searches for all iso file objects in the workspace and provides a graphical interface to exlore the data stored in them.

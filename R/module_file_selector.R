@@ -1,15 +1,15 @@
 #' File selector server
 #' @param get_variable reactive function returning the name of the variable
 #' @param get_iso_files reactive function returning the actual iso files
-module_file_selector_server <- function(input, output, session, get_variable, get_iso_files) {
+module_file_selector_server <- function(input, output, session, settings, get_variable, get_iso_files) {
 
   # namespace
   ns <- session$ns
 
   # reactive values =====
   values <- reactiveValues(
-    show_errors = get_gui_setting(ns("errors"), TRUE),
-    show_warnings = get_gui_setting(ns("warnings"), TRUE)
+    show_errors = settings$get(ns("errors"), default = TRUE),
+    show_warnings = settings$get(ns("warnings"), default = TRUE)
   )
 
   # get error/warning filtered isofiles ====
@@ -31,6 +31,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   # isofiles selector server ====
   selector <- callModule(
     selector_table_server, "selector",
+    settings = settings,
     id_column = "file_id", row_column = "row_id",
     column_select = c(File = file_id, `File Size` = file_size, Errors = error, Warning = warning)
   )
@@ -47,7 +48,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     )
 
     # store selected in settings
-    set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected())
+    settings$set(ns(paste0("selector-", get_variable())), selector$get_selected())
 
     # return selected iso_files
     iso_files <- get_filtered_iso_files()
@@ -60,7 +61,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   observeEvent(get_filtered_iso_files(), {
     isolate({
       # what is selected?
-      selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = c())
+      selected <- settings$get(ns(paste0("selector-", get_variable())), default = c())
 
       # info message
       module_message(
@@ -107,7 +108,7 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   observe({
     toggle("errors_hide", condition = values$show_errors)
     toggle("errors_show", condition = !values$show_errors)
-    set_gui_setting(ns("errors"), values$show_errors)
+    settings$set(ns("errors"), values$show_errors)
   })
   observeEvent(input$errors_hide, values$show_errors <- FALSE)
   observeEvent(input$errors_show, values$show_errors <- TRUE)
@@ -116,13 +117,13 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
   observe({
     toggle("warnings_hide", condition = values$show_warnings)
     toggle("warnings_show", condition = !values$show_warnings)
-    set_gui_setting(ns("warnings"), values$show_warnings)
+    settings$set(ns("warnings"), values$show_warnings)
   })
   observeEvent(input$warnings_hide, values$show_warnings <- FALSE)
   observeEvent(input$warnings_show, values$show_warnings <- TRUE)
 
   # problems ====
-  callModule(problems_server, "problems", get_variable = get_variable, get_iso_files = get_filtered_iso_files)
+  callModule(problems_server, "problems", settings = settings, get_variable = get_variable, get_iso_files = get_filtered_iso_files)
 
   # code update ====
   code_update <- reactive({
@@ -188,7 +189,7 @@ module_file_selector_ui <- function(id, width = 12, file_list_height = "200px") 
 #' Stand-alone for showing a dataset's problems.
 #' @inheritParams module_file_selector_server
 #' @family datasets module functions
-problems_server <- function(input, output, session, get_variable, get_iso_files) {
+problems_server <- function(input, output, session, settings, get_variable, get_iso_files) {
 
   # namespace and constants
   ns <- session$ns

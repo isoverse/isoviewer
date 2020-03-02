@@ -1,6 +1,7 @@
 #' Scan flow files Server
 #' @inheritParams module_data_server
-module_data_scan_server <- function(input, output, session, get_selected_variable) {
+module_data_scan_server <- function(input, output, session, settings,
+                                    iso_objects = list(), get_selected_variable) {
 
   # namespace
   ns <- session$ns
@@ -21,6 +22,8 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # basic data server =====
   base_data <- callModule(
     module_data_server, "base_data",
+    settings = settings,
+    iso_objects = iso_objects,
     get_selected_variable = get_selected_variable,
     data_type = "scan",
     get_code_update = code_update
@@ -29,6 +32,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # file info ====
   file_info <- callModule(
     data_table_file_info_server, "file_info",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "file_info")
@@ -37,6 +41,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # raw data ====
   raw_data <- callModule(
     data_table_raw_data_server, "raw_data",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "raw_data")
@@ -45,6 +50,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # resistors ====
   resistors <- callModule(
     data_table_resistors_server, "resistors",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "resistors")
@@ -53,6 +59,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # plot ====
   plot <- callModule(
     plot_scan_server, "plot",
+    settings = settings,
     get_variable = get_selected_variable,
     get_iso_files = base_data$get_selected_iso_files,
     is_visible = reactive(base_data$get_tab_selection() == "plot")
@@ -61,6 +68,7 @@ module_data_scan_server <- function(input, output, session, get_selected_variabl
   # download ====
   download <- callModule(
     data_download_server, "download",
+    settings = settings,
     get_variable = get_selected_variable
   )
 

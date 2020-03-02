@@ -8,6 +8,7 @@ function_plot_param_server(
   input,
   output,
   session,
+  settings,
   get_variable,
   type = c("expression", "logical"),
   get_value_options,

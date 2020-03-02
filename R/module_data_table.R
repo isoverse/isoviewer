@@ -8,7 +8,7 @@
 #' @param get_data_table_columns a regular function taking iso_files and returning a vector of data table columns
 #' @param is_visible reactive function determining visibility of the auxiliary boxes
 #' @family file info module functions
-data_table_server <- function(input, output, session, get_variable, get_iso_files, is_visible, get_data_table, get_data_table_columns) {
+data_table_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible, get_data_table, get_data_table_columns) {
 
   # namespace
   ns <- session$ns
@@ -18,6 +18,7 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
     callModule(
       selector_table_server,
       "selector",
+      settings = settings,
       id_column = "Column",
       row_column = "rowid",
       column_select = c(-rowid)
@@ -28,7 +29,7 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
     req(length(get_iso_files()) > 0)
     columns_tbl <- get_data_table_columns(get_iso_files())
     stopifnot("Column" %in% names(columns_tbl))
-    selected <- get_gui_setting(ns(paste0("selector-", get_variable())), default = NULL)
+    selected <- settings$get(ns(paste0("selector-", get_variable())), default = NULL)
     selector$set_table(dplyr::mutate(columns_tbl, rowid = dplyr::row_number()))
     selector$set_selected(selected)
   })
@@ -52,7 +53,7 @@ data_table_server <- function(input, output, session, get_variable, get_iso_file
     )
 
     # store selected in settings
-    isolate(set_gui_setting(ns(paste0("selector-", get_variable())), selector$get_selected()))
+    isolate(settings$set(ns(paste0("selector-", get_variable())), selector$get_selected()))
 
     # get file info
     if (shiny::is.reactive(get_data_table)) {

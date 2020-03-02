@@ -4,10 +4,19 @@
 \alias{module_navbar_server}
 \title{Variable Selection Server}
 \usage{
-module_navbar_server(input, output, session, selected_variable = NULL)
+module_navbar_server(
+  input,
+  output,
+  session,
+  settings,
+  iso_objects = list(),
+  close_button = FALSE
+)
 }
 \arguments{
-\item{selected_variable}{the default variable to select (if any)}
+\item{settings}{settings_server provide a central settings server if intending to share/save/restore settings accross the app, otherwise the default bare servers works fine.}
+
+\item{close_button}{whether to include a close button}
 }
 \description{
 Module to select environment variable

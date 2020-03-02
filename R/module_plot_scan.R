@@ -1,6 +1,6 @@
 #' scan plot
 #' @param get_variable get variable name
-plot_scan_server <- function(input, output, session, get_variable, get_iso_files, is_visible) {
+plot_scan_server <- function(input, output, session, settings, get_variable, get_iso_files, is_visible) {
 
   # namespace
   ns <- session$ns
@@ -8,6 +8,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   # plot server =====
   base_plot <- callModule(
     plot_server, "base_plot",
+    settings = settings,
     get_variable = get_variable,
     generate_plot = generate_plot,
     reset_trigger = reactive({ input$reset })
@@ -23,13 +24,13 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   observeEvent(get_file_info(), {
     types <- unique(get_file_info()$type)
     if (length(types) > 0) {
-      selected <- get_gui_setting(ns(paste0("type-", get_variable())), default = types[1])
+      selected <- settings$get(ns(paste0("type-", get_variable())), default = types[1])
       if (!selected %in% types) selected <- types[1]
       updateSelectInput(session, "type", choices = types, selected = selected)
     }
   })
   observeEvent(input$type, {
-    set_gui_setting(ns(paste0("type-", get_variable())), input$type)
+    settings$set(ns(paste0("type-", get_variable())), input$type)
     # type selection triggers a new plot immediately since it is such a big change
     if (base_plot$has_plot()) {
       reset_zoom_stack()
@@ -42,18 +43,19 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
     req(get_variable())
     updateSelectInput(
       session, "scale_signal",
-      selected = get_gui_setting(ns(paste0("signal-", get_variable())), default = "NULL")
+      selected = settings$get(ns(paste0("signal-", get_variable())), default = "NULL")
     )
   })
   observeEvent(input$scale_signal, {
     req(get_variable())
     module_message(ns, "info", "PLOT user set scale_signal to '", input$scale_signal, "'")
-    set_gui_setting(ns(paste0("signal-", get_variable())), input$scale_signal)
+    settings$set(ns(paste0("signal-", get_variable())), input$scale_signal)
   }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
   # traces selector ====
   traces <- callModule(
     trace_selector_server, "traces",
+    settings = settings,
     get_variable = get_variable,
     get_iso_files = get_iso_files
   )
@@ -90,6 +92,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   # panel aesthetic ======
   panel <- callModule(
     function_plot_param_server, "panel",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -100,6 +103,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   # color aesthetic ======
   color <- callModule(
     function_plot_param_server, "color",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
@@ -110,6 +114,7 @@ plot_scan_server <- function(input, output, session, get_variable, get_iso_files
   # linetype aesthetic ======
   linetype <- callModule(
     function_plot_param_server, "linetype",
+    settings = settings,
     get_variable = get_variable,
     type = "expression",
     get_value_options = get_aes_options,
