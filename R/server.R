@@ -1,14 +1,16 @@
 #' Isoviewer App Server
 #'
 #' Generates the server part of the isoviewer app
-viewer_server <- function(selected_variable = NULL) {
+#' @inheritParams module_navbar_server
+viewer_server <- function(selected_variable = NULL, close_button = FALSE) {
 
   shinyServer(function(input, output, session) {
 
     # navigation bar (includes info screen)
     navbar <- callModule(
       module_navbar_server, "navbar",
-      selected_variable = selected_variable
+      selected_variable = selected_variable,
+      close_button = close_button
     )
 
     # continuous flow data

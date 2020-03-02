@@ -55,7 +55,7 @@ generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = lis
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Plot Raw Data",
-    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6, warning=FALSE),
     pipe(
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
@@ -87,7 +87,7 @@ generate_cf_plot_code <- function(dataset, scale_signal, scale_time, zoom, data,
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Plot Raw Data",
-    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6, warning=FALSE),
     pipe(
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
@@ -132,7 +132,7 @@ generate_scan_plot_code <- function(dataset, type, scale_signal, data, zoom, aes
   chunk(
     code_only = !rmarkdown,
     pre_chunk = "# Plot Raw Data",
-    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6),
+    chunk_options = list("plot_raw_data", fig.width = 8, fig.height = 6, warning=FALSE),
     pipe(
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
@@ -343,6 +343,7 @@ generate_file_header_code <- function(
         chunk_options = list("install", echo=FALSE, eval=FALSE),
         function_call("install.packages", params = list("devtools"),
                       comment = "run once to install"),
+        function_call("install.packages", params = list("tidyverse")),
         function_call("devtools::install_github", params = list("isoverse/isoreader")),
         function_call("devtools::install_github", params = list("isoverse/isoprocessor"))
       ),
@@ -352,15 +353,15 @@ generate_file_header_code <- function(
         pre_chunk = "This document was generated with [isoreader](http://isoreader.isoverse.org) version `r packageVersion(\"isoreader\")` and [isoprocessor](http://isoprocessor.isoverse.org) version `r packageVersion(\"isoprocessor\")`.\n\n# Libraries",
         chunk_options = list("setup", message=FALSE, warning=FALSE),
         # load libraries
-        "library(isoreader)\nlibrary(isoprocessor)" %>% add_comment("load libraries"),
-
-        # global knitting options for automatic saving of all plots as .png and .pdf
+        "library(tidyverse)\nlibrary(isoreader)\nlibrary(isoprocessor)" %>% add_comment("load libraries"),
+        # global knitting options
+        if (rmarkdown) {
 'knitr::opts_chunk$set(
   dev = c("png", "pdf"), fig.keep = "all",
   dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
   fig.path = file.path("fig_output", paste0(gsub("\\.[Rr]md", "", knitr::current_input()), "_"))
 )' %>% add_comment("global knitting options for automatic saving of plots as .png and .pdf")
-
+        }
       ),
     if (load)
       chunk(

@@ -18,11 +18,11 @@ module_file_selector_server <- function(input, output, session, get_variable, ge
     if (values$show_errors && values$show_warnings)
       return(get_iso_files())
     else if (!values$show_errors && values$show_warnings)
-      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = FALSE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = FALSE, quiet = TRUE))
     else if (values$show_errors && !values$show_warnings)
-      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = FALSE, remove_files_with_warnings = TRUE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = FALSE, remove_files_with_warnings = TRUE, quiet = TRUE))
     else
-      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = TRUE))
+      return(isoreader::iso_filter_files_with_problems(get_iso_files(), remove_files_with_errors = TRUE, remove_files_with_warnings = TRUE, quiet = TRUE))
   })
 
   # data set name output ====

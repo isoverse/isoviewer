@@ -3,7 +3,8 @@
 #'
 #' Module to select environment variable
 #' @param selected_variable the default variable to select (if any)
-module_navbar_server <- function(input, output, session, selected_variable = NULL) {
+#' @param close_button whether to include a close button
+module_navbar_server <- function(input, output, session, selected_variable = NULL, close_button = FALSE) {
 
   # namespace
   ns <- session$ns
@@ -28,6 +29,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
 
   # reactive values
   values <- reactiveValues(
+    last_menu_item = info,
     initialized = FALSE,
     selected_cf_variable = NULL,
     selected_di_variable = NULL,
@@ -78,8 +80,8 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
             list(tabPanel(shiny::em("No data available"), value = .y))
         })
 
-    # navbar
-    navbarPage(
+    # navbar arguments
+    args <- list(
       theme = shinythemes::shinytheme("united"),
       title = "isoviewer",
       collapsible = FALSE,
@@ -87,7 +89,7 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
       id = ns("menu"),
       selected = selected,
       tabPanel("Info", value = info, icon = icon("info"),
-         div(module_info_ui(ns("info")))
+               div(module_info_ui(ns("info")))
       ),
 
       # TODO: add upload screen to upload collection / read files ----
@@ -104,10 +106,32 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
         list("Scan", menuName = "di", icon = icon("line-chart")),
         tab_panels$scan
       ))
-      # tabPanel("Close", value = close_id, icon = icon("sign-out-alt"),
-      #          box(h2("Saving settings and closing the application..."), width = 12)
-      # )
     )
+
+    # close button?
+    if (close_button)
+      args <- c(args, list(tabPanel("Close", value = close_id, icon = icon("window-close"), width = 12)))
+
+    # navbar
+    do.call(navbarPage, args = args)
+  })
+
+  # close dialog =====
+  close_dialog <- modalDialog(
+    title = NULL, fade = FALSE, easyClose = TRUE, size = "s",
+    h2("Close GUI?"),
+    footer =
+      tagList(
+        actionButton(ns("close"), label = "Close", icon = icon("window-close")),
+        modalButton("Cancel")
+      )
+  )
+
+  # close event ===
+  observeEvent(input$close, {
+    module_message(ns, "info", "APP closing...")
+    shinyjs::js$closeWindow()
+    stopApp()
   })
 
   # user selects navbar ----
@@ -120,16 +144,17 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   select_navbar_item <- function(id, update_navbar = TRUE) {
 
     if (id == close_id) {
-      # FIXME: this doesn't quite work properly yet with the displaying of the logout message (others aren't hiddne)
-      # additional ideas for closing the window: https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R
-      module_message(ns, "info", "closing application")
-      stopApp()
+      # show cancel model and switch back to previous tab
+      showModal(close_dialog)
+      id <- values$last_menu_item
+      update_navbar <- TRUE
     } else {
       module_message(ns, "info", "NAVBAR loading menu item: '", id, "'")
     }
 
     # update navbar if not already the new value
-    if (update_navbar) updateNavbarPage(session, ns("menu"), selected = id)
+    values$last_menu_item <- id
+    if (update_navbar) updateNavbarPage(session, "menu", selected = id)
     shinyjs::toggle("info", condition = id == info)
 
     # set gui setting
@@ -179,6 +204,19 @@ module_navbar_server <- function(input, output, session, selected_variable = NUL
   )
 }
 
+# generate code for navbar runctions
+code_navbar_shinyjs_extension <- function() {
+
+  js_code <- c(
+    # close window
+    closeWindow =
+      "shinyjs.closeWindow = function() { window.close(); }"
+    )
+
+  tagList(
+    extendShinyjs(text = paste(js_code, collapse = "\n"), functions = names(js_code))
+  )
+}
 
 #' module variable selection navbar
 #'

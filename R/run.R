@@ -6,10 +6,10 @@
 #' @param restore whether to restore the GUI to the previous state (if available). If \code{TRUE}, will store the GUI settings for future restore.
 #' @param reset whether to reset the GUI state upon viewer start
 #' @param log whether to show log info messages or not
-#' @param launch whether to launch the shiny app or return it as an object
-#' @param ... passed on to the \code{\link[shiny]{runApp}} call (only if \code{launch = TRUE}), can include server-specific parameters such as host or port
+#' @param local whether running locally or as a server application (e.g. on shinyapps.io)
+#' @param runApp_params passed on to the \code{\link[shiny]{runApp}} call. Common parameters to specify include \code{port} and \code{launch.browser}. Only relevant if \code{local = TRUE}.
 #' @export
-iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALSE, log = FALSE, launch = TRUE) {
+iso_start_viewer <- function(iso_files = NULL, local = TRUE, runApp_params = list(), restore = TRUE, reset = FALSE, log = FALSE) {
 
   # check for knitting
   if (isTRUE(getOption('knitr.in.progress'))) {
@@ -52,13 +52,18 @@ iso_start_viewer <- function(iso_files = NULL, ..., restore = TRUE, reset = FALS
   # generate app
   app <- shinyApp(
     ui = viewer_ui(),
-    server = viewer_server(selected_variable = iso_files_name)
+    server = viewer_server(
+      selected_variable = iso_files_name,
+      # include close button if running locally
+      close_button = local
+    )
   )
 
-  # launch or return
-  if (launch)
-    runApp(app, display.mode = "normal", ...)
-  else
+  # launch if local
+  if (local) {
+    args <- list(app, display.mode = "normal") %>% modifyList(runApp_params)
+    do.call(runApp, args = args)
+  } else {
     return(app)
-
+  }
 }
