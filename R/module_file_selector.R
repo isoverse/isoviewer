@@ -74,7 +74,9 @@ module_file_selector_server <- function(input, output, session, settings, get_va
       df <- get_filtered_iso_files() %>%
         isoreader::iso_get_problems_summary(
           problem_files_only = FALSE, include_file_info = file_size
-        ) %>%
+        )
+      if (!"file_size" %in% names(df)) df$file_size <- NA_integer_
+      df <- df %>%
         dplyr::mutate(
           row_id = dplyr::row_number(),
           file_size = ifelse(!is.na(file_size), sprintf("%.1f kB", file_size/1024), "NA"),
