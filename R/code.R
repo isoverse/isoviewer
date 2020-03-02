@@ -60,7 +60,7 @@ generate_di_plot_code <- function(dataset, scale_signal, data, aes_options = lis
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
         function_call(
-          "iso_convert_signal",
+          "iso_convert_signals",
           params = list(to = scale_signal),
           comment = "convert signal units"
         ),
@@ -92,7 +92,7 @@ generate_cf_plot_code <- function(dataset, scale_signal, scale_time, zoom, data,
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
         function_call(
-          "iso_convert_signal",
+          "iso_convert_signals",
           params = list(to = scale_signal),
           comment = "convert signal units"
         ),
@@ -137,7 +137,7 @@ generate_scan_plot_code <- function(dataset, type, scale_signal, data, zoom, aes
       add_comment(generate_dataset_vars(dataset)$subset, "plot raw data"),
       if(scale_signal != "NULL")
         function_call(
-          "iso_convert_signal",
+          "iso_convert_signals",
           params = list(to = scale_signal),
           comment = "convert signal units"
         ),
@@ -169,7 +169,7 @@ generate_export_code <- function(dataset, rmarkdown = FALSE) {
     code_only = !rmarkdown,
     pre_chunk = "# Export data",
     pipe(
-      add_comment(dataset, "export entire dataset"),
+      add_comment(generate_dataset_vars(dataset)$subset, "export dataset"),
       function_call(
         "iso_export_to_excel",
         params = list(dataset),
@@ -359,7 +359,7 @@ generate_file_header_code <- function(
 'knitr::opts_chunk$set(
   dev = c("png", "pdf"), fig.keep = "all",
   dev.args = list(pdf = list(encoding = "WinAnsi", useDingbats = FALSE)),
-  fig.path = file.path("fig_output", paste0(gsub("\\.[Rr]md", "", knitr::current_input()), "_"))
+  fig.path = file.path("fig_output", paste0(gsub("\\\\.[Rr]md", "", knitr::current_input()), "_"))
 )' %>% add_comment("global knitting options for automatic saving of plots as .png and .pdf")
         }
       ),
@@ -385,12 +385,29 @@ generate_file_header_code <- function(
 chunk <- function(..., pre_chunk = NULL, post_chunk = NULL, chunk_options = list(), code_only = FALSE) {
   content <- stringr::str_c(..., sep = "\n\n")
   if (code_only) return(content)
+
   stringr::str_c(
     c(
       if(!is.null(pre_chunk)) sprintf("%s\n", pre_chunk),
       code_block("chunk", chunk_options = chunk_options, content = stringr::str_c(..., sep = "\n")),
       if(!is.null(post_chunk)) sprintf("\n%s\n", post_chunk)
     ), collapse = "\n")
+}
+
+# function to assemble chunk options
+chunk_options <- function (options) {
+
+  if (length(options) == 0) return("")
+
+  # FIXME: to avoid users having duplicate chunk names --> remove chunk names
+  if (options[[1]] != "setup") {
+    options[[1]] <- NULL
+    if (length(options) == 0) return("")
+  }
+
+  formatted <- function_parameters(options, fixed_eq_op = "=")
+  return(paste0(" ", paste(formatted, collapse = ", ")))
+
 }
 
 # function to assemble pipe
@@ -446,27 +463,42 @@ add_comment <- function(code, comment = NULL) {
 
 # function to generate a function call
 function_call <- function(func, params = list(), comment = NULL, fixed_eq_op = NULL) {
+
+  # formatted params
+  formatted <- function_parameters(params, fixed_eq_op = fixed_eq_op)
+
   if (length(params) == 0) {
     # no parameters
     code <- sprintf("%s()", func)
   } else if (length(params) == 1) {
     # 1 parameter
-    if (is.null(names(params)))
-      param <- function_parameter(NULL, params[[1]], fixed_eq_op = fixed_eq_op)
+    if (!stringr::str_detect(formatted, "\\n"))
+      code <- sprintf("%s(%s)", func, formatted)
     else
-      param <- function_parameter(names(params)[1], params[[1]], fixed_eq_op = fixed_eq_op)
-    if (!stringr::str_detect(param, "\\n"))
-      code <- sprintf("%s(%s)", func, param)
-    else
-      code <- sprintf("%s(\n%s\n)", func, indent_by(param, 1))
+      code <- sprintf("%s(\n%s\n)", func, indent_by(formatted, 1))
   } else {
     # with multiple parameters
-    params <- purrr::map2_chr(names(params), params, function_parameter, fixed_eq_op = fixed_eq_op) %>%
-      indent_by(1)
-    code <- sprintf("%s(\n%s\n)", func, paste(params, collapse = ",\n"))
+    code <- sprintf("%s(\n%s\n)", func, paste(indent_by(formatted, 1), collapse = ",\n"))
   }
 
   return(add_comment(code, comment))
+}
+
+# generate parameters
+function_parameters <- function(params, fixed_eq_op = NULL) {
+  if (length(params) == 0) {
+    # no parameters
+    return("")
+  } else if (length(params) == 1) {
+    # 1 parameter
+    if (is.null(names(params)))
+      return(function_parameter(NULL, params[[1]], fixed_eq_op = fixed_eq_op))
+    else
+      return(function_parameter(names(params)[1], params[[1]], fixed_eq_op = fixed_eq_op))
+  } else {
+    # with multiple parameters
+    return(purrr::map2_chr(names(params), params, function_parameter, fixed_eq_op = fixed_eq_op))
+  }
 }
 
 # generate parameter
@@ -497,7 +529,7 @@ function_parameter <- function(param, value, nchar_cutoff = 60L, fixed_eq_op = N
   else op <- "="
 
   # parameter code
-  if (length(value_code) == 1L && is.null(param)) {
+  if (length(value_code) == 1L && (is.null(param) || nchar(param) == 0)) {
     # single value, no parameter name
     return(value_code)
   } else if (length(value_code) == 1L && !is.null(param)) {
@@ -662,7 +694,7 @@ iso_turn_reader_caching_on()",
 
 # rmarkdown chunk ----
 chunk =
-"```{r ${isoviewer:::chunk_options(chunk_options)}}
+"```{r${isoviewer:::chunk_options(chunk_options)}}
 ${content}
 ```",
 
@@ -692,20 +724,6 @@ install_github =
   # fill template
   if(!id %in% names(templates)) stop("missing template: ", id, call. = FALSE)
   stringr::str_interp(templates[id], list(...))
-}
-
-# function to assemble chunk options
-chunk_options <- function (options) {
-  if (length(options) == 0) return("")
-  values <- options %>% sapply(function(i) {
-    if (is.character(i)) paste0("\"",i,"\"")
-    else paste0(i)
-  })
-  if (length(values) == 1)
-    return(values[[1]])
-  else
-    c(values[[1]], tail(values, -1) %>% { paste0(names(.), "=", unlist(.)) }) %>%
-    paste(collapse = ", ")
 }
 
 

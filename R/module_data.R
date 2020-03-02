@@ -62,7 +62,7 @@ module_data_server <- function(input, output, session, settings,
     shinyjs::hide("div")
     shinyjs::hide("no_data")
     if (!is.null(get_selected_variable()) && !is.na(get_selected_variable())) {
-      selected_tab <- settings$get(ns(paste0("tabs-", get_selected_variable())), default = "plot")
+      selected_tab <- settings$get(ns(paste0("tabs-", get_selected_variable())), default = "file_info")
       module_message(ns, "info", sprintf("DATA loading screen for variable '%s' on tab '%s'",
                                          get_selected_variable(), selected_tab))
       updateTabsetPanel(session, "tabs", selected = selected_tab)

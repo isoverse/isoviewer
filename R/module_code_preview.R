@@ -71,7 +71,7 @@ code_preview_server <- function(input, output, session, settings, code_func_reac
 
   # values
   values <- reactiveValues(
-    rmarkdown_view = FALSE
+    rmarkdown_view = settings$get("rmarkdown_view", ns, default = FALSE)
   )
 
   # update code preview
@@ -95,6 +95,7 @@ code_preview_server <- function(input, output, session, settings, code_func_reac
   observeEvent(input$code_as_markdown, {
     values$rmarkdown_view <- !values$rmarkdown_view
     module_message(ns, "debug", "switching rmarkdown view ", if (values$rmarkdown_view) "on" else "off")
+    settings$set("rmarkdown_view", values$rmarkdown_view, ns)
   })
 
   # update code whenever code_func changes
