@@ -7,7 +7,8 @@ module_data_server <- function(input, output, session, settings,
                                iso_objects = list(),
                                get_selected_variable,
                                data_type = c("continuous_flow", "dual_inlet", "scan"),
-                               get_code_update = reactive({ function(rmarkdown) {""} })) {
+                               get_code_update = reactive({ function(rmarkdown) {""} }),
+                               default_tab = "plot") {
 
   # TODO: implement code jumping
   # # code jumping
@@ -62,7 +63,7 @@ module_data_server <- function(input, output, session, settings,
     shinyjs::hide("div")
     shinyjs::hide("no_data")
     if (!is.null(get_selected_variable()) && !is.na(get_selected_variable())) {
-      selected_tab <- settings$get(ns(paste0("tabs-", get_selected_variable())), default = "file_info")
+      selected_tab <- settings$get(ns(paste0("tabs-", get_selected_variable())), default = default_tab)
       module_message(ns, "info", sprintf("DATA loading screen for variable '%s' on tab '%s'",
                                          get_selected_variable(), selected_tab))
       updateTabsetPanel(session, "tabs", selected = selected_tab)
