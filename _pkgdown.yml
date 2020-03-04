@@ -30,6 +30,7 @@ reference:
   desc: ~
   contents:
   - '`iso_start_viewer`'
+  - '`iso_start_viewer_server`'
   - '`iso_find_objects`'
 - title: Under the hood
   desc: >
