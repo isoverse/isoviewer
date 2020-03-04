@@ -7,8 +7,13 @@
 #'
 #' @param iso_objects which iso objects to make accessible in the GUI. By default searches through the current workspace and makes all iso objects it can find available. If a single variable is provided (rather than a named list), launches the GUI only for that variable (no others are accessible).
 #' @param log whether to show log info messages or not. By default, shows logs when running in server mode (\code{iso_start_viewer_server}) and does not show them otherwise.
+#' @param reset whether to reset the viewer settings and memory back to their defaults. Usually only necessary if your viewer crashed unexpectedly and gets stuck during restart. Please consider reporting the details of the crash at https://github.com/isoverse/isoviewer/issues, especially if you can easily reproduce it.
 #' @export
-iso_start_viewer <- function(iso_objects = iso_find_objects(), log = FALSE) {
+iso_start_viewer <- function(iso_objects = iso_find_objects(), log = FALSE, reset = FALSE) {
+  # check for reset
+  if (reset) assign(".isoviewer_gui_settings", NULL, env = .GlobalEnv)
+
+  # launch viewer
   start_viewer(
     iso_objects = iso_objects,
     local = TRUE, launch = TRUE, log = log
