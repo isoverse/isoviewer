@@ -1,25 +1,46 @@
-# NOTE: consider implementing this
-# iso_start_single_viewer(iso_object)
-
-#' Start the isoviewer graphical user interface
+# TODO: the single file direct mode still need implementing! (i.e. if iso_objects points a single variable)
+#' Start isoviewer GUI
 #'
-#' Searches for all iso file objects in the workspace and provides a graphical interface to exlore the data stored in them.
+#' Provides a graphical user interface to explore continuous flow, dual inlet and scan isofile objects. Note that while the GUI is running, your R session will be blocked. To stop the GUI and return to your R session, either click the \code{Close} button inside the GUI navigation bar (if running it in non-server mode) or press \code{Esc} in your R session.
 #'
-#' @inheritParams viewer_server
-#' @param log whether to show log info messages or not (by default only if running as server application, i.e. non-local)
-#' @param runApp_params passed on to the \code{\link[shiny]{runApp}} call. Common parameters to specify include \code{port} and \code{launch.browser}. Only relevant if \code{local = TRUE}.
+#' @details \code{iso_start_viewer} starts a simple personal GUI that is only accessible on the computer it is running on.
+#'
+#' @param iso_objects which iso objects to make accessible in the GUI. By default searches through the current workspace and makes all iso objects it can find available. If a single variable is provided (rather than a named list), launches the GUI only for that variable (no others are accessible).
+#' @param log whether to show log info messages or not. By default, shows logs when running in server mode (\code{iso_start_viewer_server}) and does not show them otherwise.
 #' @export
-iso_start_viewer <- function(
-  iso_objects = iso_find_objects(),
-  local = TRUE,
-  log = !local,
-  runApp_params = list()) {
+iso_start_viewer <- function(iso_objects = iso_find_objects(), log = FALSE) {
+  start_viewer(
+    iso_objects = iso_objects,
+    local = TRUE, launch = TRUE, log = log
+  )
+}
+
+#' @rdname iso_start_viewer
+#' @details \code{iso_start_viewer_server} starts a server for GUI. If running it from an R session on a normal computer, it will be available in the local network at the computer's IP address, port 3838. For example, if you run it on your computer and your IP address is 192.168.0.42, other computers on your network can launch your GUI by pointing a browser at http://192.168.0.4:3838 (note that if your firewall or local network blocks port 3838, this will not be possible). If running on a shinyapps server such as shinyapps.io instead, you have to set \code{launch = FALSE} because the shinyapps server takes care of launching the app on demand.
+#'
+#' @param launch whether to launch the shiny server immediately (if starting the server from a local R instance) or only on request (if running on a server such as shinyApps.io).
+#' @export
+iso_start_viewer_server <- function(iso_objects = iso_find_objects(), launch = TRUE, log = TRUE) {
+  start_viewer(
+    iso_objects = iso_objects,
+    local = FALSE, launch = launch, log = log,
+    launch.browser = FALSE, host = "0.0.0.0", port = 3838
+  )
+}
+
+# iso viewer start function
+# @param ... parameters passed on to runApp
+start_viewer <- function(iso_objects = iso_find_objects(), local, launch, log, ...) {
 
   # check for knitting
   if (isTRUE(getOption('knitr.in.progress'))) {
     warning("cannot launch the isoviewer graphical user interface during knitting. If you would like to keep a call to iso_start_viewer() in your RMarkdown file and avoid this warning, make sure to set ```{r, eval = FALSE} in the options for this code chunk.", call. = FALSE, immediate. = TRUE)
     return(invisible(NULL))
   }
+
+  stopifnot(!missing(local))
+  stopifnot(!missing(launch))
+  stopifnot(!missing(log))
 
   # log messages
   if (log) turn_log_on()
@@ -38,9 +59,8 @@ iso_start_viewer <- function(
   )
 
   # launch if local
-  if (local) {
-    args <- list(app, display.mode = "normal") %>% modifyList(runApp_params)
-    do.call(runApp, args = args)
+  if (launch) {
+    runApp(app, display.mode = "normal", ...)
   } else {
     return(app)
   }

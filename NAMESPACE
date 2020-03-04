@@ -3,6 +3,7 @@
 export("%>%")
 export(iso_find_objects)
 export(iso_start_viewer)
+export(iso_start_viewer_server)
 import(ggplot2)
 import(shiny)
 import(shinydashboard)
