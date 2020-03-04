@@ -2,24 +2,31 @@
 % Please edit documentation in R/run.R
 \name{iso_start_viewer}
 \alias{iso_start_viewer}
-\title{Start the isoviewer graphical user interface}
+\alias{iso_start_viewer_server}
+\title{Start isoviewer GUI}
 \usage{
-iso_start_viewer(
+iso_start_viewer(iso_objects = iso_find_objects(), log = FALSE, reset = FALSE)
+
+iso_start_viewer_server(
   iso_objects = iso_find_objects(),
-  local = TRUE,
-  log = !local,
-  runApp_params = list()
+  launch = TRUE,
+  log = TRUE
 )
 }
 \arguments{
-\item{iso_objects}{named list of iso file objects to make available in the viewer}
+\item{iso_objects}{which iso objects to make accessible in the GUI. By default searches through the current workspace and makes all iso objects it can find available. If a single variable is provided (rather than a named list), launches the GUI only for that variable (no others are accessible).}
 
-\item{local}{whether running locally or as a server application (e.g. on shinyapps.io)}
+\item{log}{whether to show log info messages or not. By default, shows logs when running in server mode (\code{iso_start_viewer_server}) and does not show them otherwise.}
 
-\item{log}{whether to show log info messages or not (by default only if running as server application, i.e. non-local)}
+\item{reset}{whether to reset the viewer settings and memory back to their defaults. Usually only necessary if your viewer crashed unexpectedly and gets stuck during restart. Please consider reporting the details of the crash at https://github.com/isoverse/isoviewer/issues, especially if you can easily reproduce it.}
 
-\item{runApp_params}{passed on to the \code{\link[shiny]{runApp}} call. Common parameters to specify include \code{port} and \code{launch.browser}. Only relevant if \code{local = TRUE}.}
+\item{launch}{whether to launch the shiny server immediately (if starting the server from a local R instance) or only on request (if running on a server such as shinyApps.io).}
 }
 \description{
-Searches for all iso file objects in the workspace and provides a graphical interface to exlore the data stored in them.
+Provides a graphical user interface to explore continuous flow, dual inlet and scan isofile objects. Note that while the GUI is running, your R session will be blocked. To stop the GUI and return to your R session, either click the \code{Close} button inside the GUI navigation bar (if running it in non-server mode) or press \code{Esc} in your R session.
+}
+\details{
+\code{iso_start_viewer} starts a simple personal GUI that is only accessible on the computer it is running on.
+
+\code{iso_start_viewer_server} starts a server for GUI. If running it from an R session on a normal computer, it will be available in the local network at the computer's IP address, port 3838. For example, if you run it on your computer and your IP address is 192.168.0.42, other computers on your network can launch your GUI by pointing a browser at http://192.168.0.4:3838 (note that if your firewall or local network blocks port 3838, this will not be possible). If running on a shinyapps server such as shinyapps.io instead, you have to set \code{launch = FALSE} because the shinyapps server takes care of launching the app on demand.
 }

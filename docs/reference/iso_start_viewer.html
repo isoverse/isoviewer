@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Start the isoviewer graphical user interface — iso_start_viewer • Isoviewer</title>
+<title>Start isoviewer GUI — iso_start_viewer • Isoviewer</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Start the isoviewer graphical user interface — iso_start_viewer" />
-<meta property="og:description" content="Searches for all iso file objects in the workspace and provides a graphical interface to exlore the data stored in them." />
+<meta property="og:title" content="Start isoviewer GUI — iso_start_viewer" />
+<meta property="og:description" content="Provides a graphical user interface to explore continuous flow, dual inlet and scan isofile objects. Note that while the GUI is running, your R session will be blocked. To stop the GUI and return to your R session, either click the Close button inside the GUI navigation bar (if running it in non-server mode) or press Esc in your R session." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.2</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.3</span>
       </span>
     </div>
 
@@ -112,20 +112,21 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Start the isoviewer graphical user interface</h1>
+    <h1>Start isoviewer GUI</h1>
     <small class="dont-index">Source: <a href='https://github.com/isoverse/isoviewer/blob/master/R/run.R'><code>R/run.R</code></a></small>
     <div class="hidden name"><code>iso_start_viewer.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Searches for all iso file objects in the workspace and provides a graphical interface to exlore the data stored in them.</p>
+    <p>Provides a graphical user interface to explore continuous flow, dual inlet and scan isofile objects. Note that while the GUI is running, your R session will be blocked. To stop the GUI and return to your R session, either click the <code>Close</code> button inside the GUI navigation bar (if running it in non-server mode) or press <code>Esc</code> in your R session.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>iso_start_viewer</span>(
+    <pre class="usage"><span class='fu'>iso_start_viewer</span>(<span class='kw'>iso_objects</span> <span class='kw'>=</span> <span class='fu'><a href='iso_find_objects.html'>iso_find_objects</a></span>(), <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>reset</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>iso_start_viewer_server</span>(
   <span class='kw'>iso_objects</span> <span class='kw'>=</span> <span class='fu'><a href='iso_find_objects.html'>iso_find_objects</a></span>(),
-  <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>log</span> <span class='kw'>=</span> !<span class='no'>local</span>,
-  <span class='kw'>runApp_params</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>()
+  <span class='kw'>launch</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>log</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -133,28 +134,33 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>iso_objects</th>
-      <td><p>named list of iso file objects to make available in the viewer</p></td>
-    </tr>
-    <tr>
-      <th>local</th>
-      <td><p>whether running locally or as a server application (e.g. on shinyapps.io)</p></td>
+      <td><p>which iso objects to make accessible in the GUI. By default searches through the current workspace and makes all iso objects it can find available. If a single variable is provided (rather than a named list), launches the GUI only for that variable (no others are accessible).</p></td>
     </tr>
     <tr>
       <th>log</th>
-      <td><p>whether to show log info messages or not (by default only if running as server application, i.e. non-local)</p></td>
+      <td><p>whether to show log info messages or not. By default, shows logs when running in server mode (<code>iso_start_viewer_server</code>) and does not show them otherwise.</p></td>
     </tr>
     <tr>
-      <th>runApp_params</th>
-      <td><p>passed on to the <code><a href='https://rdrr.io/pkg/shiny/man/runApp.html'>runApp</a></code> call. Common parameters to specify include <code>port</code> and <code>launch.browser</code>. Only relevant if <code>local = TRUE</code>.</p></td>
+      <th>reset</th>
+      <td><p>whether to reset the viewer settings and memory back to their defaults. Usually only necessary if your viewer crashed unexpectedly and gets stuck during restart. Please consider reporting the details of the crash at https://github.com/isoverse/isoviewer/issues, especially if you can easily reproduce it.</p></td>
+    </tr>
+    <tr>
+      <th>launch</th>
+      <td><p>whether to launch the shiny server immediately (if starting the server from a local R instance) or only on request (if running on a server such as shinyApps.io).</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>iso_start_viewer</code> starts a simple personal GUI that is only accessible on the computer it is running on.</p>
+<p><code>iso_start_viewer_server</code> starts a server for GUI. If running it from an R session on a normal computer, it will be available in the local network at the computer's IP address, port 3838. For example, if you run it on your computer and your IP address is 192.168.0.42, other computers on your network can launch your GUI by pointing a browser at http://192.168.0.4:3838 (note that if your firewall or local network blocks port 3838, this will not be possible). If running on a shinyapps server such as shinyapps.io instead, you have to set <code>launch = FALSE</code> because the shinyapps server takes care of launching the app on demand.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

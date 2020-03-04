@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.2</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.3</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p><a href="https://kopflab.github.io/isoviewer/">isoviewer</a> is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed easily from GitHub using the <code>devtools</code> package:</p>
+<p><a href="https://kopflab.github.io/isoviewer/">isoviewer</a> is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed from GitHub using the <code>devtools</code> package:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>) <span class="co"># only needed if you don't have this installed yet</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"isoverse/isoreader"</span>)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"isoverse/isoprocessor"</span>)</a>
@@ -92,9 +92,33 @@
 <div id="using-the-user-interface" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-the-user-interface" class="anchor"></a>Using the User Interface</h2>
-<p>Once isoviewer is installed, you can easily launch the user interface on your local machine by using the <code><a href="reference/iso_start_viewer.html">iso_start_viewer()</a></code> function which will search for all iso file objects in your workspace and make them accessible through the graphical interface.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(isoviewer)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/iso_start_viewer.html">iso_start_viewer</a></span>()</a></code></pre></div>
+<p>Once isoviewer is installed, you can launch the user interface on your local machine by using the <code><a href="reference/iso_start_viewer.html">iso_start_viewer()</a></code> function which will search for all iso file objects in your workspace and make them accessible through the graphical interface.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer</a></span>()</a></code></pre></div>
+<p>Troubleshooting: if you run into any issues with the viewer crashing unexpectedly and getting stuck during restart. Try resetting it with <code><a href="reference/iso_start_viewer.html">isoviewer::iso_start_viewer(reset = TRUE)</a></code>. Also, please consider reporting the details of the crash at <a href="https://github.com/isoverse/isoviewer/issues" class="uri">https://github.com/isoverse/isoviewer/issues</a>.</p>
+</div>
+<div id="running-a-local-server" class="section level2">
+<h2 class="hasAnchor">
+<a href="#running-a-local-server" class="anchor"></a>Running a local server</h2>
+<p>To run a local isoviewer server to which other users on your network can connect, simply use the <code><a href="reference/iso_start_viewer.html">iso_start_viewer_server()</a></code> server function and direct others to your IP address, port 3838 (for example 192.168.0.42:3838). Note that this won’t work if your firewall or local network block port 3838. Keep the R session open as long as you want to run the server and stop by it by pressing <code>Esc</code> or closing your R/RStudio session.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer_server</a></span>()</a></code></pre></div>
+</div>
+<div id="running-a-web-server" class="section level2">
+<h2 class="hasAnchor">
+<a href="#running-a-web-server" class="anchor"></a>Running a web server</h2>
+<p>To run a web server with your isofiles (e.g. on <a href="https://www.shinyapps.io/">www.shinyapps.io</a>), create a new R project folder with a script file called <code>app.R</code> at the top level (= working directory) of the project. In this file, add the following code and adjust which iso objects to make available in the viewer GUI. Note that for your app to launch quickly when a user connects, it is higly recommended to load only <code>.rds</code> collections of iso files (i.e. save your iso objects via <a href="https://isoreader.isoverse.org/reference/iso_save.html">isoreader’s <code><a href="https://rdrr.io/pkg/isoreader/man/iso_save.html">iso_save()</a></code></a> function and then load them from there for your isoviewer server). To test the server, launch it on your own computer by running <code><a href="https://rdrr.io/pkg/shiny/man/runApp.html">shiny::runApp()</a></code> from the R console in your project. To deploy this app e.g. to <a href="https://www.shinyapps.io/">www.shinyapps.io</a>, follow <a href="https://shiny.rstudio.com/articles/shinyapps.html">their instructions</a> to get your <code>rsconnect</code> credentials set up and then simply run <code><a href="https://rdrr.io/pkg/rsconnect/man/deployApp.html">rsconnect::deployApp()</a></code> from the R console in your project. Note that the <a href="https://www.bioconductor.org/">bioconductor</a> packages used by isoreader sometimes cause trouble during the upload, in which case you may have to explicitly re-install them before deploying your app (e.g. by using <code><a href="https://rdrr.io/pkg/BiocManager/man/install.html">BiocManager::install()</a></code>) and setting the bioconductor repositories using <code><a href="https://rdrr.io/r/base/options.html">options(repos = BiocManager::repositories())</a></code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># start isoviewer server</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(isoreader)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer_server</a></span>(</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="co"># provide a list of objects to make accessible</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="dt">iso_objects =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">    <span class="dt">di_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_dual_inlet.html">iso_read_dual_inlet</a></span>(<span class="st">"di_example.di.rds"</span>),</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="dt">cf_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_continuous_flow.html">iso_read_continuous_flow</a></span>(<span class="st">"cf_example.cf.rds"</span>),</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="dt">scan_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_scan.html">iso_read_scan</a></span>(<span class="st">"scan_example.scan.rds"</span>)</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  ),</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">  <span class="co"># make sure it doesn't launch on its own</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">  <span class="dt">launch =</span> <span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">)</a></code></pre></div>
+<p>This code example is actually the one available as the online demo below.</p>
 </div>
 </div>
 <div id="online-demo" class="section level1">
@@ -144,7 +168,7 @@
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://cran.r-project.org/package=isoviewer"><img src="http://www.r-pkg.org/badges/version/isoviewer" alt="CRAN_Status_Badge"></a></li>
-<li><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.8.1-orange.svg?style=flat-square" alt="Git_Hub_Version"></a></li>
+<li><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.8.3-orange.svg?style=flat-square" alt="Git_Hub_Version"></a></li>
 <li><a href="https://isoviewer.isoverse.org"><img src="https://img.shields.io/badge/docs-online-green.svg" alt="Documentation"></a></li>
 </ul>
 </div>
