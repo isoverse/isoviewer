@@ -5,7 +5,7 @@
 \alias{iso_start_viewer_server}
 \title{Start isoviewer GUI}
 \usage{
-iso_start_viewer(iso_objects = iso_find_objects(), log = FALSE)
+iso_start_viewer(iso_objects = iso_find_objects(), log = FALSE, reset = FALSE)
 
 iso_start_viewer_server(
   iso_objects = iso_find_objects(),
@@ -17,6 +17,8 @@ iso_start_viewer_server(
 \item{iso_objects}{which iso objects to make accessible in the GUI. By default searches through the current workspace and makes all iso objects it can find available. If a single variable is provided (rather than a named list), launches the GUI only for that variable (no others are accessible).}
 
 \item{log}{whether to show log info messages or not. By default, shows logs when running in server mode (\code{iso_start_viewer_server}) and does not show them otherwise.}
+
+\item{reset}{whether to reset the viewer settings and memory back to their defaults. Usually only necessary if your viewer crashed unexpectedly and gets stuck during restart. Please consider reporting the details of the crash at https://github.com/isoverse/isoviewer/issues, especially if you can easily reproduce it.}
 
 \item{launch}{whether to launch the shiny server immediately (if starting the server from a local R instance) or only on request (if running on a server such as shinyApps.io).}
 }

@@ -30,8 +30,8 @@ applications.
 
 [isoviewer](https://kopflab.github.io/isoviewer/) is still in
 development and not yet available on the Comprehensive R Archive Network
-(CRAN) but it and its dependencies can be installed easily from GitHub
-using the `devtools`
+(CRAN) but it and its dependencies can be installed from GitHub using
+the `devtools`
 package:
 
 ``` r
@@ -43,14 +43,20 @@ devtools::install_github("isoverse/isoviewer")
 
 ## Using the User Interface
 
-Once isoviewer is installed, you can easily launch the user interface on
-your local machine by using the `iso_start_viewer()` function which will
+Once isoviewer is installed, you can launch the user interface on your
+local machine by using the `iso_start_viewer()` function which will
 search for all iso file objects in your workspace and make them
 accessible through the graphical interface.
 
 ``` r
 isoviewer::iso_start_viewer()
 ```
+
+Troubleshooting: if you run into any issues with the viewer crashing
+unexpectedly and getting stuck during restart. Try resetting it with
+`isoviewer::iso_start_viewer(reset = TRUE)`. Also, please consider
+reporting the details of the crash at
+<https://github.com/isoverse/isoviewer/issues>.
 
 ## Running a local server
 
@@ -79,7 +85,16 @@ iso objects via [isoreader’s
 `iso_save()`](https://isoreader.isoverse.org/reference/iso_save.html)
 function and then load them from there for your isoviewer server). To
 test the server, launch it on your own computer by running
-`shiny::runApp()` from the R console in your project.
+`shiny::runApp()` from the R console in your project. To deploy this app
+e.g. to [www.shinyapps.io](https://www.shinyapps.io/), follow [their
+instructions](https://shiny.rstudio.com/articles/shinyapps.html) to get
+your `rsconnect` credentials set up and then simply run
+`rsconnect::deployApp()` from the R console in your project. Note that
+the [bioconductor](https://www.bioconductor.org/) packages used by
+isoreader sometimes cause trouble during the upload, in which case you
+may have to explicitly re-install them before deploying your app
+(e.g. by using `BiocManager::install()`) and setting the bioconductor
+repositories using `options(repos = BiocManager::repositories())`.
 
 ``` r
 # start isoviewer server
@@ -91,6 +106,7 @@ isoviewer::iso_start_viewer_server(
     cf_example = iso_read_continuous_flow("cf_example.cf.rds"),
     scan_example = iso_read_scan("scan_example.scan.rds")
   ),
+  # make sure it doesn't launch on its own
   launch = FALSE
 )
 ```
