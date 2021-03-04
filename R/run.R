@@ -15,7 +15,7 @@ iso_start_viewer <- function(iso_objects = iso_find_objects(), log = FALSE, rese
 
   # launch viewer
   start_viewer(
-    iso_objects = iso_objects,
+    iso_objects = !!rlang::enquo(iso_objects),
     local = TRUE, launch = TRUE, log = log
   )
 }
@@ -27,7 +27,7 @@ iso_start_viewer <- function(iso_objects = iso_find_objects(), log = FALSE, rese
 #' @export
 iso_start_viewer_server <- function(iso_objects = iso_find_objects(), launch = TRUE, log = TRUE) {
   start_viewer(
-    iso_objects = iso_objects,
+    iso_objects = !!rlang::enquo(iso_objects),
     local = FALSE, launch = launch, log = log,
     launch.browser = FALSE, host = "0.0.0.0", port = 3838
   )
@@ -53,6 +53,17 @@ start_viewer <- function(iso_objects = iso_find_objects(), local, launch, log, .
 
   # make sure shinyBS on attach runs
   shinyBS:::.onAttach()
+
+  # iso objects
+  iso_objects_quo <- rlang::enquo(iso_objects)
+  iso_objects_text <- rlang::as_label(iso_objects_quo)
+  iso_objects <- rlang::eval_tidy(iso_objects_quo)
+
+  if (isoreader::iso_is_object(iso_objects))
+    iso_objects <- rlang::set_names(list(iso_objects), iso_objects_text)
+
+  if (length(iso_objects) > 0 && !is.list(iso_objects) && !all(purrr::map_lgl(iso_objects, iso_is_object)))
+    stop("must provide a single iso file, iso file list or list of iso file objects for the iso_objects parameter", call. = FALSE)
 
   # generate app
   app <- shinyApp(
