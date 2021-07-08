@@ -1,6 +1,8 @@
 # general utilites for modules ====
 
-`%then%` <- shiny:::`%OR%`
+`%then%` <- function(a, b) {
+  if (is.null(a)) b else a
+}
 
 # # generate content hash
 # generate_content_hash <- function(x) {

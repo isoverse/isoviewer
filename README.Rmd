@@ -33,8 +33,8 @@ The second purpose is to provide an example for a web-based IRMS data repository
 [isoviewer](https://kopflab.github.io/isoviewer/) is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed from GitHub using the `devtools` package:
 
 ```{r gh-installation, eval = FALSE}
-install.packages("devtools") # only needed if you don't have this installed yet
-devtools::install_github("isoverse/isoreader")
+# installs the development tools package if not yet installed
+if(!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 devtools::install_github("isoverse/isoprocessor")
 devtools::install_github("isoverse/isoviewer")
 ```

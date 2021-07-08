@@ -4,7 +4,7 @@
 # isoviewer <a href='http://isoviewer.isoverse.org'><img src='man/figures/isoviewer_logo_thumb.png' align="right" height="138.5"/></a>
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
-[![Git\_Hub\_Version](https://img.shields.io/badge/GitHub-0.8.3-orange.svg?style=flat-square)](/commits)
+[![Git\_Hub\_Version](https://img.shields.io/badge/GitHub-0.8.4-orange.svg?style=flat-square)](/commits)
 [![Documentation](https://img.shields.io/badge/docs-online-green.svg)](https://isoviewer.isoverse.org)
 
 ## About
@@ -31,12 +31,11 @@ applications.
 [isoviewer](https://kopflab.github.io/isoviewer/) is still in
 development and not yet available on the Comprehensive R Archive Network
 (CRAN) but it and its dependencies can be installed from GitHub using
-the `devtools`
-package:
+the `devtools` package:
 
 ``` r
-install.packages("devtools") # only needed if you don't have this installed yet
-devtools::install_github("isoverse/isoreader")
+# installs the development tools package if not yet installed
+if(!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 devtools::install_github("isoverse/isoprocessor")
 devtools::install_github("isoverse/isoviewer")
 ```
@@ -124,8 +123,7 @@ computational resources (i.e. could be slow).
 
 [isoviewer](http://isoviewer.isoverse.org/) is and will always be fully
 open-source (i.e. free as in ‘freedom’ and free as in ‘free beer’) and
-is provided as is. The source code is released under
-GPL-2.
+is provided as is. The source code is released under GPL-2.
 
 ## isoverse <a href='http://www.isoverse.org'><img src='man/figures/isoverse_logo_thumb.png' align="right" height="138.5"/></a>
 
