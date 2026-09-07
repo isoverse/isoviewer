@@ -22,6 +22,8 @@ version <- as.character(packageVersion("isoviewer"))
 
 ## About
 
+## This R package is slated for deprecation in early 2027, please check out isoviewer's successor at [isoexplorer.isoverse.org](https://isoexplorer.isoverse.org/), which already implements most of the features available in isoviewer.
+
 The [isoviewer](https://isoviewer.isoverse.org) graphical user interface (GUI) provided by this package is based on the functionlity implemented by the [isoreader](https://isoreader.isoverse.org) and [isoprocessor](https://isoprocessor.isoverse.org) packages The purpose of the GUI is two fold.
 
 First and foremost, it is a learning tool to illustrate how to build literate RMarkdown data processing files for IRMS data using the underlying isoreader package as a unified interface for reading, converting and quickly visualizing various raw IRMS data file formats. 
@@ -34,7 +36,9 @@ The second purpose is to provide an example for a web-based IRMS data repository
 
 ```{r gh-installation, eval = FALSE}
 # installs the development tools package if not yet installed
-if(!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
 devtools::install_github("isoverse/isoprocessor")
 devtools::install_github("isoverse/isoviewer")
 ```
