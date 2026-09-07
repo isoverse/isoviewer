@@ -3,11 +3,13 @@
 
 # isoviewer <a href='http://isoviewer.isoverse.org'><img src='man/figures/isoviewer_logo_thumb.png' align="right" height="138.5"/></a>
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
-[![Git\_Hub\_Version](https://img.shields.io/badge/GitHub-0.8.4-orange.svg?style=flat-square)](/commits)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/isoviewer)](https://cran.r-project.org/package=isoviewer)
+[![Git_Hub_Version](https://img.shields.io/badge/GitHub-0.9.0-orange.svg?style=flat-square)](/commits)
 [![Documentation](https://img.shields.io/badge/docs-online-green.svg)](https://isoviewer.isoverse.org)
 
 ## About
+
+## This R package is slated for deprecation in early 2027, please check out isoviewer’s successor at [isoexplorer.isoverse.org](https://isoexplorer.isoverse.org/), which already implements most of the features available in isoviewer.
 
 The [isoviewer](https://isoviewer.isoverse.org) graphical user interface
 (GUI) provided by this package is based on the functionlity implemented
@@ -35,7 +37,9 @@ the `devtools` package:
 
 ``` r
 # installs the development tools package if not yet installed
-if(!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
 devtools::install_github("isoverse/isoprocessor")
 devtools::install_github("isoverse/isoviewer")
 ```
