@@ -1,225 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>http://isoviewer.isoverse.org/index.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/code_preview_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/code_preview_shinyjs_extension.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/code_preview_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_download_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_file_info_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_file_info_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_file_info_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_resistors_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_resistors_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_resistors_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_standards_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_standards_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_standards_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_column_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/function_plot_param_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/function_plot_param_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/iso_find_objects.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/iso_start_viewer.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/isoviewer-package.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_cf_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_cf_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_di_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_di_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_scan_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_scan_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_data_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_file_selector_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_file_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_info_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_info_settings_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_info_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_info_variables_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_info_welcome_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_navbar_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_navbar_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/module_settings_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_cf_data_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_cf_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_cf_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_di_data_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_di_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_di_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_font_size_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_height_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_legend_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_scan_data_selector_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_scan_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_scan_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/plot_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/problems_button.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/problems_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/reexports.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/selector_table_buttons_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/selector_table_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/selector_table_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/trace_selector_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/trace_selector_table_buttons_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/trace_selector_table_ui.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/viewer_server.html</loc>
-  </url>
-  <url>
-    <loc>http://isoviewer.isoverse.org/reference/viewer_ui.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://isoviewer.isoverse.org/404.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/LICENSE-text.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/authors.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/index.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/code_preview_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/code_preview_shinyjs_extension.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/code_preview_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_download_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_file_info_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_file_info_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_file_info_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_peak_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_raw_data_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_resistors_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_resistors_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_resistors_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_standards_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_standards_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_standards_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_column_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/data_table_vendor_data_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/function_plot_param_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/function_plot_param_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/index.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/iso_find_objects.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/iso_start_viewer.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/isoviewer-package.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/method_info_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/method_info_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/method_info_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_cf_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_cf_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_di_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_di_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_scan_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_scan_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_data_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_file_selector_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_file_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_info_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_info_settings_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_info_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_info_variables_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_info_welcome_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_navbar_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_navbar_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/module_settings_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_cf_data_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_cf_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_cf_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_di_data_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_di_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_di_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_font_size_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_height_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_legend_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_scan_data_selector_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_scan_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_scan_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/plot_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/problems_button.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/problems_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/reexports.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/selector_table_buttons_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/selector_table_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/selector_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/trace_selector_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/trace_selector_table_buttons_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/trace_selector_table_ui.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/viewer_server.html</loc></url>
+<url><loc>http://isoviewer.isoverse.org/reference/viewer_ui.html</loc></url>
 </urlset>
+

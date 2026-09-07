@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Visualize IRMS data • Isoviewer</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/simplex/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/simplex/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
+<script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Visualize IRMS data">
 <meta property="og:description" content="Graphical user interface components for exploring isotope data.">
-<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -24,7 +24,9 @@
   gtag('config', 'UA-106138361-5');
 </script>
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
+
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -37,14 +39,14 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Isoviewer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="early development">0.8.3</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="Unreleased version">0.9.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="https://kopflab.shinyapps.io/isoviewer_demo/">Demo</a>
+  <a href="https://kopflab.shinyapps.io/isoviewer_demo/" class="external-link">Demo</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
@@ -52,9 +54,9 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/isoverse/isoviewer">
+  <a href="https://github.com/isoverse/isoviewer" class="external-link">
     <span class="fa fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -65,74 +67,84 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="isoviewer" class="section level1">
+<div class="section level1">
 
-
-<div id="about" class="section level2">
-<h2 class="hasAnchor">
-<a href="#about" class="anchor"></a>About</h2>
-<p>The <a href="https://isoviewer.isoverse.org">isoviewer</a> graphical user interface (GUI) provided by this package is based on the functionlity implemented by the <a href="https://isoreader.isoverse.org">isoreader</a> and <a href="https://isoprocessor.isoverse.org">isoprocessor</a> packages The purpose of the GUI is two fold.</p>
+<p><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.9.0-orange.svg?style=flat-square" alt="Git_Hub_Version"></a> <a href="https://isoviewer.isoverse.org" class="external-link"><img src="https://img.shields.io/badge/docs-online-green.svg" alt="Documentation"></a></p>
+<div class="section level2">
+<h2 id="about">About<a class="anchor" aria-label="anchor" href="#about"></a>
+</h2>
+</div>
+<div class="section level2">
+<h2 id="this-r-package-is-slated-for-deprecation-in-early-2027-please-check-out-isoviewers-successor-at-isoexplorerisoverseorg-which-builds-on-the-new-isoreader2-and-already-implements-most-of-the-features-available-in-isoviewer">This R package is slated for deprecation in early 2027, please check out isoviewer’s successor at <a href="https://isoexplorer.isoverse.org/" class="external-link">isoexplorer.isoverse.org</a>, which builds on the new <a href="https://isoreader2.isoverse.org/" class="external-link">isoreader2</a> and already implements most of the features available in isoviewer.<a class="anchor" aria-label="anchor" href="#this-r-package-is-slated-for-deprecation-in-early-2027-please-check-out-isoviewers-successor-at-isoexplorerisoverseorg-which-builds-on-the-new-isoreader2-and-already-implements-most-of-the-features-available-in-isoviewer"></a>
+</h2>
+<p>The <a href="https://isoviewer.isoverse.org" class="external-link">isoviewer</a> graphical user interface (GUI) provided by this package is based on the functionlity implemented by the <a href="https://isoreader.isoverse.org" class="external-link">isoreader</a> and <a href="https://isoprocessor.isoverse.org" class="external-link">isoprocessor</a> packages The purpose of the GUI is two fold.</p>
 <p>First and foremost, it is a learning tool to illustrate how to build literate RMarkdown data processing files for IRMS data using the underlying isoreader package as a unified interface for reading, converting and quickly visualizing various raw IRMS data file formats.</p>
 <p>The second purpose is to provide an example for a web-based IRMS data repository that is easy to run on any computer/server completely platform-independent and open-source. The isoviewer package provides some rudimentary GUI modules that could be used in other more customized applications.</p>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p><a href="https://kopflab.github.io/isoviewer/">isoviewer</a> is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed from GitHub using the <code>devtools</code> package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>) <span class="co"># only needed if you don't have this installed yet</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"isoverse/isoreader"</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"isoverse/isoprocessor"</span>)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"isoverse/isoviewer"</span>)</a></code></pre></div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p><a href="https://kopflab.github.io/isoviewer/" class="external-link">isoviewer</a> is still in development and not yet available on the Comprehensive R Archive Network (CRAN) but it and its dependencies can be installed from GitHub using the <code>devtools</code> package:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># installs the development tools package if not yet installed</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"devtools"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"isoverse/isoprocessor"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"isoverse/isoviewer"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="using-the-user-interface" class="section level2">
-<h2 class="hasAnchor">
-<a href="#using-the-user-interface" class="anchor"></a>Using the User Interface</h2>
+<div class="section level2">
+<h2 id="using-the-user-interface">Using the User Interface<a class="anchor" aria-label="anchor" href="#using-the-user-interface"></a>
+</h2>
 <p>Once isoviewer is installed, you can launch the user interface on your local machine by using the <code><a href="reference/iso_start_viewer.html">iso_start_viewer()</a></code> function which will search for all iso file objects in your workspace and make them accessible through the graphical interface.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer</a></span>()</a></code></pre></div>
-<p>Troubleshooting: if you run into any issues with the viewer crashing unexpectedly and getting stuck during restart. Try resetting it with <code><a href="reference/iso_start_viewer.html">isoviewer::iso_start_viewer(reset = TRUE)</a></code>. Also, please consider reporting the details of the crash at <a href="https://github.com/isoverse/isoviewer/issues" class="uri">https://github.com/isoverse/isoviewer/issues</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">isoviewer</span><span class="fu">::</span><span class="fu"><a href="reference/iso_start_viewer.html">iso_start_viewer</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Troubleshooting: if you run into any issues with the viewer crashing unexpectedly and getting stuck during restart. Try resetting it with <code>isoviewer::iso_start_viewer(reset = TRUE)</code>. Also, please consider reporting the details of the crash at <a href="https://github.com/isoverse/isoviewer/issues" class="external-link uri">https://github.com/isoverse/isoviewer/issues</a>.</p>
 </div>
-<div id="running-a-local-server" class="section level2">
-<h2 class="hasAnchor">
-<a href="#running-a-local-server" class="anchor"></a>Running a local server</h2>
+<div class="section level2">
+<h2 id="running-a-local-server">Running a local server<a class="anchor" aria-label="anchor" href="#running-a-local-server"></a>
+</h2>
 <p>To run a local isoviewer server to which other users on your network can connect, simply use the <code><a href="reference/iso_start_viewer.html">iso_start_viewer_server()</a></code> server function and direct others to your IP address, port 3838 (for example 192.168.0.42:3838). Note that this won’t work if your firewall or local network block port 3838. Keep the R session open as long as you want to run the server and stop by it by pressing <code>Esc</code> or closing your R/RStudio session.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer_server</a></span>()</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">isoviewer</span><span class="fu">::</span><span class="fu"><a href="reference/iso_start_viewer.html">iso_start_viewer_server</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="running-a-web-server" class="section level2">
-<h2 class="hasAnchor">
-<a href="#running-a-web-server" class="anchor"></a>Running a web server</h2>
-<p>To run a web server with your isofiles (e.g. on <a href="https://www.shinyapps.io/">www.shinyapps.io</a>), create a new R project folder with a script file called <code>app.R</code> at the top level (= working directory) of the project. In this file, add the following code and adjust which iso objects to make available in the viewer GUI. Note that for your app to launch quickly when a user connects, it is higly recommended to load only <code>.rds</code> collections of iso files (i.e. save your iso objects via <a href="https://isoreader.isoverse.org/reference/iso_save.html">isoreader’s <code><a href="https://rdrr.io/pkg/isoreader/man/iso_save.html">iso_save()</a></code></a> function and then load them from there for your isoviewer server). To test the server, launch it on your own computer by running <code><a href="https://rdrr.io/pkg/shiny/man/runApp.html">shiny::runApp()</a></code> from the R console in your project. To deploy this app e.g. to <a href="https://www.shinyapps.io/">www.shinyapps.io</a>, follow <a href="https://shiny.rstudio.com/articles/shinyapps.html">their instructions</a> to get your <code>rsconnect</code> credentials set up and then simply run <code><a href="https://rdrr.io/pkg/rsconnect/man/deployApp.html">rsconnect::deployApp()</a></code> from the R console in your project. Note that the <a href="https://www.bioconductor.org/">bioconductor</a> packages used by isoreader sometimes cause trouble during the upload, in which case you may have to explicitly re-install them before deploying your app (e.g. by using <code><a href="https://rdrr.io/pkg/BiocManager/man/install.html">BiocManager::install()</a></code>) and setting the bioconductor repositories using <code><a href="https://rdrr.io/r/base/options.html">options(repos = BiocManager::repositories())</a></code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># start isoviewer server</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(isoreader)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">isoviewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/isoviewer/man/iso_start_viewer.html">iso_start_viewer_server</a></span>(</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="co"># provide a list of objects to make accessible</span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="dt">iso_objects =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">    <span class="dt">di_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_dual_inlet.html">iso_read_dual_inlet</a></span>(<span class="st">"di_example.di.rds"</span>),</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="dt">cf_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_continuous_flow.html">iso_read_continuous_flow</a></span>(<span class="st">"cf_example.cf.rds"</span>),</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="dt">scan_example =</span> <span class="kw"><a href="https://rdrr.io/pkg/isoreader/man/iso_read_scan.html">iso_read_scan</a></span>(<span class="st">"scan_example.scan.rds"</span>)</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">  ),</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">  <span class="co"># make sure it doesn't launch on its own</span></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">  <span class="dt">launch =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">)</a></code></pre></div>
+<div class="section level2">
+<h2 id="running-a-web-server">Running a web server<a class="anchor" aria-label="anchor" href="#running-a-web-server"></a>
+</h2>
+<p>To run a web server with your isofiles (e.g. on <a href="https://www.shinyapps.io/" class="external-link">www.shinyapps.io</a>), create a new R project folder with a script file called <code>app.R</code> at the top level (= working directory) of the project. In this file, add the following code and adjust which iso objects to make available in the viewer GUI. Note that for your app to launch quickly when a user connects, it is higly recommended to load only <code>.rds</code> collections of iso files (i.e. save your iso objects via <a href="https://isoreader.isoverse.org/reference/iso_save.html" class="external-link">isoreader’s <code>iso_save()</code></a> function and then load them from there for your isoviewer server). To test the server, launch it on your own computer by running <code><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">shiny::runApp()</a></code> from the R console in your project. To deploy this app e.g. to <a href="https://www.shinyapps.io/" class="external-link">www.shinyapps.io</a>, follow <a href="https://shiny.rstudio.com/articles/shinyapps.html" class="external-link">their instructions</a> to get your <code>rsconnect</code> credentials set up and then simply run <code><a href="https://rstudio.github.io/rsconnect/reference/deployApp.html" class="external-link">rsconnect::deployApp()</a></code> from the R console in your project. Note that the <a href="https://www.bioconductor.org/" class="external-link">bioconductor</a> packages used by isoreader sometimes cause trouble during the upload, in which case you may have to explicitly re-install them before deploying your app (e.g. by using <code><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">BiocManager::install()</a></code>) and setting the bioconductor repositories using <code>options(repos = BiocManager::repositories())</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># start isoviewer server</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://isoreader.isoverse.org" class="external-link">isoreader</a></span><span class="op">)</span></span>
+<span><span class="fu">isoviewer</span><span class="fu">::</span><span class="fu"><a href="reference/iso_start_viewer.html">iso_start_viewer_server</a></span><span class="op">(</span></span>
+<span>  <span class="co"># provide a list of objects to make accessible</span></span>
+<span>  iso_objects <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    di_example <span class="op">=</span> <span class="fu"><a href="http://isoreader.isoverse.org/reference/iso_read_dual_inlet.html" class="external-link">iso_read_dual_inlet</a></span><span class="op">(</span><span class="st">"di_example.di.rds"</span><span class="op">)</span>,</span>
+<span>    cf_example <span class="op">=</span> <span class="fu"><a href="http://isoreader.isoverse.org/reference/iso_read_continuous_flow.html" class="external-link">iso_read_continuous_flow</a></span><span class="op">(</span><span class="st">"cf_example.cf.rds"</span><span class="op">)</span>,</span>
+<span>    scan_example <span class="op">=</span> <span class="fu"><a href="http://isoreader.isoverse.org/reference/iso_read_scan.html" class="external-link">iso_read_scan</a></span><span class="op">(</span><span class="st">"scan_example.scan.rds"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="co"># make sure it doesn't launch on its own</span></span>
+<span>  launch <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This code example is actually the one available as the online demo below.</p>
 </div>
 </div>
-<div id="online-demo" class="section level1">
-<h1 class="hasAnchor">
-<a href="#online-demo" class="anchor"></a>Online Demo</h1>
-<p>An online demo of the isoviewer GUI is <a href="https://kopflab.shinyapps.io/isoviewer_demo/">available on our server</a> but has limited computational resources (i.e. could be slow).</p>
-<div id="open-source" class="section level2">
-<h2 class="hasAnchor">
-<a href="#open-source" class="anchor"></a>Open Source</h2>
+<div class="section level1">
+<h1 id="online-demo">Online Demo<a class="anchor" aria-label="anchor" href="#online-demo"></a>
+</h1>
+<p>An online demo of the isoviewer GUI is <a href="https://kopflab.shinyapps.io/isoviewer_demo/" class="external-link">available on our server</a> but has limited computational resources (i.e. could be slow).</p>
+<div class="section level2">
+<h2 id="open-source">Open Source<a class="anchor" aria-label="anchor" href="#open-source"></a>
+</h2>
 <p><a href="http://isoviewer.isoverse.org/">isoviewer</a> is and will always be fully open-source (i.e. free as in ‘freedom’ and free as in ‘free beer’) and is provided as is. The source code is released under GPL-2.</p>
 </div>
-<div id="isoverse" class="section level2">
-<h2 class="hasAnchor">
-<a href="#isoverse" class="anchor"></a>isoverse <a href="http://www.isoverse.org"><img src="reference/figures/isoverse_logo_thumb.png" align="right" height="138.5"></a>
+<div class="section level2">
+<h2 id="isoverse-">isoverse <a href="http://www.isoverse.org" class="external-link"><img src="reference/figures/isoverse_logo_thumb.png" align="right" height="138.5"></a>
+<a class="anchor" aria-label="anchor" href="#isoverse-"></a>
 </h2>
 <p>This package is part of the isoverse suite of data tools for stable isotopes.</p>
 </div>
@@ -140,54 +152,60 @@
 
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/isoverse/isoviewer">https://​github.com/​isoverse/​isoviewer</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/isoverse/isoviewer/issues">https://​github.com/​isoverse/​isoviewer/​issues</a>
-</li>
+<li><a href="https://github.com/isoverse/isoviewer/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/isoverse/isoviewer/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;= 2) | file <a href="LICENSE-text.html">LICENSE</a>
 </li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Sebastian Kopf <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="authors.html#citation">Citing isoviewer</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=isoviewer"><img src="http://www.r-pkg.org/badges/version/isoviewer" alt="CRAN_Status_Badge"></a></li>
-<li><a href="/commits"><img src="https://img.shields.io/badge/GitHub-0.8.3-orange.svg?style=flat-square" alt="Git_Hub_Version"></a></li>
-<li><a href="https://isoviewer.isoverse.org"><img src="https://img.shields.io/badge/docs-online-green.svg" alt="Documentation"></a></li>
+<li>Sebastian Kopf <br><small class="roles"> Author, maintainer </small>   </li>
 </ul>
 </div>
-</div>
+
+
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Sebastian Kopf.</p>
+  <p></p>
+<p>Developed by Sebastian Kopf.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
+
+
+
 
 
   </body>
